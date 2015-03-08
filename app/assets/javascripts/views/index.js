@@ -5,19 +5,13 @@ $(function(){
 function maintainActivenessFilter(){
 	$('.sort-button').on('click',function(){
 		
-		if($(this).hasClass('all')){
-			resetButtonGroup($(this).parent());
-		}
+		resetButtonGroup($(this).parent());
 		toggleButtonActive($(this));
 		numberActives=numberOfButtonGroupActive($(this).parent());
+		console.log(numberActives);
 		if(numberActives==0){
 			//if all inactive make all active
 			toggleButtonActive($(this).parent().find('.all'));
-		}
-		else if(numberActives>1){
-			//if more than one item active make all inactive
-			resetButtonGroup($(this).parent());
-			$(this).parent().find('.all').addClass('active');	
 		}
 		filterLocations();
 	});

@@ -56,4 +56,5 @@ Rails.application.routes.draw do
 	#   s
   #   end
 	get 'filter_locations', to: 'locations#filter_locations'
+	get '/location/:name', to: 'locations#show'
 end

@@ -1,4 +1,8 @@
 class LocationsController < ApplicationController
+	def show
+		name_param= params[:name]
+		@location = Location.where(name: name_param).first
+	end
 	def filter_locations
 		#Location.joins(:seasons).where('seasons.id IN (?)',[1,3])	
 		#join filters = seasons,climbing_types

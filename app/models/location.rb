@@ -3,6 +3,7 @@ class Location < ActiveRecord::Base
 	has_and_belongs_to_many :climbing_types
 	has_and_belongs_to_many :seasons
 	has_and_belongs_to_many :accommodations
+	has_many :info_sections
 	 
 	has_attached_file :home_thumb, :default_url => "/images/:style/missing.png"
 	validates_attachment_content_type :home_thumb, :content_type => /\Aimage\/.*\Z/

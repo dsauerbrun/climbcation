@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150308054935) do
+ActiveRecord::Schema.define(version: 20150326235854) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -89,6 +89,7 @@ ActiveRecord::Schema.define(version: 20150308054935) do
     t.integer  "home_thumb_file_size"
     t.datetime "home_thumb_updated_at"
     t.string   "country"
+    t.string   "slug"
   end
 
   add_index "locations", ["grade_id"], name: "index_locations_on_grade_id", using: :btree

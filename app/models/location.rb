@@ -1,4 +1,5 @@
 class Location < ActiveRecord::Base
+	validates_presence_of :slug
 	belongs_to :grade
 	has_and_belongs_to_many :climbing_types
 	has_and_belongs_to_many :seasons
@@ -10,4 +11,8 @@ class Location < ActiveRecord::Base
 	def continent_enum
 		['Asia','Australia','North America', 'South America','Africa','Europe','Antarctica']
 	end
+	def to_param
+		slug	
+	end
+
 end

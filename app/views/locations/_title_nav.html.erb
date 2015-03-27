@@ -1,0 +1,49 @@
+<div class="row">
+	<div class="col-md-8">
+		<div class="row">
+			<div class="col-md-4">
+				<%= image_tag(@location.home_thumb, :class => 'img-circle', size: '192x192') %>
+			</div>
+			<div class="col-md-8">
+				<h1><%= @location.name << ', '<< @location.country %></h1>
+				<div class="row">
+					<div class="col-md-3">
+						<h5>When Should I go?</h5>
+						<% @location.seasons.each do |season| %>
+							<%= image_tag(season.icon, :class => 'icon') %>
+						<% end %>
+					</div>
+					<div class="col-md-3">
+						<h5>Where can I stay?</h5>
+						<% @location.accommodations.each do |accommodation| %>
+							<%= image_tag(accommodation.icon, :class => 'icon') %>
+						<% end %>
+					</div>
+					<div class="col-md-3">
+						<h5>What should I climb?</h5>
+						<% @location.climbing_types.each do |climbing_type| %>
+							<%= image_tag(climbing_type.icon, :class => 'icon') %>
+						<% end %>
+					</div>
+					<div class="col-md-3">
+						<div class="">I should climb around <mark><strong><%= @location.grade.us %></strong></mark> to get the most out of my trip</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="panel panel-default">
+			<div class="panel-heading">Table of Contents</div>
+				<ul class="list-group">
+					<% @location.info_sections.each do |section| %>
+						<li class="list-group-item">
+							<%= link_to '#'<<URI.escape(section.title) do %>
+								<%= section.title %>
+							<% end %>
+						</li>
+					<% end %>
+				</ul>
+		</div>
+	</div>
+</div>

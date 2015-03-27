@@ -1,1 +1,11 @@
-<%= @location.name%>
+<div class="container-fluid">
+	<%= render "map_header.html.erb" %>
+</div>
+<div class="container">
+	<%= render "title_nav.html.erb" %>
+</div>
+<div class="container">
+	<% @location.info_sections.each do |section| %>
+		<%= render "section.html.erb", :@section => section %>
+	<% end %>
+</div>

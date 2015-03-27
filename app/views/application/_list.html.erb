@@ -3,7 +3,9 @@
 		<div class="col-md-1">
 		</div>
 		<div class="col-md-2">
-			<%= image_tag(location.home_thumb,:class => 'img-circle', size: '192x192') %>	
+			<%= link_to location_path(location) do %>
+				<%= image_tag(location.home_thumb,:class => 'img-circle', size: '192x192') %>	
+			<% end %>
 		</div>
 		<div class="col-md-8">
 			<h3><%= location.name << ', ' << location.country %> <small><%= (money_without_cents_and_with_symbol location.price_range_floor_cents).to_s << ' - '<< (money_without_cents_and_with_symbol location.price_range_ceiling_cents).to_s %> / day</small></h3>

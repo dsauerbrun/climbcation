@@ -1,4 +1,7 @@
 class Location < ActiveRecord::Base
+	acts_as_mappable :lat_column_name => :latitude,:lng_column_name => :longitude
+
+
 	validates_presence_of :slug
 	belongs_to :grade
 	has_and_belongs_to_many :climbing_types
@@ -13,6 +16,21 @@ class Location < ActiveRecord::Base
 	end
 	def to_param
 		slug	
+	end
+
+	def get_locations_within_miles(miles)
+		begin
+			locations = Location.all
+			close_locations = []
+			locations.each do |location|
+				if self.distance_to(location) < miles and !self.eql?(location)
+					close_locations << location
+				end
+			end
+			return close_locations
+		rescue
+			return []
+		end
 	end
 
 end

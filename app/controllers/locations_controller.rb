@@ -2,6 +2,7 @@ class LocationsController < ApplicationController
 	def show
 		name_param= params[:slug]
 		@location = Location.where(slug: name_param).first
+		@close_locations = @location.get_locations_within_miles(200)
 	end
 
 

@@ -1,0 +1,29 @@
+$(function(){
+		var map =new GMaps({
+			div: 'map-canvas',
+			lat: location_lat,
+			lng: location_lng,
+			zoom: 8
+		});
+		addMarker(map,location_lat,location_lng,location_name,'<p>Bishop</p>',false);
+		addCloseLocations(map,map_locations);
+});
+
+function addCloseLocations(map,locationMap){
+	$.each(locationMap,function(){
+		addMarker(map,this['lat'],this['lng'],this['name'],'<p><a href="/location/'+this['slug']+'">'+this['name']+'</a></p>',true);
+	})
+}
+
+function addMarker(map,lat,lng,title,infowindow,isSecondary){
+		map.addMarker({
+			lat: lat,
+			lng: lng,
+			title: title,
+			icon: isSecondary?'':'<%= image_path('primary.png') %>',
+			infoWindow:{
+				content: infowindow
+			}
+		});
+
+}

@@ -50,6 +50,7 @@ GEM
     geokit-rails (2.1.0)
       geokit (~> 1.5)
       rails (>= 3.0)
+    gmapsjs (0.4.16)
     haml (4.0.5)
       tilt
     hike (1.2.3)
@@ -187,6 +188,7 @@ PLATFORMS
 DEPENDENCIES
   coffee-rails (~> 4.0.0)
   geokit-rails
+  gmapsjs
   jbuilder (~> 2.0)
   jquery-rails
   less-rails

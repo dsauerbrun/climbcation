@@ -3,6 +3,15 @@ class LocationsController < ApplicationController
 		name_param= params[:slug]
 		@location = Location.where(slug: name_param).first
 		@close_locations = @location.get_locations_within_miles(200)
+		@map_locations = {}
+		@close_locations.each do |location|
+			@map_locations[location.id] = {}
+			@map_locations[location.id]['lat'] = location.latitude
+			@map_locations[location.id]['lng'] = location.longitude
+			@map_locations[location.id]['slug'] = location.slug
+			@map_locations[location.id]['name'] = location.name
+		end
+		@map_locations = @map_locations.to_json
 	end
 
 

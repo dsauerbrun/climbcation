@@ -3,7 +3,7 @@
 		<div class="col-md-1">
 		</div>
 		<div class="col-md-2">
-			<%= link_to location_path(location) do %>
+			<%= link_to location_path(location), 'data-no-turbolink' => true do %>
 				<%= image_tag(location.home_thumb,:class => 'img-circle', size: '192x192') %>	
 			<% end %>
 		</div>

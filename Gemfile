@@ -46,3 +46,4 @@ gem "less-rails"
 gem 'twitter-bootstrap-rails', '~> 3.2.0'
 gem 'geokit-rails'
 gem 'gmapsjs'
+gem 'aws-sdk'

@@ -9,7 +9,7 @@ class Location < ActiveRecord::Base
 	has_and_belongs_to_many :accommodations
 	has_many :info_sections
 	 
-	has_attached_file :home_thumb, :url => ':s3_domain_url', :path => '/:class/:attachment/:id_partition/:style/:filename'
+	has_attached_file :home_thumb, :default_url => "/images/:style/missing.png"
 	validates_attachment_content_type :home_thumb, :content_type => /\Aimage\/.*\Z/
 	def continent_enum
 		['Asia','Australia','North America', 'South America','Africa','Europe','Antarctica']

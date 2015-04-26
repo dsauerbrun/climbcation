@@ -16,3 +16,6 @@
 //= require turbolinks
 //= require gmapsjs
 //= require_tree .
+//= require angular
+//= require angular-rails-templates
+//= require_tree ../templates

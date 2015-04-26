@@ -1,4 +1,19 @@
 $(function(){
+	var app = angular.module('filterList',['templates']);
+	app.directive('locations',function(){
+		return{
+			restrict: 'E',
+			templateUrl: "_anglisttest.html",
+			controller: function(){
+				this.name = 'hello' 
+			},
+			controllerAs: 'location',
+		};
+	});
+
+
+});
+$(function(){
 	maintainActivenessFilter();
 });
 //if no actives, make all active, if all clicked, reset other active states, if filter clicked make all inactive

@@ -1,4 +1,5 @@
 $(function(){
+	if($('.locations').length > 0){
 		var map =new GMaps({
 			div: 'map-canvas',
 			lat: location_lat,
@@ -7,6 +8,7 @@ $(function(){
 		});
 		addMarker(map,location_lat,location_lng,location_name,'<p>Bishop</p>',false);
 		addCloseLocations(map,map_locations);
+	}
 });
 
 function addCloseLocations(map,locationMap){

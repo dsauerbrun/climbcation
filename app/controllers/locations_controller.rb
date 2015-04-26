@@ -67,5 +67,12 @@ class LocationsController < ApplicationController
 		end
 		render :json => location_list 
 	end
+
+	def angtest
+		hello = {}
+		hello['first'] = 'test'
+		render :json => hello 
+
+	end
 end
 

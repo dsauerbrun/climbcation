@@ -58,4 +58,5 @@ Rails.application.routes.draw do
 	get 'filter_locations', to: 'locations#filter_locations'
 	get '/location/:slug', to: 'locations#show', as: 'location'
 	get 'angtest', to: 'locations#angtest'
+	get 'filters', to: 'application#filters'
 end

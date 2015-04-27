@@ -28,7 +28,22 @@ class ApplicationController < ActionController::API
 	    render :text => '', :content_type => 'text/plain'
 	  end
 	end
-
+	
+	def filters
+		@climbtypes = ClimbingType.all
+		@locations = Location.order('name ASC').all
+		@continents = @locations.pluck(:continent).uniq
+		filters = {}
+		filters['climbTypes'] = {}
+		filters['continents'] = []	
+		@climbtypes.each do |type|
+			filters['climbTypes'][type.id] = type.icon 
+		end
+		@continents.each do |continent|
+			filters['continents'] << continent 
+		end
+		render :json => filters 
+	end
 
 	def index
 		@climbtypes = ClimbingType.all

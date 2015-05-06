@@ -14,8 +14,7 @@ class LocationsController < ApplicationController
 		@map_locations = @map_locations.to_json
 	end
 
-
-	def filter_locations
+	def filter_locations_backup
 		#Location.joins(:seasons).where('seasons.id IN (?)',[1,3])	
 		#join filters = seasons,climbing_types
 		#non-join filters = continent, price range
@@ -64,6 +63,44 @@ class LocationsController < ApplicationController
 				location_list[location.name][:accommodations][accommodation.id] = accommodation.icon.url
 			end
 			location_list[location.name][:grade] = location.grade
+		end
+		render :json => location_list 
+	end
+
+	def filter_locations
+		location_list = {}
+		#location_filter = Location.order(sort_filter).joins(:climbing_types).where('climbing_types.id IN (?)',climbing_filter).where(continent: continent_filter).where('price_range_floor_cents < ?',price_filter).includes(:grade,:seasons).uniq 
+		location_filter = Location.all.joins(:climbing_types).includes(:grade,:seasons).uniq 
+		location_filter.each do |location|
+			location_list[location.name] = {}
+			location_list[location.name][:location] = location
+			location_list[location.name][:slug] = location.slug
+			location_list[location.name][:name] = location.name
+			location_list[location.name][:country] = location.country
+			location_list[location.name][:price_range_floor_cents] = location.price_range_floor_cents
+			location_list[location.name][:price_range_ceiling_cents] = location.price_range_ceiling_cents
+
+			location_list[location.name][:home_thumb] = location.home_thumb.url
+			location_list[location.name][:seasons] = {}
+			location.seasons.each do |season|
+				location_list[location.name][:seasons][season.id] = {}
+				location_list[location.name][:seasons][season.id]['url'] = season.icon.url
+				location_list[location.name][:seasons][season.id]['name'] = season.name
+			end
+			location_list[location.name][:climbing_types] = {}
+			location.climbing_types.each do |climbing_type|
+				location_list[location.name][:climbing_types][climbing_type.id] = {}
+				location_list[location.name][:climbing_types][climbing_type.id]['url'] = climbing_type.icon.url
+				location_list[location.name][:climbing_types][climbing_type.id]['name'] = climbing_type.name
+
+			end
+			location_list[location.name][:accommodations] = {}
+			location.accommodations.each do |accommodation|
+				location_list[location.name][:accommodations][accommodation.id] = {}
+				location_list[location.name][:accommodations][accommodation.id]['url'] = accommodation.icon.url
+				location_list[location.name][:accommodations][accommodation.id]['name'] = accommodation.name
+			end
+			location_list[location.name][:grade] = location.grade.us
 		end
 		render :json => location_list 
 	end

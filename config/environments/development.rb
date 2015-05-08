@@ -34,14 +34,4 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
-	config.paperclip_defaults = {
-		:storage => :s3,
-		:url => ':s3_domain_url', 
-		:path => '/:class/:attachment/:id_partition/:style/:filename',
-		:s3_credentials => {
-			:bucket => 'climbcation-front',
-			:access_key_id => 'AKIAILVYSSHBQPIDVGQA',
-			:secret_access_key => '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'
-		}
-	}
 end

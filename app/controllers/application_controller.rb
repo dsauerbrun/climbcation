@@ -20,6 +20,8 @@ class ApplicationController < ActionController::Base
 	#       # text/plain.
 	
   def cors_preflight_check
+		response.headers['Access-Control-Allow-Origin'] = request.headers['Origin'] || '*'
+		response.headers['Access-Control-Allow-Credentials'] = 'true' 
   	if request.method == :options
 	  	headers['Access-Control-Allow-Origin'] = '*'
 	    headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
@@ -27,6 +29,10 @@ class ApplicationController < ActionController::Base
 	    headers['Access-Control-Max-Age'] = '1728000'
 	    render :text => '', :content_type => 'text/plain'
 	  end
+	end
+
+	def options
+		head :status => 200, :'Access-Control-Allow-Headers' => 'accept, content-type'
 	end
 	
 	def filters
@@ -37,7 +43,7 @@ class ApplicationController < ActionController::Base
 		filters['climbTypes'] = {}
 		filters['continents'] = []	
 		@climbtypes.each do |type|
-			filters['climbTypes'][type.id] = type.icon 
+			filters['climbTypes'][type.name] = type.icon 
 		end
 		@continents.each do |continent|
 			filters['continents'] << continent 

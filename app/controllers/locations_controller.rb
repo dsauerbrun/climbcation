@@ -69,8 +69,40 @@ class LocationsController < ApplicationController
 
 	def filter_locations
 		location_list = {}
-		#location_filter = Location.order(sort_filter).joins(:climbing_types).where('climbing_types.id IN (?)',climbing_filter).where(continent: continent_filter).where('price_range_floor_cents < ?',price_filter).includes(:grade,:seasons).uniq 
-		location_filter = Location.all.joins(:climbing_types).includes(:grade,:seasons).uniq 
+		puts params[:filter][:continents]
+		if(!params[:filter][:continents].nil?)
+			continent_filter = params[:filter][:continents]
+		else	
+			continent_filter = Location.all.pluck(:continent).uniq 
+		end
+		if(!params[:filter][:climbing_types].nil?)
+			climbing_filter = params[:filter][:climbing_types]
+		else	
+			climbing_filter = ClimbingType.all.pluck(:name) 
+		end
+		if(!params[:filter][:price_max].nil?)
+			price_filter = params[:filter][:price_max].max
+		else
+			price_filter = 99999 
+		end
+=begin
+		if(params.has_key? :sort)
+			if(params[:sort]=="price")
+				sort_filter = 'price_range_floor_cents ASC'
+			elsif(params[:sort]=="grade")
+				sort_filter = 'grade_id ASC'
+			else
+				sort_filter = 'name ASC'
+			end
+		end
+=end
+				sort_filter = 'name ASC'
+
+		puts continent_filter
+		puts climbing_filter
+		puts price_filter
+		location_filter = Location.order(sort_filter).joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter).where(continent: continent_filter).where('price_range_floor_cents < ?',price_filter).includes(:grade,:seasons).uniq 
+		#location_filter = Location.all.joins(:climbing_types).includes(:grade,:seasons).uniq 
 		location_filter.each do |location|
 			location_list[location.name] = {}
 			location_list[location.name][:location] = location

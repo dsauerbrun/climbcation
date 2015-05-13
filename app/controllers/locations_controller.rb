@@ -11,8 +11,7 @@ class LocationsController < ApplicationController
 	end
 
 	def filter_locations
-		location_list = {}
-		puts params[:filter][:continents]
+		location_list = [] 
 		if(!params[:filter][:continents].nil?)
 			continent_filter = params[:filter][:continents]
 		else	
@@ -28,23 +27,22 @@ class LocationsController < ApplicationController
 		else
 			price_filter = 99999 
 		end
-=begin
-		if(params.has_key? :sort)
-			if(params[:sort]=="price")
+		sort_filter = 'name ASC'
+		if(!params[:filter][:sort].nil?)
+			if(params[:filter][:sort].include? 'price')
 				sort_filter = 'price_range_floor_cents ASC'
-			elsif(params[:sort]=="grade")
+			elsif(params[:filter][:sort].include? 'grade')
 				sort_filter = 'grade_id ASC'
 			else
 				sort_filter = 'name ASC'
 			end
 		end
-=end
-				sort_filter = 'name ASC'
+		puts sort_filter
 
 		location_filter = Location.order(sort_filter).joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter).where(continent: continent_filter).where('price_range_floor_cents < ?',price_filter).includes(:grade,:seasons).uniq 
 		#location_filter = Location.all.joins(:climbing_types).includes(:grade,:seasons).uniq 
 		location_filter.each do |location|
-			location_list[location.name] = location.get_location_json
+			location_list << location.get_location_json
 		end
 		render :json => location_list 
 	end

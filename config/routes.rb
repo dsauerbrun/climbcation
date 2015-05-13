@@ -4,7 +4,10 @@ Rails.application.routes.draw do
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
-  root 'application#index'
+  #root 'application#index'
+  root 'application#home'
+	get 'js/app.js', :to => redirect('/angularapp/js/app.js')
+	get 'css/app.css', :to => redirect('/angularapp/css/app.css')
 
 	match '*any' => 'application#options', :via => [:options]
   # Example of regular route:
@@ -56,8 +59,7 @@ Rails.application.routes.draw do
   #     resources :products
 	#   s
   #   end
-	post 'filter_locations', to: 'locations#filter_locations'
-	get '/location/:slug', to: 'locations#show', as: 'location'
-	get 'angtest', to: 'locations#angtest'
-	get 'filters', to: 'application#filters'
+	post 'api/filter_locations', to: 'locations#filter_locations'
+	get 'api/location/:slug', to: 'locations#show', as: 'location'
+	get 'api/filters', to: 'application#filters'
 end

@@ -56,4 +56,7 @@ class ApplicationController < ActionController::Base
 		@locations = Location.order('name ASC').all
 		@continents = @locations.pluck(:continent).uniq
 	end
+	def home
+		render :file => "public/angularapp/index.html"
+	end
 end

@@ -12,6 +12,16 @@ class LocationsController < ApplicationController
 
 	def filter_locations
 		location_list = [] 
+		#mappicked filters
+		#check to see if map moved
+		if(!params[:mapFilter][:southwest]['longitude'].nil?)
+			@swBounds = Geokit::LatLng.new(params[:mapFilter][:southwest]['latitude'],params[:mapFilter][:southwest]['longitude'])
+			@neBounds = Geokit::LatLng.new(params[:mapFilter][:northeast]['latitude'],params[:mapFilter][:northeast]['longitude'])
+		else
+			@swBounds = Geokit::LatLng.new(-90,-180)
+			@neBounds = Geokit::LatLng.new(90,180)
+		end
+		#handpicked filters
 		if(!params[:filter][:continents].nil?)
 			continent_filter = params[:filter][:continents]
 		else	
@@ -27,6 +37,7 @@ class LocationsController < ApplicationController
 		else
 			price_filter = 99999 
 		end
+		#handpicked sorting
 		sort_filter = 'name ASC'
 		if(!params[:filter][:sort].nil?)
 			if(params[:filter][:sort].include? 'price')
@@ -39,7 +50,7 @@ class LocationsController < ApplicationController
 		end
 		puts sort_filter
 
-		location_filter = Location.order(sort_filter).joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter).where(continent: continent_filter).where('price_range_floor_cents < ?',price_filter).includes(:grade,:seasons).uniq 
+		location_filter = Location.order(sort_filter).in_bounds([@swBounds, @neBounds]).joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter).where(continent: continent_filter).where('price_range_floor_cents < ?',price_filter).includes(:grade,:seasons).uniq 
 		#location_filter = Location.all.joins(:climbing_types).includes(:grade,:seasons).uniq 
 		location_filter.each do |location|
 			location_list << location.get_location_json

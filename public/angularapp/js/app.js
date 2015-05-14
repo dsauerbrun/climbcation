@@ -36683,15 +36683,26 @@ home.controller('LocationsController',function($scope, $timeout,LocationsGetter)
 
 	
 
+	$scope.$watch('LocationsGetter.flightQuotesPromise', function(){
+		LocationsGetter.flightQuotesPromise.then(
+			function(promiseQuotes){
+				$timeout(function(){
+					setHighcharts(promiseQuotes);
+				});
+			}
+		);
 
+	});
 
 	$scope.$watch('LocationsGetter.locationsPromise', function(){
 		LocationsGetter.locationsPromise.then(
 			function(promiseLocations){
 				$scope.locationData = promiseLocations;
-				$timeout(function(){
-					setHighcharts($scope.locationData);
+				slugArray = []
+				$.each(promiseLocations, function(){
+					slugArray.push(this['slug'])
 				});
+				LocationsGetter.getFlightQuotes(slugArray);
 			},
 			function(failure){
 				$scope.locationData = failure;
@@ -36731,8 +36742,6 @@ home.controller('MapFilterController',function($scope,LocationsGetter){
 					LocationsGetter.markerMap[this['slug']] = addMarker($scope.filterMap,this['latitude'],this['longitude'],this['name'],'<p><a href="/#location/'+this['slug']+'">'+this['name']+'</a></p>',true);
 					LocationsGetter.markerMap[this['slug']].setOptions({opacity: .5})
 				});
-				console.log($scope.markerMap)
-
 			},
 			function(failure){
 				
@@ -36788,8 +36797,15 @@ home.factory("LocationsGetter",function($q,$http){
 		LocationsGetter.getLocations();
 	
 	};
+	LocationsGetter.getFlightQuotes = function(slugs){
+		var deferred = $q.defer();
+		$http.post('/api/collect_locations_quotes', {slugs: slugs}).success(function(data){
+			deferred.resolve(data);
+		});
+		LocationsGetter.flightQuotesPromise = deferred.promise;
+		return deferred.promise;
+	}
 	LocationsGetter.getLocations = function(){
-		locationData = []
 		var deferred = $q.defer();
 		$http.post('/api/filter_locations', {filter: filter, mapFilter: LocationsGetter.mapFilter}).success(function(data){
 			deferred.resolve(data);
@@ -36798,6 +36814,7 @@ home.factory("LocationsGetter",function($q,$http){
 		return deferred.promise;
 	};
 	LocationsGetter.getLocations();
+	LocationsGetter.getFlightQuotes([]);
 	return LocationsGetter;
 
 });
@@ -36896,21 +36913,19 @@ function processSectionsByPair(sectionMap){
 	});
 }
 
-function setHighcharts(locationData){
-	
-	$.each(locationData,function(){
-		//console.log(this['quotes']['5']);
+function setHighcharts(locationQuoteData){
+	$.each(locationQuoteData,function(slug,months){
 		quote_array = [];
 		var maxPrice = 0;
-		$.each(this['quotes'],function(monthKey,value){
+		$.each(this,function(monthKey,value){
 			$.each(value, function(dayKey,cost){
 				quote_array.push([monthKey+'/'+dayKey,cost])
 				if(cost > maxPrice)
 					maxPrice = cost;
 			})
 
-		})
-		$('#highchart'+this['slug']).highcharts({
+		});
+		$('#highchart'+slug).highcharts({
 	        chart: {
 	            type: 'column'
 	        },
@@ -36949,28 +36964,7 @@ function setHighcharts(locationData){
 	        },
 	        series: [{
 	            name: 'Price',
-	            data: quote_array/*[
-	                ['Shanghai', 23.7],
-	                ['Lagos', 16.1],
-	                ['Instanbul', 14.2],
-	                ['Karachi', 14.0],
-	                ['Mumbai', 12.5],
-	                ['Moscow', 12.1],
-	                ['São Paulo', 11.8],
-	                ['Beijing', 11.7],
-	                ['Guangzhou', 11.1],
-	                ['Delhi', 11.1],
-	                ['Shenzhen', 10.5],
-	                ['Seoul', 10.4],
-	                ['Jakarta', 10.0],
-	                ['Kinshasa', 9.3],
-	                ['Tianjin', 9.3],
-	                ['Tokyo', 9.0],
-	                ['Cairo', 8.9],
-	                ['Dhaka', 8.9],
-	                ['Mexico City', 8.9],
-	                ['Lima', 8.9]
-	            ]*/,
+	            data: quote_array,
 	            dataLabels: {
 	                enabled: false,
 	                rotation: -90,
@@ -36985,7 +36979,6 @@ function setHighcharts(locationData){
 	            }
 	        }]
 	    });
-console.log('high as chart')
 	});
 }
 

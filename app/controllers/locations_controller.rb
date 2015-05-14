@@ -118,9 +118,13 @@ class LocationsController < ApplicationController
 			if(!dates.has_key? quote_date.month)
 				dates[quote_date.month] = {}
 			end
-			if(!dates[quote_date.month].has_key? quote_date.day or (dates[quote_date.month].has_key? quote_date.day and dates[quote_date.month][quote_date.day] > quote["Price"].to_i))
-				dates[quote_date.month][quote_date.day] = quote["Price"].to_i
-				counter += 1
+			#since we are caching requests we need to check to see if the date we are tracking is old
+			if(quote_date >= Date.today)
+				#if price already exists or new price is lower than existing price
+				if(!dates[quote_date.month].has_key? quote_date.day or (dates[quote_date.month].has_key? quote_date.day and dates[quote_date.month][quote_date.day] > quote["Price"].to_i))
+					dates[quote_date.month][quote_date.day] = quote["Price"].to_i
+					counter += 1
+				end
 			end
 		end
 		json_responseSecondMonth["Quotes"].each do |quote| 
@@ -131,9 +135,13 @@ class LocationsController < ApplicationController
 			if(counter > 30)
 				break
 			end
-			if(!dates[quote_date.month].has_key? quote_date.day or (dates[quote_date.month].has_key? quote_date.day and dates[quote_date.month][quote_date.day] > quote["Price"].to_i))
-				dates[quote_date.month][quote_date.day] = quote["Price"].to_i
-				counter += 1
+			#since we are caching requests we need to check to see if the date we are tracking is old
+			if(quote_date >= Date.today)
+				#if price already exists or new price is lower than existing price
+				if(!dates[quote_date.month].has_key? quote_date.day or (dates[quote_date.month].has_key? quote_date.day and dates[quote_date.month][quote_date.day] > quote["Price"].to_i))
+					dates[quote_date.month][quote_date.day] = quote["Price"].to_i
+					counter += 1
+				end
 			end
 		end
 		return dates

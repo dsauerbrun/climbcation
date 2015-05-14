@@ -23,6 +23,14 @@
 .jumbotron.homepage {
   margin-bottom: 0px; }
 
+#mapFilter {
+  height: 25em; }
+
+.locations-window {
+  position: relative;
+  height: 40em;
+  overflow: auto; }
+
 .info-section:nth-of-type(odd) {
   background-color: #f9f9f9; }
 

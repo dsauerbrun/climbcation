@@ -36342,7 +36342,7 @@ home.controller('LocationPageController',function($scope,$q,$http,$routeParams,$
 			$scope.sections = success['sections'];
 			$scope.locationData = success['location']
 			$scope.nearby = success['nearby'];
-			$scope.gmap = createMap($scope.latitude,$scope.longitude);
+			$scope.gmap = createMap('map-canvas',$scope.latitude,$scope.longitude,8);
 			addCloseLocations($scope.gmap,success['nearby']);
 			addMarker($scope.gmap,$scope.latitude,$scope.longitude,success['location']['title'],'<p>'+success['location']['title']+'</p>',false);
 		}
@@ -36368,13 +36368,63 @@ home.controller('LocationsController',function($scope, LocationsGetter){
 	});
 });
 
+home.controller('MapFilterController',function($scope,LocationsGetter){
+	$scope.filterMap = createMap('mapFilter',0,0,1);
+	LocationsGetter.markerMap = {};
+	$scope.filterMap.addListener('dragend', function() {
+		LocationsGetter.mapFilter['northeast']['longitude'] = $scope.filterMap.getBounds().getNorthEast().lng();
+		LocationsGetter.mapFilter['northeast']['latitude'] = $scope.filterMap.getBounds().getNorthEast().lat();
+		LocationsGetter.mapFilter['southwest']['longitude'] = $scope.filterMap.getBounds().getSouthWest().lng();
+		LocationsGetter.mapFilter['southwest']['latitude'] = $scope.filterMap.getBounds().getSouthWest().lat();
+		LocationsGetter.getLocations();
+	});
+	$scope.filterMap.addListener('zoom_changed', function() {
+		LocationsGetter.mapFilter['northeast']['longitude'] = $scope.filterMap.getBounds().getNorthEast().lng();
+		LocationsGetter.mapFilter['northeast']['latitude'] = $scope.filterMap.getBounds().getNorthEast().lat();
+		LocationsGetter.mapFilter['southwest']['longitude'] = $scope.filterMap.getBounds().getSouthWest().lng();
+		LocationsGetter.mapFilter['southwest']['latitude'] = $scope.filterMap.getBounds().getSouthWest().lat();
+		LocationsGetter.getLocations();
+	});
+	$scope.$watch('LocationsGetter.locationsPromise', function(){
+		LocationsGetter.locationsPromise.then(
+			function(promiseLocations){
+				//redo map points
+				$scope.filterMap.removeMarkers();
+				LocationsGetter.markerMap = {};
+				$.each(promiseLocations,function(){
+					LocationsGetter.markerMap[this['slug']] = addMarker($scope.filterMap,this['latitude'],this['longitude'],this['name'],'<p><a href="/#location/'+this['slug']+'">'+this['name']+'</a></p>',true);
+					LocationsGetter.markerMap[this['slug']].setOptions({opacity: .5})
+				});
+				console.log($scope.markerMap)
+
+			},
+			function(failure){
+				
+			},
+			function(notify){
+				
+			}
+		);
+	});
+
+});
+
 home.factory("LocationsGetter",function($q,$http){
 	var LocationsGetter = {};
 	var filter = {};
+	LocationsGetter.mapFilter = {};
+	LocationsGetter.markerMap = {};
+
 	filter['climbing_types'] = [];
 	filter['continents'] = [];
 	filter['price_max'] = [];
 	filter['sort'] = [];
+	LocationsGetter.mapFilter['northeast'] = {};
+	LocationsGetter.mapFilter['northeast']['longitude'] = null;
+	LocationsGetter.mapFilter['northeast']['latitude'] = null;
+	LocationsGetter.mapFilter['southwest'] = {};
+	LocationsGetter.mapFilter['southwest']['longitude'] = null;
+	LocationsGetter.mapFilter['southwest']['latitude'] = null;
 	var sort = {};
 	sort['price'] = [];
 	sort['grade'] = [];
@@ -36405,7 +36455,7 @@ home.factory("LocationsGetter",function($q,$http){
 	LocationsGetter.getLocations = function(){
 		locationData = []
 		var deferred = $q.defer();
-		$http.post('/api/filter_locations', {filter: filter}).success(function(data){
+		$http.post('/api/filter_locations', {filter: filter, mapFilter: LocationsGetter.mapFilter}).success(function(data){
 			deferred.resolve(data);
 		});
 		LocationsGetter.locationsPromise = deferred.promise;
@@ -36415,6 +36465,7 @@ home.factory("LocationsGetter",function($q,$http){
 	return LocationsGetter;
 
 });
+
 
 
 
@@ -36445,12 +36496,12 @@ function inactivateGroupAll(buttonGroup){
 
 }
 
-function createMap(latitude,longitude){
+function createMap(mapId,latitude,longitude,zoom){
 	var map =new GMaps({
-		div: '#map-canvas',
+		div: '#'+mapId,
 		lat: latitude,
 		lng: longitude,
-		zoom: 8
+		zoom: zoom
 	});
 	return map;
 }
@@ -36458,11 +36509,11 @@ function createMap(latitude,longitude){
 function addCloseLocations(map,locationMap){
 	$.each(locationMap,function(){
 		addMarker(map,this['lat'],this['lng'],this['name'],'<p><a href="/#location/'+this['slug']+'">'+this['name']+'</a></p>',true);
-	})
+	});
 }
 
 function addMarker(map,lat,lng,title,infowindow,isSecondary){
-		map.addMarker({
+		return map.addMarker({
 			lat: lat,
 			lng: lng,
 			title: title,
@@ -36524,7 +36575,6 @@ filterDir.directive('filter', function(){
 			}
 			$http.get('/api/filters').success(function(data){
 				filter.fixVar = data;
-				console.log(data['continents'])
 				filter.continents = data['continents'];
 				filter.climbTypes = data['climbTypes']
 			});
@@ -36633,7 +36683,16 @@ locationListItemDir.directive('location', function(){
 	return {
 		restrict: 'E',
 		templateUrl: 'common/directives/location_list_item/location_list_item.tpl.html',
+		controller: 'LocationListItemController'
 	};
+});
+locationListItemDir.controller('LocationListItemController',function($scope,$element,LocationsGetter){
+	$($element).mouseenter(function(){
+		LocationsGetter.markerMap[$scope.locationData.slug].setOptions({opacity:1});
+	});
+	$($element).mouseleave(function(){
+		LocationsGetter.markerMap[$scope.locationData.slug].setOptions({opacity:.5});
+	});
 });
 
 var locationSection = angular.module('location-section-directives', []);
@@ -36646,8 +36705,8 @@ locationSection.directive('locationsection', function(){
 });
 
 angular.module("app").run(["$templateCache", function($templateCache) {$templateCache.put("features/filter/filter.tpl.html","<section><div class=\"jumbotron homepage\"><div class=\"container\"><h1>Find Your Next Climbcation</h1><h2>Filter:<div class=\"btn-group btn-group-filter\" data=\"price\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\" data=\"all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'15\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"15\">$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'30\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"30\">$$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'45\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"45\">$$$</button></div><div class=\"btn-group btn-group-filter\" data=\"continent\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'continents\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'continents\',continent )\" ng-repeat=\"continent in filter.continents\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ continent }}\">{{ continent }}</button></div><div class=\"btn-group btn-group-filter\" data=\"climbing_types\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',name )\" ng-repeat=\"(name,climbType) in filter.climbTypes\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ name }}\"><img ng-src=\"{{ climbType }}\" class=\"icon button\"></button></div></h2><h2>Sort:<div class=\"btn-group btn-group-sort\" data=\"sort\" role=\"group\"><button type=\"button\" data=\"all\" class=\"sort-button btn btn-lg btn-default all\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'All\')\">All</button> <button type=\"button\" data=\"price\" class=\"sort-button btn btn-lg btn-default\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'price\')\">$</button> <button type=\"button\" data=\"grade\" class=\"sort-button btn btn-lg btn-default\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'grade\')\">Grade</button></div></h2></div></div></section>");
-$templateCache.put("views/home/home.tpl.html","<section ng-controller=\"LocationsController\"><filter></filter><location ng-repeat=\"locationData in locationData\"></location></section>");
+$templateCache.put("views/home/home.tpl.html","<section ng-controller=\"LocationsController\"><filter></filter><div class=\"row\"><div class=\"col-md-9 locations-window\" data-spy=\"scroll\"><location ng-repeat=\"locationData in locationData\"></location></div><div id=\"mapFilter\" ng-controller=\"MapFilterController\" class=\"col-md-3\"></div></div></section>");
 $templateCache.put("views/location/location.tpl.html","<section><div class=\"container-fluid\"><style type=\"text/css\">\n		html, body, #map-canvas { height: 25em; margin: 0; padding: 0;}\n	</style><script type=\"text/javascript\">\n		\n	</script><div class=\"jumbotron\"><div id=\"map-canvas\"></div></div></div><div class=\"container\"><div class=\"row\"><div class=\"col-md-8\"><div class=\"row\"><div class=\"col-md-4\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" width=\"192\" height=\"192\"></div><div class=\"col-md-8\"><h1>{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</h1><div class=\"row\"><div class=\"col-md-3\"><h5>When Should I go?</h5><img ng-repeat=\"season in locationData[\'seasons\']\" ng-src=\"{{ season[\'url\'] }}\" title=\"{{ season[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><h5>Where can I stay?</h5><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" title=\"{{ accommodation[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><h5>What should I climb?</h5><img ng-repeat=\"climbing_type in locationData[\'climbing_types\']\" ng-src=\"{{ climbing_type[\'url\'] }}\" title=\"{{ climbing_type[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><div class=\"\">I should climb around<mark><strong>{{ locationData[\'grade\'] }}</strong></mark>to get the most out of my trip</div></div></div></div></div></div><div class=\"col-md-4\"><div class=\"panel panel-default\"><div class=\"panel-heading\">Table of Contents</div><ul class=\"list-group\"><li class=\"list-group-item\" ng-repeat=\"section in sections\"><a ng-click=\"scrollTo(section.title)\" target=\"_self\">{{ section[\'title\'] }}</a></li><li class=\"list-group-item\"><a ng-click=\'scrollTo(\"nearby\")\'>Nearby Destinations</a></li></ul></div></div></div></div><div class=\"container\"><locationsection ng-repeat=\"section in sections\"></locationsection><div id=\"nearby\" class=\"container info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>Nearby Destinations</u></h3><p class=\"lead\">Don\'t end your trip in {{locationData.name}}. There\'s plenty to see nearby</p></div></div><div class=\"row\"><div class=\"row col-md-12\"><div class=\"col-md-12\"><h5>Destinations within 200 miles of {{ locationData[\'name\'] }}</h5><ul class=\"list-group\"><a ng-repeat=\"nearLocation in nearby\" ng-href=\"/#location/{{ nearLocation.slug }}\"><li class=\"list-group-item\">{{nearLocation.name}}, {{nearLocation.country}} ----------- {{nearLocation.distance}} miles</li></a></ul></div></div></div></div></div></section>");
-$templateCache.put("common/directives/location_list_item/location_list_item.tpl.html","<div class=\"row location-row\"><div class=\"col-md-1\"></div><div class=\"col-md-2\"><a ng-href=\"/#location/{{ locationData[\'slug\'] }}\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" height=\"192\" width=\"192\"></a></div><div class=\"col-md-8\"><h3>{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }} <small>{{ locationData[\'price_range_floor_cents\']}} - {{ locationData[\'price_range_ceiling_cents\'] }} / day</small></h3><div class=\"icon-row row\"><h4 class=\"col-md-4\">Why Should I go?</h4><div class=\"col-md-2\"><img ng-repeat=\"type in locationData[\'climbing_types\']\" ng-src=\"{{ type[\'url\'] }}\" class=\"icon\"></div><h4 class=\"col-md-4\">Where am I going to sleep?</h4><div class=\"col-md-2\"><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" class=\"icon\"></div></div><div class=\"icon-row row\"><h4 class=\"col-md-4\">When Should I go?</h4><div class=\"col-md-2\"><img ng-repeat=\"season in locationData[\'seasons\']\" ng-src=\"{{ season[\'url\'] }}\" class=\"icon\"></div><h4 class=\"col-md-4\">How hard should I climb?</h4><div class=\"col-md-2\"><h4>{{ locationData[\'grade\'] }}</h4></div></div></div></div>");
+$templateCache.put("common/directives/location_list_item/location_list_item.tpl.html","<div class=\"row location-row\"><div class=\"col-md-2\"><a ng-href=\"/#location/{{ locationData[\'slug\'] }}\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" height=\"192\" width=\"192\"></a></div><div class=\"col-md-10\"><h3>{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }} <small>{{ locationData[\'price_range_floor_cents\']}} - {{ locationData[\'price_range_ceiling_cents\'] }} / day</small></h3><div class=\"icon-row row\"><h4 class=\"col-md-3 col-md-offset-1\">Why Should I go?</h4><div class=\"col-md-2\"><img ng-repeat=\"type in locationData[\'climbing_types\']\" ng-src=\"{{ type[\'url\'] }}\" class=\"icon\"></div><h4 class=\"col-md-4\">Where am I going to sleep?</h4><div class=\"col-md-2\"><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" class=\"icon\"></div></div><div class=\"icon-row row\"><h4 class=\"col-md-3 col-md-offset-1\">When Should I go?</h4><div class=\"col-md-2\"><img ng-repeat=\"season in locationData[\'seasons\']\" ng-src=\"{{ season[\'url\'] }}\" class=\"icon\"></div><h4 class=\"col-md-4\">How hard should I climb?</h4><div class=\"col-md-2\"><h4>{{ locationData[\'grade\'] }}</h4></div></div></div></div>");
 $templateCache.put("common/directives/location_section/location_section.tpl.html","<div id=\"{{ section.title | removeSpaces }}\" class=\"container info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>{{ section.title }}</u></h3><p class=\"lead\">{{ section.body }}</p></div></div><div class=\"row\"><div ng-repeat=\"pair in section.data\" class=\"row col-md-12\"><div ng-repeat=\"(key,dataArray) in pair\" class=\"col-md-6\"><h5>{{key}}</h5><ul class=\"list-group\"><li ng-repeat=\"information in dataArray[0]\" class=\"list-group-item\">{{information}}</li></ul></div></div></div></div>");}]);
 //# sourceMappingURL=app.js.map

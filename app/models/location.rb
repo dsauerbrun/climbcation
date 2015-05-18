@@ -100,6 +100,7 @@ class Location < ActiveRecord::Base
 		json_return[:climbing_types] = self.get_climbing_types
 		json_return[:accommodations] = self.get_accommodations 
 		json_return[:grade] = self.grade.us 
+		json_return[:airport_code] = self.airport_code
 		return json_return
 	end
 	

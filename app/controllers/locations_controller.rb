@@ -103,6 +103,9 @@ class LocationsController < ApplicationController
 	end
 
 	def process_quote_response(map_to_count, response, year, month)
+		puts response.body
+		puts 'here is resp'
+		puts response
 		json_parse = JSON.parse(response.body)
 		dates = {}
 		counter = 0

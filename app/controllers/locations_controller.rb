@@ -133,7 +133,7 @@ class LocationsController < ApplicationController
 	end
 
 	def build_request(origin_airport,destination_airport,year,month)
-		return Typhoeus::Request.new("http://www.skyscanner.com/dataservices/browse/v2/mvweb/US/USD/en-US/calendar/#{origin_airport}/#{destination_airport}/#{year}-#{month}/?includequotedate=true&includemetadata=true")
+		return Typhoeus::Request.new("http://www.skyscanner.com/dataservices/browse/v2/mvweb/US/USD/en-US/calendar/#{origin_airport}/#{destination_airport}/#{year}-#{month}/?includequotedate=true&includemetadata=true", :user_agent => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36')
 	end
 
 	class SkyscannerCache

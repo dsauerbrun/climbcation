@@ -63,7 +63,7 @@ class LocationsController < ApplicationController
 		if ( params.has_key? :origin_airport)
 			origin = params[:origin_airport]
 		else
-			origin = 'SFO'
+			origin = 'PHL'
 		end
 		if (params.has_key? :slugs)
 			curr_month = Date.today.strftime("%m")
@@ -112,17 +112,19 @@ class LocationsController < ApplicationController
 				counter += map_to_count[key].length
 			end
 		end
-		json_parse["Quotes"].each do |quote| 
-			quote_date = Date.parse(quote['Outbound_DepartureDate'])
-			if(counter > 30)
-				break
-			end
-			#since we are caching requests we need to check to see if the date we are tracking is old
-			if(quote_date >= Date.today)
-				#if price already exists or new price is lower than existing price
-				if(!dates.has_key? quote_date.day or (dates.has_key? quote_date.day and dates[quote_date.day] > quote["Price"].to_i))
-					dates[quote_date.day] = quote["Price"].to_i
-					counter += 1
+		if json_parse.has_key? 'Quotes'
+			json_parse["Quotes"].each do |quote| 
+				quote_date = Date.parse(quote['Outbound_DepartureDate'])
+				if(counter > 30)
+					break
+				end
+				#since we are caching requests we need to check to see if the date we are tracking is old
+				if(quote_date >= Date.today)
+					#if price already exists or new price is lower than existing price
+					if(!dates.has_key? quote_date.day or (dates.has_key? quote_date.day and dates[quote_date.day] > quote["Price"].to_i))
+						dates[quote_date.day] = quote["Price"].to_i
+						counter += 1
+					end
 				end
 			end
 		end
@@ -130,7 +132,10 @@ class LocationsController < ApplicationController
 	end
 
 	def build_request(origin_airport,destination_airport,year,month)
-		return Typhoeus::Request.new("http://www.skyscanner.com/dataservices/browse/v2/mvweb/US/USD/en-US/calendar/#{origin_airport}/#{destination_airport}/#{year}-#{month}/?includequotedate=true&includemetadata=true", :headers => {"User-Agent" => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36'})
+		user_agent_string = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36'
+		options = {proxy: 'http://us-il.proxymesh.com:31280', proxyuserpwd: 'dsauerbrun:nafmay11', :headers => { 'User-Agent' => user_agent_string }}
+		#Typhoeus::Config.verbose = true
+		return Typhoeus::Request.new("http://www.skyscanner.com/dataservices/browse/v2/mvweb/US/USD/en-US/calendar/#{origin_airport}/#{destination_airport}/#{year}-#{month}/?includequotedate=true&includemetadata=true", options)
 	end
 
 	class SkyscannerCache

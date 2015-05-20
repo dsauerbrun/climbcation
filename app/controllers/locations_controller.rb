@@ -86,12 +86,30 @@ class LocationsController < ApplicationController
 					#request multithreads
 					curr_request = build_request(origin,location.airport_code,curr_year,curr_month)
 					curr_request.on_complete do |response|
-						quotes[key_val][curr_month] = process_quote_response(quotes[key_val],response,curr_year,curr_month)
+						if response.success?
+							quotes[key_val][curr_month] = process_quote_response(quotes[key_val],response,curr_year,curr_month)
+						elsif response.timed_out?
+							puts("got a timeout for #{location.airport_code} #{curr_month} month")
+						elsif response.code == 0
+							puts(response.return_message)
+						else
+							puts("HTTP request failed for #{location.airport_code} #{curr_month} month: " + response.code.to_s)
+							puts response.body
+						end
 					end
 					hydra.queue(curr_request)
 					next_request = build_request(origin,location.airport_code,next_year,next_month)
 					next_request.on_complete do |response|
-						quotes[key_val][next_month] = process_quote_response(quotes[key_val],response,curr_year,curr_month)
+						if response.success?
+							quotes[key_val][next_month] = process_quote_response(quotes[key_val],response,curr_year,curr_month)
+						elsif response.timed_out?
+							puts("got a timeout for #{location.airport_code} #{curr_month} month")
+						elsif response.code == 0
+							puts(response.return_message)
+						else
+							puts("HTTP request failed for #{location.airport_code} #{curr_month} month: " + response.code.to_s)
+							puts response.body
+						end
 					end
 					hydra.queue(next_request)
 					#end request multithreading

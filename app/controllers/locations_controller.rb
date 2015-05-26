@@ -22,6 +22,11 @@ class LocationsController < ApplicationController
 			@neBounds = Geokit::LatLng.new(90,180)
 		end
 		#handpicked filters
+		if(!params[:page].nil?)
+			page_num = params[:page]
+		else
+			page_num = 1
+		end
 		if(!params[:filter][:search].nil?)
 			string_filter = params[:filter][:search]
 			string_filter.insert(0,'%')
@@ -56,7 +61,7 @@ class LocationsController < ApplicationController
 			end
 		end
 
-		location_filter = Location.order(sort_filter).in_bounds([@swBounds, @neBounds]).joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter).joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"').where('lower("info_sections"."body") LIKE lower(?) OR lower(array_dims(array["info_sections"."metadata"])) LIKE lower(?) OR lower("locations"."name") LIKE lower(?)',string_filter,string_filter,string_filter).where(continent: continent_filter).where('price_range_floor_cents < ?',price_filter).includes(:grade,:seasons).uniq 
+		location_filter = Location.order(sort_filter).in_bounds([@swBounds, @neBounds]).joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter).joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"').where('lower("info_sections"."body") LIKE lower(?) OR lower(array_dims(array["info_sections"."metadata"])) LIKE lower(?) OR lower("locations"."name") LIKE lower(?)',string_filter,string_filter,string_filter).where(continent: continent_filter).where('price_range_floor_cents < ?',price_filter).includes(:grade,:seasons).paginate(:page => page_num, :per_page => 5).uniq 
 		#location_filter = Location.all.joins(:climbing_types).includes(:grade,:seasons).uniq 
 		location_filter.each do |location|
 			location_json = location.get_location_json

@@ -33,6 +33,43 @@ class Location < ActiveRecord::Base
 		end
 	end
 
+	def date_range
+		months = self.seasons
+		range_string = ''
+		month_array = {}
+		months.each do |month|
+			month_array[month.numerical_value] = month.name
+		end
+		month_array = Hash[month_array.sort]
+		
+		previous_month = 0
+		ranges = []
+		counter = 0
+		month_array.each do |numerical,month|
+			counter += 1
+			if previous_month == 0
+				ranges.push(month)
+				range_string << month[0...3]
+			end
+			if counter == month_array.length and previous_month != 0
+				ranges.push(month)
+				range_string << ' - ' <<month[0...3]
+			elsif (previous_month !=0 and previous_month+1 != numerical) 
+				#if the previous month already exists in the array dont push it again(will happen if there is a one month window for a location)
+				if !ranges.include?(month_array[previous_month])
+					ranges.push(month_array[previous_month])
+					range_string << ' - ' << month_array[previous_month][0...3] << ', '
+				else
+					range_string << ', '
+				end
+				ranges.push(month)
+				range_string << month[0...3]
+			end
+			previous_month = numerical
+		end
+		return range_string
+	end
+
 	def get_accommodations
 		accommodations = {}
 		self.accommodations.each do |accommodation|
@@ -101,6 +138,7 @@ class Location < ActiveRecord::Base
 		json_return[:accommodations] = self.get_accommodations 
 		json_return[:grade] = self.grade.us 
 		json_return[:airport_code] = self.airport_code
+		json_return[:date_range] = self.date_range
 		return json_return
 	end
 	

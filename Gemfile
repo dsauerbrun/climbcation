@@ -50,3 +50,4 @@ gem 'aws-sdk'
 gem 'angularjs-rails'
 gem 'angular-rails-templates'
 gem "typhoeus"
+gem 'will_paginate'

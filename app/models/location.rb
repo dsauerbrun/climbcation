@@ -45,11 +45,31 @@ class Location < ActiveRecord::Base
 		previous_month = 0
 		ranges = []
 		counter = 0
+		#this variable will be set to the month to stop at in case we have an edge case of december - january
+		wrapper_break_month = -1
+		if month_array.length == 12
+			return 'Jan - Dec'
+		end
 		month_array.each do |numerical,month|
 			counter += 1
+			#first month of the range
 			if previous_month == 0
-				ranges.push(month)
-				range_string << month[0...3]
+				#corner case for if january and december are on
+				if month_array.has_key? 12 and numerical == 1
+					#get latest month
+					latest_month = 13
+					month_array.clone.to_a.reverse.to_h.each do |month_num, month_str|
+						if latest_month - 1 == month_num
+							latest_month = month_num
+						end
+					end
+					ranges.push(month_array[latest_month])
+					range_string << month_array[latest_month][0...3]
+					wrapper_break_month = latest_month
+				else
+					ranges.push(month)
+					range_string << month[0...3]
+				end
 			end
 			if counter == month_array.length and previous_month != 0
 				ranges.push(month)
@@ -57,10 +77,25 @@ class Location < ActiveRecord::Base
 			elsif (previous_month !=0 and previous_month+1 != numerical) 
 				#if the previous month already exists in the array dont push it again(will happen if there is a one month window for a location)
 				if !ranges.include?(month_array[previous_month])
-					ranges.push(month_array[previous_month])
-					range_string << ' - ' << month_array[previous_month][0...3] << ', '
+					#corner case for if we had a wrapping date range(IE. December-january, we want to print the month without a comma then kill the loop
+					if wrapper_break_month == numerical
+						ranges.push(month_array[previous_month])
+						range_string << ' - ' << month_array[previous_month][0...3]
+						break
+					else
+						ranges.push(month_array[previous_month])
+						range_string << ' - ' << month_array[previous_month][0...3] << ', '
+					end
 				else
-					range_string << ', '
+					if wrapper_break_month == numerical
+						if !ranges.include?(month_array[previous_month])
+							ranges.push(month_array[previous_month])
+							range_string << ' - ' << month_array[previous_month][0...3]
+						end
+						break
+					else
+						range_string << ', '
+					end
 				end
 				ranges.push(month)
 				range_string << month[0...3]
@@ -109,7 +144,6 @@ class Location < ActiveRecord::Base
 			sections[section.id][:data] = {} 
 			if section.metadata.present?
 				section.metadata.each do |key,metadata|
-					puts key
 					if(!sections[section.id][:data].has_key?(key))
 						sections[section.id][:data][key] = [] 
 					end
@@ -117,7 +151,6 @@ class Location < ActiveRecord::Base
 				end
 			end
 		end
-		puts sections
 		return sections
 
 	end

@@ -3,6 +3,1314 @@
 },removeData:function(a,b){M.remove(a,b)},_data:function(a,b,c){return L.access(a,b,c)},_removeData:function(a,b){L.remove(a,b)}}),n.fn.extend({data:function(a,b){var c,d,e,f=this[0],g=f&&f.attributes;if(void 0===a){if(this.length&&(e=M.get(f),1===f.nodeType&&!L.get(f,"hasDataAttrs"))){c=g.length;while(c--)g[c]&&(d=g[c].name,0===d.indexOf("data-")&&(d=n.camelCase(d.slice(5)),P(f,d,e[d])));L.set(f,"hasDataAttrs",!0)}return e}return"object"==typeof a?this.each(function(){M.set(this,a)}):J(this,function(b){var c,d=n.camelCase(a);if(f&&void 0===b){if(c=M.get(f,a),void 0!==c)return c;if(c=M.get(f,d),void 0!==c)return c;if(c=P(f,d,void 0),void 0!==c)return c}else this.each(function(){var c=M.get(this,d);M.set(this,d,b),-1!==a.indexOf("-")&&void 0!==c&&M.set(this,a,b)})},null,b,arguments.length>1,null,!0)},removeData:function(a){return this.each(function(){M.remove(this,a)})}}),n.extend({queue:function(a,b,c){var d;return a?(b=(b||"fx")+"queue",d=L.get(a,b),c&&(!d||n.isArray(c)?d=L.access(a,b,n.makeArray(c)):d.push(c)),d||[]):void 0},dequeue:function(a,b){b=b||"fx";var c=n.queue(a,b),d=c.length,e=c.shift(),f=n._queueHooks(a,b),g=function(){n.dequeue(a,b)};"inprogress"===e&&(e=c.shift(),d--),e&&("fx"===b&&c.unshift("inprogress"),delete f.stop,e.call(a,g,f)),!d&&f&&f.empty.fire()},_queueHooks:function(a,b){var c=b+"queueHooks";return L.get(a,c)||L.access(a,c,{empty:n.Callbacks("once memory").add(function(){L.remove(a,[b+"queue",c])})})}}),n.fn.extend({queue:function(a,b){var c=2;return"string"!=typeof a&&(b=a,a="fx",c--),arguments.length<c?n.queue(this[0],a):void 0===b?this:this.each(function(){var c=n.queue(this,a,b);n._queueHooks(this,a),"fx"===a&&"inprogress"!==c[0]&&n.dequeue(this,a)})},dequeue:function(a){return this.each(function(){n.dequeue(this,a)})},clearQueue:function(a){return this.queue(a||"fx",[])},promise:function(a,b){var c,d=1,e=n.Deferred(),f=this,g=this.length,h=function(){--d||e.resolveWith(f,[f])};"string"!=typeof a&&(b=a,a=void 0),a=a||"fx";while(g--)c=L.get(f[g],a+"queueHooks"),c&&c.empty&&(d++,c.empty.add(h));return h(),e.promise(b)}});var Q=/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,R=["Top","Right","Bottom","Left"],S=function(a,b){return a=b||a,"none"===n.css(a,"display")||!n.contains(a.ownerDocument,a)},T=/^(?:checkbox|radio)$/i;!function(){var a=l.createDocumentFragment(),b=a.appendChild(l.createElement("div")),c=l.createElement("input");c.setAttribute("type","radio"),c.setAttribute("checked","checked"),c.setAttribute("name","t"),b.appendChild(c),k.checkClone=b.cloneNode(!0).cloneNode(!0).lastChild.checked,b.innerHTML="<textarea>x</textarea>",k.noCloneChecked=!!b.cloneNode(!0).lastChild.defaultValue}();var U="undefined";k.focusinBubbles="onfocusin"in a;var V=/^key/,W=/^(?:mouse|pointer|contextmenu)|click/,X=/^(?:focusinfocus|focusoutblur)$/,Y=/^([^.]*)(?:\.(.+)|)$/;function Z(){return!0}function $(){return!1}function _(){try{return l.activeElement}catch(a){}}n.event={global:{},add:function(a,b,c,d,e){var f,g,h,i,j,k,l,m,o,p,q,r=L.get(a);if(r){c.handler&&(f=c,c=f.handler,e=f.selector),c.guid||(c.guid=n.guid++),(i=r.events)||(i=r.events={}),(g=r.handle)||(g=r.handle=function(b){return typeof n!==U&&n.event.triggered!==b.type?n.event.dispatch.apply(a,arguments):void 0}),b=(b||"").match(E)||[""],j=b.length;while(j--)h=Y.exec(b[j])||[],o=q=h[1],p=(h[2]||"").split(".").sort(),o&&(l=n.event.special[o]||{},o=(e?l.delegateType:l.bindType)||o,l=n.event.special[o]||{},k=n.extend({type:o,origType:q,data:d,handler:c,guid:c.guid,selector:e,needsContext:e&&n.expr.match.needsContext.test(e),namespace:p.join(".")},f),(m=i[o])||(m=i[o]=[],m.delegateCount=0,l.setup&&l.setup.call(a,d,p,g)!==!1||a.addEventListener&&a.addEventListener(o,g,!1)),l.add&&(l.add.call(a,k),k.handler.guid||(k.handler.guid=c.guid)),e?m.splice(m.delegateCount++,0,k):m.push(k),n.event.global[o]=!0)}},remove:function(a,b,c,d,e){var f,g,h,i,j,k,l,m,o,p,q,r=L.hasData(a)&&L.get(a);if(r&&(i=r.events)){b=(b||"").match(E)||[""],j=b.length;while(j--)if(h=Y.exec(b[j])||[],o=q=h[1],p=(h[2]||"").split(".").sort(),o){l=n.event.special[o]||{},o=(d?l.delegateType:l.bindType)||o,m=i[o]||[],h=h[2]&&new RegExp("(^|\\.)"+p.join("\\.(?:.*\\.|)")+"(\\.|$)"),g=f=m.length;while(f--)k=m[f],!e&&q!==k.origType||c&&c.guid!==k.guid||h&&!h.test(k.namespace)||d&&d!==k.selector&&("**"!==d||!k.selector)||(m.splice(f,1),k.selector&&m.delegateCount--,l.remove&&l.remove.call(a,k));g&&!m.length&&(l.teardown&&l.teardown.call(a,p,r.handle)!==!1||n.removeEvent(a,o,r.handle),delete i[o])}else for(o in i)n.event.remove(a,o+b[j],c,d,!0);n.isEmptyObject(i)&&(delete r.handle,L.remove(a,"events"))}},trigger:function(b,c,d,e){var f,g,h,i,k,m,o,p=[d||l],q=j.call(b,"type")?b.type:b,r=j.call(b,"namespace")?b.namespace.split("."):[];if(g=h=d=d||l,3!==d.nodeType&&8!==d.nodeType&&!X.test(q+n.event.triggered)&&(q.indexOf(".")>=0&&(r=q.split("."),q=r.shift(),r.sort()),k=q.indexOf(":")<0&&"on"+q,b=b[n.expando]?b:new n.Event(q,"object"==typeof b&&b),b.isTrigger=e?2:3,b.namespace=r.join("."),b.namespace_re=b.namespace?new RegExp("(^|\\.)"+r.join("\\.(?:.*\\.|)")+"(\\.|$)"):null,b.result=void 0,b.target||(b.target=d),c=null==c?[b]:n.makeArray(c,[b]),o=n.event.special[q]||{},e||!o.trigger||o.trigger.apply(d,c)!==!1)){if(!e&&!o.noBubble&&!n.isWindow(d)){for(i=o.delegateType||q,X.test(i+q)||(g=g.parentNode);g;g=g.parentNode)p.push(g),h=g;h===(d.ownerDocument||l)&&p.push(h.defaultView||h.parentWindow||a)}f=0;while((g=p[f++])&&!b.isPropagationStopped())b.type=f>1?i:o.bindType||q,m=(L.get(g,"events")||{})[b.type]&&L.get(g,"handle"),m&&m.apply(g,c),m=k&&g[k],m&&m.apply&&n.acceptData(g)&&(b.result=m.apply(g,c),b.result===!1&&b.preventDefault());return b.type=q,e||b.isDefaultPrevented()||o._default&&o._default.apply(p.pop(),c)!==!1||!n.acceptData(d)||k&&n.isFunction(d[q])&&!n.isWindow(d)&&(h=d[k],h&&(d[k]=null),n.event.triggered=q,d[q](),n.event.triggered=void 0,h&&(d[k]=h)),b.result}},dispatch:function(a){a=n.event.fix(a);var b,c,e,f,g,h=[],i=d.call(arguments),j=(L.get(this,"events")||{})[a.type]||[],k=n.event.special[a.type]||{};if(i[0]=a,a.delegateTarget=this,!k.preDispatch||k.preDispatch.call(this,a)!==!1){h=n.event.handlers.call(this,a,j),b=0;while((f=h[b++])&&!a.isPropagationStopped()){a.currentTarget=f.elem,c=0;while((g=f.handlers[c++])&&!a.isImmediatePropagationStopped())(!a.namespace_re||a.namespace_re.test(g.namespace))&&(a.handleObj=g,a.data=g.data,e=((n.event.special[g.origType]||{}).handle||g.handler).apply(f.elem,i),void 0!==e&&(a.result=e)===!1&&(a.preventDefault(),a.stopPropagation()))}return k.postDispatch&&k.postDispatch.call(this,a),a.result}},handlers:function(a,b){var c,d,e,f,g=[],h=b.delegateCount,i=a.target;if(h&&i.nodeType&&(!a.button||"click"!==a.type))for(;i!==this;i=i.parentNode||this)if(i.disabled!==!0||"click"!==a.type){for(d=[],c=0;h>c;c++)f=b[c],e=f.selector+" ",void 0===d[e]&&(d[e]=f.needsContext?n(e,this).index(i)>=0:n.find(e,this,null,[i]).length),d[e]&&d.push(f);d.length&&g.push({elem:i,handlers:d})}return h<b.length&&g.push({elem:this,handlers:b.slice(h)}),g},props:"altKey bubbles cancelable ctrlKey currentTarget eventPhase metaKey relatedTarget shiftKey target timeStamp view which".split(" "),fixHooks:{},keyHooks:{props:"char charCode key keyCode".split(" "),filter:function(a,b){return null==a.which&&(a.which=null!=b.charCode?b.charCode:b.keyCode),a}},mouseHooks:{props:"button buttons clientX clientY offsetX offsetY pageX pageY screenX screenY toElement".split(" "),filter:function(a,b){var c,d,e,f=b.button;return null==a.pageX&&null!=b.clientX&&(c=a.target.ownerDocument||l,d=c.documentElement,e=c.body,a.pageX=b.clientX+(d&&d.scrollLeft||e&&e.scrollLeft||0)-(d&&d.clientLeft||e&&e.clientLeft||0),a.pageY=b.clientY+(d&&d.scrollTop||e&&e.scrollTop||0)-(d&&d.clientTop||e&&e.clientTop||0)),a.which||void 0===f||(a.which=1&f?1:2&f?3:4&f?2:0),a}},fix:function(a){if(a[n.expando])return a;var b,c,d,e=a.type,f=a,g=this.fixHooks[e];g||(this.fixHooks[e]=g=W.test(e)?this.mouseHooks:V.test(e)?this.keyHooks:{}),d=g.props?this.props.concat(g.props):this.props,a=new n.Event(f),b=d.length;while(b--)c=d[b],a[c]=f[c];return a.target||(a.target=l),3===a.target.nodeType&&(a.target=a.target.parentNode),g.filter?g.filter(a,f):a},special:{load:{noBubble:!0},focus:{trigger:function(){return this!==_()&&this.focus?(this.focus(),!1):void 0},delegateType:"focusin"},blur:{trigger:function(){return this===_()&&this.blur?(this.blur(),!1):void 0},delegateType:"focusout"},click:{trigger:function(){return"checkbox"===this.type&&this.click&&n.nodeName(this,"input")?(this.click(),!1):void 0},_default:function(a){return n.nodeName(a.target,"a")}},beforeunload:{postDispatch:function(a){void 0!==a.result&&a.originalEvent&&(a.originalEvent.returnValue=a.result)}}},simulate:function(a,b,c,d){var e=n.extend(new n.Event,c,{type:a,isSimulated:!0,originalEvent:{}});d?n.event.trigger(e,null,b):n.event.dispatch.call(b,e),e.isDefaultPrevented()&&c.preventDefault()}},n.removeEvent=function(a,b,c){a.removeEventListener&&a.removeEventListener(b,c,!1)},n.Event=function(a,b){return this instanceof n.Event?(a&&a.type?(this.originalEvent=a,this.type=a.type,this.isDefaultPrevented=a.defaultPrevented||void 0===a.defaultPrevented&&a.returnValue===!1?Z:$):this.type=a,b&&n.extend(this,b),this.timeStamp=a&&a.timeStamp||n.now(),void(this[n.expando]=!0)):new n.Event(a,b)},n.Event.prototype={isDefaultPrevented:$,isPropagationStopped:$,isImmediatePropagationStopped:$,preventDefault:function(){var a=this.originalEvent;this.isDefaultPrevented=Z,a&&a.preventDefault&&a.preventDefault()},stopPropagation:function(){var a=this.originalEvent;this.isPropagationStopped=Z,a&&a.stopPropagation&&a.stopPropagation()},stopImmediatePropagation:function(){var a=this.originalEvent;this.isImmediatePropagationStopped=Z,a&&a.stopImmediatePropagation&&a.stopImmediatePropagation(),this.stopPropagation()}},n.each({mouseenter:"mouseover",mouseleave:"mouseout",pointerenter:"pointerover",pointerleave:"pointerout"},function(a,b){n.event.special[a]={delegateType:b,bindType:b,handle:function(a){var c,d=this,e=a.relatedTarget,f=a.handleObj;return(!e||e!==d&&!n.contains(d,e))&&(a.type=f.origType,c=f.handler.apply(this,arguments),a.type=b),c}}}),k.focusinBubbles||n.each({focus:"focusin",blur:"focusout"},function(a,b){var c=function(a){n.event.simulate(b,a.target,n.event.fix(a),!0)};n.event.special[b]={setup:function(){var d=this.ownerDocument||this,e=L.access(d,b);e||d.addEventListener(a,c,!0),L.access(d,b,(e||0)+1)},teardown:function(){var d=this.ownerDocument||this,e=L.access(d,b)-1;e?L.access(d,b,e):(d.removeEventListener(a,c,!0),L.remove(d,b))}}}),n.fn.extend({on:function(a,b,c,d,e){var f,g;if("object"==typeof a){"string"!=typeof b&&(c=c||b,b=void 0);for(g in a)this.on(g,b,c,a[g],e);return this}if(null==c&&null==d?(d=b,c=b=void 0):null==d&&("string"==typeof b?(d=c,c=void 0):(d=c,c=b,b=void 0)),d===!1)d=$;else if(!d)return this;return 1===e&&(f=d,d=function(a){return n().off(a),f.apply(this,arguments)},d.guid=f.guid||(f.guid=n.guid++)),this.each(function(){n.event.add(this,a,d,c,b)})},one:function(a,b,c,d){return this.on(a,b,c,d,1)},off:function(a,b,c){var d,e;if(a&&a.preventDefault&&a.handleObj)return d=a.handleObj,n(a.delegateTarget).off(d.namespace?d.origType+"."+d.namespace:d.origType,d.selector,d.handler),this;if("object"==typeof a){for(e in a)this.off(e,b,a[e]);return this}return(b===!1||"function"==typeof b)&&(c=b,b=void 0),c===!1&&(c=$),this.each(function(){n.event.remove(this,a,c,b)})},trigger:function(a,b){return this.each(function(){n.event.trigger(a,b,this)})},triggerHandler:function(a,b){var c=this[0];return c?n.event.trigger(a,b,c,!0):void 0}});var ab=/<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,bb=/<([\w:]+)/,cb=/<|&#?\w+;/,db=/<(?:script|style|link)/i,eb=/checked\s*(?:[^=]|=\s*.checked.)/i,fb=/^$|\/(?:java|ecma)script/i,gb=/^true\/(.*)/,hb=/^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g,ib={option:[1,"<select multiple='multiple'>","</select>"],thead:[1,"<table>","</table>"],col:[2,"<table><colgroup>","</colgroup></table>"],tr:[2,"<table><tbody>","</tbody></table>"],td:[3,"<table><tbody><tr>","</tr></tbody></table>"],_default:[0,"",""]};ib.optgroup=ib.option,ib.tbody=ib.tfoot=ib.colgroup=ib.caption=ib.thead,ib.th=ib.td;function jb(a,b){return n.nodeName(a,"table")&&n.nodeName(11!==b.nodeType?b:b.firstChild,"tr")?a.getElementsByTagName("tbody")[0]||a.appendChild(a.ownerDocument.createElement("tbody")):a}function kb(a){return a.type=(null!==a.getAttribute("type"))+"/"+a.type,a}function lb(a){var b=gb.exec(a.type);return b?a.type=b[1]:a.removeAttribute("type"),a}function mb(a,b){for(var c=0,d=a.length;d>c;c++)L.set(a[c],"globalEval",!b||L.get(b[c],"globalEval"))}function nb(a,b){var c,d,e,f,g,h,i,j;if(1===b.nodeType){if(L.hasData(a)&&(f=L.access(a),g=L.set(b,f),j=f.events)){delete g.handle,g.events={};for(e in j)for(c=0,d=j[e].length;d>c;c++)n.event.add(b,e,j[e][c])}M.hasData(a)&&(h=M.access(a),i=n.extend({},h),M.set(b,i))}}function ob(a,b){var c=a.getElementsByTagName?a.getElementsByTagName(b||"*"):a.querySelectorAll?a.querySelectorAll(b||"*"):[];return void 0===b||b&&n.nodeName(a,b)?n.merge([a],c):c}function pb(a,b){var c=b.nodeName.toLowerCase();"input"===c&&T.test(a.type)?b.checked=a.checked:("input"===c||"textarea"===c)&&(b.defaultValue=a.defaultValue)}n.extend({clone:function(a,b,c){var d,e,f,g,h=a.cloneNode(!0),i=n.contains(a.ownerDocument,a);if(!(k.noCloneChecked||1!==a.nodeType&&11!==a.nodeType||n.isXMLDoc(a)))for(g=ob(h),f=ob(a),d=0,e=f.length;e>d;d++)pb(f[d],g[d]);if(b)if(c)for(f=f||ob(a),g=g||ob(h),d=0,e=f.length;e>d;d++)nb(f[d],g[d]);else nb(a,h);return g=ob(h,"script"),g.length>0&&mb(g,!i&&ob(a,"script")),h},buildFragment:function(a,b,c,d){for(var e,f,g,h,i,j,k=b.createDocumentFragment(),l=[],m=0,o=a.length;o>m;m++)if(e=a[m],e||0===e)if("object"===n.type(e))n.merge(l,e.nodeType?[e]:e);else if(cb.test(e)){f=f||k.appendChild(b.createElement("div")),g=(bb.exec(e)||["",""])[1].toLowerCase(),h=ib[g]||ib._default,f.innerHTML=h[1]+e.replace(ab,"<$1></$2>")+h[2],j=h[0];while(j--)f=f.lastChild;n.merge(l,f.childNodes),f=k.firstChild,f.textContent=""}else l.push(b.createTextNode(e));k.textContent="",m=0;while(e=l[m++])if((!d||-1===n.inArray(e,d))&&(i=n.contains(e.ownerDocument,e),f=ob(k.appendChild(e),"script"),i&&mb(f),c)){j=0;while(e=f[j++])fb.test(e.type||"")&&c.push(e)}return k},cleanData:function(a){for(var b,c,d,e,f=n.event.special,g=0;void 0!==(c=a[g]);g++){if(n.acceptData(c)&&(e=c[L.expando],e&&(b=L.cache[e]))){if(b.events)for(d in b.events)f[d]?n.event.remove(c,d):n.removeEvent(c,d,b.handle);L.cache[e]&&delete L.cache[e]}delete M.cache[c[M.expando]]}}}),n.fn.extend({text:function(a){return J(this,function(a){return void 0===a?n.text(this):this.empty().each(function(){(1===this.nodeType||11===this.nodeType||9===this.nodeType)&&(this.textContent=a)})},null,a,arguments.length)},append:function(){return this.domManip(arguments,function(a){if(1===this.nodeType||11===this.nodeType||9===this.nodeType){var b=jb(this,a);b.appendChild(a)}})},prepend:function(){return this.domManip(arguments,function(a){if(1===this.nodeType||11===this.nodeType||9===this.nodeType){var b=jb(this,a);b.insertBefore(a,b.firstChild)}})},before:function(){return this.domManip(arguments,function(a){this.parentNode&&this.parentNode.insertBefore(a,this)})},after:function(){return this.domManip(arguments,function(a){this.parentNode&&this.parentNode.insertBefore(a,this.nextSibling)})},remove:function(a,b){for(var c,d=a?n.filter(a,this):this,e=0;null!=(c=d[e]);e++)b||1!==c.nodeType||n.cleanData(ob(c)),c.parentNode&&(b&&n.contains(c.ownerDocument,c)&&mb(ob(c,"script")),c.parentNode.removeChild(c));return this},empty:function(){for(var a,b=0;null!=(a=this[b]);b++)1===a.nodeType&&(n.cleanData(ob(a,!1)),a.textContent="");return this},clone:function(a,b){return a=null==a?!1:a,b=null==b?a:b,this.map(function(){return n.clone(this,a,b)})},html:function(a){return J(this,function(a){var b=this[0]||{},c=0,d=this.length;if(void 0===a&&1===b.nodeType)return b.innerHTML;if("string"==typeof a&&!db.test(a)&&!ib[(bb.exec(a)||["",""])[1].toLowerCase()]){a=a.replace(ab,"<$1></$2>");try{for(;d>c;c++)b=this[c]||{},1===b.nodeType&&(n.cleanData(ob(b,!1)),b.innerHTML=a);b=0}catch(e){}}b&&this.empty().append(a)},null,a,arguments.length)},replaceWith:function(){var a=arguments[0];return this.domManip(arguments,function(b){a=this.parentNode,n.cleanData(ob(this)),a&&a.replaceChild(b,this)}),a&&(a.length||a.nodeType)?this:this.remove()},detach:function(a){return this.remove(a,!0)},domManip:function(a,b){a=e.apply([],a);var c,d,f,g,h,i,j=0,l=this.length,m=this,o=l-1,p=a[0],q=n.isFunction(p);if(q||l>1&&"string"==typeof p&&!k.checkClone&&eb.test(p))return this.each(function(c){var d=m.eq(c);q&&(a[0]=p.call(this,c,d.html())),d.domManip(a,b)});if(l&&(c=n.buildFragment(a,this[0].ownerDocument,!1,this),d=c.firstChild,1===c.childNodes.length&&(c=d),d)){for(f=n.map(ob(c,"script"),kb),g=f.length;l>j;j++)h=c,j!==o&&(h=n.clone(h,!0,!0),g&&n.merge(f,ob(h,"script"))),b.call(this[j],h,j);if(g)for(i=f[f.length-1].ownerDocument,n.map(f,lb),j=0;g>j;j++)h=f[j],fb.test(h.type||"")&&!L.access(h,"globalEval")&&n.contains(i,h)&&(h.src?n._evalUrl&&n._evalUrl(h.src):n.globalEval(h.textContent.replace(hb,"")))}return this}}),n.each({appendTo:"append",prependTo:"prepend",insertBefore:"before",insertAfter:"after",replaceAll:"replaceWith"},function(a,b){n.fn[a]=function(a){for(var c,d=[],e=n(a),g=e.length-1,h=0;g>=h;h++)c=h===g?this:this.clone(!0),n(e[h])[b](c),f.apply(d,c.get());return this.pushStack(d)}});var qb,rb={};function sb(b,c){var d,e=n(c.createElement(b)).appendTo(c.body),f=a.getDefaultComputedStyle&&(d=a.getDefaultComputedStyle(e[0]))?d.display:n.css(e[0],"display");return e.detach(),f}function tb(a){var b=l,c=rb[a];return c||(c=sb(a,b),"none"!==c&&c||(qb=(qb||n("<iframe frameborder='0' width='0' height='0'/>")).appendTo(b.documentElement),b=qb[0].contentDocument,b.write(),b.close(),c=sb(a,b),qb.detach()),rb[a]=c),c}var ub=/^margin/,vb=new RegExp("^("+Q+")(?!px)[a-z%]+$","i"),wb=function(b){return b.ownerDocument.defaultView.opener?b.ownerDocument.defaultView.getComputedStyle(b,null):a.getComputedStyle(b,null)};function xb(a,b,c){var d,e,f,g,h=a.style;return c=c||wb(a),c&&(g=c.getPropertyValue(b)||c[b]),c&&(""!==g||n.contains(a.ownerDocument,a)||(g=n.style(a,b)),vb.test(g)&&ub.test(b)&&(d=h.width,e=h.minWidth,f=h.maxWidth,h.minWidth=h.maxWidth=h.width=g,g=c.width,h.width=d,h.minWidth=e,h.maxWidth=f)),void 0!==g?g+"":g}function yb(a,b){return{get:function(){return a()?void delete this.get:(this.get=b).apply(this,arguments)}}}!function(){var b,c,d=l.documentElement,e=l.createElement("div"),f=l.createElement("div");if(f.style){f.style.backgroundClip="content-box",f.cloneNode(!0).style.backgroundClip="",k.clearCloneStyle="content-box"===f.style.backgroundClip,e.style.cssText="border:0;width:0;height:0;top:0;left:-9999px;margin-top:1px;position:absolute",e.appendChild(f);function g(){f.style.cssText="-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;display:block;margin-top:1%;top:1%;border:1px;padding:1px;width:4px;position:absolute",f.innerHTML="",d.appendChild(e);var g=a.getComputedStyle(f,null);b="1%"!==g.top,c="4px"===g.width,d.removeChild(e)}a.getComputedStyle&&n.extend(k,{pixelPosition:function(){return g(),b},boxSizingReliable:function(){return null==c&&g(),c},reliableMarginRight:function(){var b,c=f.appendChild(l.createElement("div"));return c.style.cssText=f.style.cssText="-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;display:block;margin:0;border:0;padding:0",c.style.marginRight=c.style.width="0",f.style.width="1px",d.appendChild(e),b=!parseFloat(a.getComputedStyle(c,null).marginRight),d.removeChild(e),f.removeChild(c),b}})}}(),n.swap=function(a,b,c,d){var e,f,g={};for(f in b)g[f]=a.style[f],a.style[f]=b[f];e=c.apply(a,d||[]);for(f in b)a.style[f]=g[f];return e};var zb=/^(none|table(?!-c[ea]).+)/,Ab=new RegExp("^("+Q+")(.*)$","i"),Bb=new RegExp("^([+-])=("+Q+")","i"),Cb={position:"absolute",visibility:"hidden",display:"block"},Db={letterSpacing:"0",fontWeight:"400"},Eb=["Webkit","O","Moz","ms"];function Fb(a,b){if(b in a)return b;var c=b[0].toUpperCase()+b.slice(1),d=b,e=Eb.length;while(e--)if(b=Eb[e]+c,b in a)return b;return d}function Gb(a,b,c){var d=Ab.exec(b);return d?Math.max(0,d[1]-(c||0))+(d[2]||"px"):b}function Hb(a,b,c,d,e){for(var f=c===(d?"border":"content")?4:"width"===b?1:0,g=0;4>f;f+=2)"margin"===c&&(g+=n.css(a,c+R[f],!0,e)),d?("content"===c&&(g-=n.css(a,"padding"+R[f],!0,e)),"margin"!==c&&(g-=n.css(a,"border"+R[f]+"Width",!0,e))):(g+=n.css(a,"padding"+R[f],!0,e),"padding"!==c&&(g+=n.css(a,"border"+R[f]+"Width",!0,e)));return g}function Ib(a,b,c){var d=!0,e="width"===b?a.offsetWidth:a.offsetHeight,f=wb(a),g="border-box"===n.css(a,"boxSizing",!1,f);if(0>=e||null==e){if(e=xb(a,b,f),(0>e||null==e)&&(e=a.style[b]),vb.test(e))return e;d=g&&(k.boxSizingReliable()||e===a.style[b]),e=parseFloat(e)||0}return e+Hb(a,b,c||(g?"border":"content"),d,f)+"px"}function Jb(a,b){for(var c,d,e,f=[],g=0,h=a.length;h>g;g++)d=a[g],d.style&&(f[g]=L.get(d,"olddisplay"),c=d.style.display,b?(f[g]||"none"!==c||(d.style.display=""),""===d.style.display&&S(d)&&(f[g]=L.access(d,"olddisplay",tb(d.nodeName)))):(e=S(d),"none"===c&&e||L.set(d,"olddisplay",e?c:n.css(d,"display"))));for(g=0;h>g;g++)d=a[g],d.style&&(b&&"none"!==d.style.display&&""!==d.style.display||(d.style.display=b?f[g]||"":"none"));return a}n.extend({cssHooks:{opacity:{get:function(a,b){if(b){var c=xb(a,"opacity");return""===c?"1":c}}}},cssNumber:{columnCount:!0,fillOpacity:!0,flexGrow:!0,flexShrink:!0,fontWeight:!0,lineHeight:!0,opacity:!0,order:!0,orphans:!0,widows:!0,zIndex:!0,zoom:!0},cssProps:{"float":"cssFloat"},style:function(a,b,c,d){if(a&&3!==a.nodeType&&8!==a.nodeType&&a.style){var e,f,g,h=n.camelCase(b),i=a.style;return b=n.cssProps[h]||(n.cssProps[h]=Fb(i,h)),g=n.cssHooks[b]||n.cssHooks[h],void 0===c?g&&"get"in g&&void 0!==(e=g.get(a,!1,d))?e:i[b]:(f=typeof c,"string"===f&&(e=Bb.exec(c))&&(c=(e[1]+1)*e[2]+parseFloat(n.css(a,b)),f="number"),null!=c&&c===c&&("number"!==f||n.cssNumber[h]||(c+="px"),k.clearCloneStyle||""!==c||0!==b.indexOf("background")||(i[b]="inherit"),g&&"set"in g&&void 0===(c=g.set(a,c,d))||(i[b]=c)),void 0)}},css:function(a,b,c,d){var e,f,g,h=n.camelCase(b);return b=n.cssProps[h]||(n.cssProps[h]=Fb(a.style,h)),g=n.cssHooks[b]||n.cssHooks[h],g&&"get"in g&&(e=g.get(a,!0,c)),void 0===e&&(e=xb(a,b,d)),"normal"===e&&b in Db&&(e=Db[b]),""===c||c?(f=parseFloat(e),c===!0||n.isNumeric(f)?f||0:e):e}}),n.each(["height","width"],function(a,b){n.cssHooks[b]={get:function(a,c,d){return c?zb.test(n.css(a,"display"))&&0===a.offsetWidth?n.swap(a,Cb,function(){return Ib(a,b,d)}):Ib(a,b,d):void 0},set:function(a,c,d){var e=d&&wb(a);return Gb(a,c,d?Hb(a,b,d,"border-box"===n.css(a,"boxSizing",!1,e),e):0)}}}),n.cssHooks.marginRight=yb(k.reliableMarginRight,function(a,b){return b?n.swap(a,{display:"inline-block"},xb,[a,"marginRight"]):void 0}),n.each({margin:"",padding:"",border:"Width"},function(a,b){n.cssHooks[a+b]={expand:function(c){for(var d=0,e={},f="string"==typeof c?c.split(" "):[c];4>d;d++)e[a+R[d]+b]=f[d]||f[d-2]||f[0];return e}},ub.test(a)||(n.cssHooks[a+b].set=Gb)}),n.fn.extend({css:function(a,b){return J(this,function(a,b,c){var d,e,f={},g=0;if(n.isArray(b)){for(d=wb(a),e=b.length;e>g;g++)f[b[g]]=n.css(a,b[g],!1,d);return f}return void 0!==c?n.style(a,b,c):n.css(a,b)},a,b,arguments.length>1)},show:function(){return Jb(this,!0)},hide:function(){return Jb(this)},toggle:function(a){return"boolean"==typeof a?a?this.show():this.hide():this.each(function(){S(this)?n(this).show():n(this).hide()})}});function Kb(a,b,c,d,e){return new Kb.prototype.init(a,b,c,d,e)}n.Tween=Kb,Kb.prototype={constructor:Kb,init:function(a,b,c,d,e,f){this.elem=a,this.prop=c,this.easing=e||"swing",this.options=b,this.start=this.now=this.cur(),this.end=d,this.unit=f||(n.cssNumber[c]?"":"px")},cur:function(){var a=Kb.propHooks[this.prop];return a&&a.get?a.get(this):Kb.propHooks._default.get(this)},run:function(a){var b,c=Kb.propHooks[this.prop];return this.pos=b=this.options.duration?n.easing[this.easing](a,this.options.duration*a,0,1,this.options.duration):a,this.now=(this.end-this.start)*b+this.start,this.options.step&&this.options.step.call(this.elem,this.now,this),c&&c.set?c.set(this):Kb.propHooks._default.set(this),this}},Kb.prototype.init.prototype=Kb.prototype,Kb.propHooks={_default:{get:function(a){var b;return null==a.elem[a.prop]||a.elem.style&&null!=a.elem.style[a.prop]?(b=n.css(a.elem,a.prop,""),b&&"auto"!==b?b:0):a.elem[a.prop]},set:function(a){n.fx.step[a.prop]?n.fx.step[a.prop](a):a.elem.style&&(null!=a.elem.style[n.cssProps[a.prop]]||n.cssHooks[a.prop])?n.style(a.elem,a.prop,a.now+a.unit):a.elem[a.prop]=a.now}}},Kb.propHooks.scrollTop=Kb.propHooks.scrollLeft={set:function(a){a.elem.nodeType&&a.elem.parentNode&&(a.elem[a.prop]=a.now)}},n.easing={linear:function(a){return a},swing:function(a){return.5-Math.cos(a*Math.PI)/2}},n.fx=Kb.prototype.init,n.fx.step={};var Lb,Mb,Nb=/^(?:toggle|show|hide)$/,Ob=new RegExp("^(?:([+-])=|)("+Q+")([a-z%]*)$","i"),Pb=/queueHooks$/,Qb=[Vb],Rb={"*":[function(a,b){var c=this.createTween(a,b),d=c.cur(),e=Ob.exec(b),f=e&&e[3]||(n.cssNumber[a]?"":"px"),g=(n.cssNumber[a]||"px"!==f&&+d)&&Ob.exec(n.css(c.elem,a)),h=1,i=20;if(g&&g[3]!==f){f=f||g[3],e=e||[],g=+d||1;do h=h||".5",g/=h,n.style(c.elem,a,g+f);while(h!==(h=c.cur()/d)&&1!==h&&--i)}return e&&(g=c.start=+g||+d||0,c.unit=f,c.end=e[1]?g+(e[1]+1)*e[2]:+e[2]),c}]};function Sb(){return setTimeout(function(){Lb=void 0}),Lb=n.now()}function Tb(a,b){var c,d=0,e={height:a};for(b=b?1:0;4>d;d+=2-b)c=R[d],e["margin"+c]=e["padding"+c]=a;return b&&(e.opacity=e.width=a),e}function Ub(a,b,c){for(var d,e=(Rb[b]||[]).concat(Rb["*"]),f=0,g=e.length;g>f;f++)if(d=e[f].call(c,b,a))return d}function Vb(a,b,c){var d,e,f,g,h,i,j,k,l=this,m={},o=a.style,p=a.nodeType&&S(a),q=L.get(a,"fxshow");c.queue||(h=n._queueHooks(a,"fx"),null==h.unqueued&&(h.unqueued=0,i=h.empty.fire,h.empty.fire=function(){h.unqueued||i()}),h.unqueued++,l.always(function(){l.always(function(){h.unqueued--,n.queue(a,"fx").length||h.empty.fire()})})),1===a.nodeType&&("height"in b||"width"in b)&&(c.overflow=[o.overflow,o.overflowX,o.overflowY],j=n.css(a,"display"),k="none"===j?L.get(a,"olddisplay")||tb(a.nodeName):j,"inline"===k&&"none"===n.css(a,"float")&&(o.display="inline-block")),c.overflow&&(o.overflow="hidden",l.always(function(){o.overflow=c.overflow[0],o.overflowX=c.overflow[1],o.overflowY=c.overflow[2]}));for(d in b)if(e=b[d],Nb.exec(e)){if(delete b[d],f=f||"toggle"===e,e===(p?"hide":"show")){if("show"!==e||!q||void 0===q[d])continue;p=!0}m[d]=q&&q[d]||n.style(a,d)}else j=void 0;if(n.isEmptyObject(m))"inline"===("none"===j?tb(a.nodeName):j)&&(o.display=j);else{q?"hidden"in q&&(p=q.hidden):q=L.access(a,"fxshow",{}),f&&(q.hidden=!p),p?n(a).show():l.done(function(){n(a).hide()}),l.done(function(){var b;L.remove(a,"fxshow");for(b in m)n.style(a,b,m[b])});for(d in m)g=Ub(p?q[d]:0,d,l),d in q||(q[d]=g.start,p&&(g.end=g.start,g.start="width"===d||"height"===d?1:0))}}function Wb(a,b){var c,d,e,f,g;for(c in a)if(d=n.camelCase(c),e=b[d],f=a[c],n.isArray(f)&&(e=f[1],f=a[c]=f[0]),c!==d&&(a[d]=f,delete a[c]),g=n.cssHooks[d],g&&"expand"in g){f=g.expand(f),delete a[d];for(c in f)c in a||(a[c]=f[c],b[c]=e)}else b[d]=e}function Xb(a,b,c){var d,e,f=0,g=Qb.length,h=n.Deferred().always(function(){delete i.elem}),i=function(){if(e)return!1;for(var b=Lb||Sb(),c=Math.max(0,j.startTime+j.duration-b),d=c/j.duration||0,f=1-d,g=0,i=j.tweens.length;i>g;g++)j.tweens[g].run(f);return h.notifyWith(a,[j,f,c]),1>f&&i?c:(h.resolveWith(a,[j]),!1)},j=h.promise({elem:a,props:n.extend({},b),opts:n.extend(!0,{specialEasing:{}},c),originalProperties:b,originalOptions:c,startTime:Lb||Sb(),duration:c.duration,tweens:[],createTween:function(b,c){var d=n.Tween(a,j.opts,b,c,j.opts.specialEasing[b]||j.opts.easing);return j.tweens.push(d),d},stop:function(b){var c=0,d=b?j.tweens.length:0;if(e)return this;for(e=!0;d>c;c++)j.tweens[c].run(1);return b?h.resolveWith(a,[j,b]):h.rejectWith(a,[j,b]),this}}),k=j.props;for(Wb(k,j.opts.specialEasing);g>f;f++)if(d=Qb[f].call(j,a,k,j.opts))return d;return n.map(k,Ub,j),n.isFunction(j.opts.start)&&j.opts.start.call(a,j),n.fx.timer(n.extend(i,{elem:a,anim:j,queue:j.opts.queue})),j.progress(j.opts.progress).done(j.opts.done,j.opts.complete).fail(j.opts.fail).always(j.opts.always)}n.Animation=n.extend(Xb,{tweener:function(a,b){n.isFunction(a)?(b=a,a=["*"]):a=a.split(" ");for(var c,d=0,e=a.length;e>d;d++)c=a[d],Rb[c]=Rb[c]||[],Rb[c].unshift(b)},prefilter:function(a,b){b?Qb.unshift(a):Qb.push(a)}}),n.speed=function(a,b,c){var d=a&&"object"==typeof a?n.extend({},a):{complete:c||!c&&b||n.isFunction(a)&&a,duration:a,easing:c&&b||b&&!n.isFunction(b)&&b};return d.duration=n.fx.off?0:"number"==typeof d.duration?d.duration:d.duration in n.fx.speeds?n.fx.speeds[d.duration]:n.fx.speeds._default,(null==d.queue||d.queue===!0)&&(d.queue="fx"),d.old=d.complete,d.complete=function(){n.isFunction(d.old)&&d.old.call(this),d.queue&&n.dequeue(this,d.queue)},d},n.fn.extend({fadeTo:function(a,b,c,d){return this.filter(S).css("opacity",0).show().end().animate({opacity:b},a,c,d)},animate:function(a,b,c,d){var e=n.isEmptyObject(a),f=n.speed(b,c,d),g=function(){var b=Xb(this,n.extend({},a),f);(e||L.get(this,"finish"))&&b.stop(!0)};return g.finish=g,e||f.queue===!1?this.each(g):this.queue(f.queue,g)},stop:function(a,b,c){var d=function(a){var b=a.stop;delete a.stop,b(c)};return"string"!=typeof a&&(c=b,b=a,a=void 0),b&&a!==!1&&this.queue(a||"fx",[]),this.each(function(){var b=!0,e=null!=a&&a+"queueHooks",f=n.timers,g=L.get(this);if(e)g[e]&&g[e].stop&&d(g[e]);else for(e in g)g[e]&&g[e].stop&&Pb.test(e)&&d(g[e]);for(e=f.length;e--;)f[e].elem!==this||null!=a&&f[e].queue!==a||(f[e].anim.stop(c),b=!1,f.splice(e,1));(b||!c)&&n.dequeue(this,a)})},finish:function(a){return a!==!1&&(a=a||"fx"),this.each(function(){var b,c=L.get(this),d=c[a+"queue"],e=c[a+"queueHooks"],f=n.timers,g=d?d.length:0;for(c.finish=!0,n.queue(this,a,[]),e&&e.stop&&e.stop.call(this,!0),b=f.length;b--;)f[b].elem===this&&f[b].queue===a&&(f[b].anim.stop(!0),f.splice(b,1));for(b=0;g>b;b++)d[b]&&d[b].finish&&d[b].finish.call(this);delete c.finish})}}),n.each(["toggle","show","hide"],function(a,b){var c=n.fn[b];n.fn[b]=function(a,d,e){return null==a||"boolean"==typeof a?c.apply(this,arguments):this.animate(Tb(b,!0),a,d,e)}}),n.each({slideDown:Tb("show"),slideUp:Tb("hide"),slideToggle:Tb("toggle"),fadeIn:{opacity:"show"},fadeOut:{opacity:"hide"},fadeToggle:{opacity:"toggle"}},function(a,b){n.fn[a]=function(a,c,d){return this.animate(b,a,c,d)}}),n.timers=[],n.fx.tick=function(){var a,b=0,c=n.timers;for(Lb=n.now();b<c.length;b++)a=c[b],a()||c[b]!==a||c.splice(b--,1);c.length||n.fx.stop(),Lb=void 0},n.fx.timer=function(a){n.timers.push(a),a()?n.fx.start():n.timers.pop()},n.fx.interval=13,n.fx.start=function(){Mb||(Mb=setInterval(n.fx.tick,n.fx.interval))},n.fx.stop=function(){clearInterval(Mb),Mb=null},n.fx.speeds={slow:600,fast:200,_default:400},n.fn.delay=function(a,b){return a=n.fx?n.fx.speeds[a]||a:a,b=b||"fx",this.queue(b,function(b,c){var d=setTimeout(b,a);c.stop=function(){clearTimeout(d)}})},function(){var a=l.createElement("input"),b=l.createElement("select"),c=b.appendChild(l.createElement("option"));a.type="checkbox",k.checkOn=""!==a.value,k.optSelected=c.selected,b.disabled=!0,k.optDisabled=!c.disabled,a=l.createElement("input"),a.value="t",a.type="radio",k.radioValue="t"===a.value}();var Yb,Zb,$b=n.expr.attrHandle;n.fn.extend({attr:function(a,b){return J(this,n.attr,a,b,arguments.length>1)},removeAttr:function(a){return this.each(function(){n.removeAttr(this,a)})}}),n.extend({attr:function(a,b,c){var d,e,f=a.nodeType;if(a&&3!==f&&8!==f&&2!==f)return typeof a.getAttribute===U?n.prop(a,b,c):(1===f&&n.isXMLDoc(a)||(b=b.toLowerCase(),d=n.attrHooks[b]||(n.expr.match.bool.test(b)?Zb:Yb)),void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?void 0:e):null!==c?d&&"set"in d&&void 0!==(e=d.set(a,c,b))?e:(a.setAttribute(b,c+""),c):void n.removeAttr(a,b))
 },removeAttr:function(a,b){var c,d,e=0,f=b&&b.match(E);if(f&&1===a.nodeType)while(c=f[e++])d=n.propFix[c]||c,n.expr.match.bool.test(c)&&(a[d]=!1),a.removeAttribute(c)},attrHooks:{type:{set:function(a,b){if(!k.radioValue&&"radio"===b&&n.nodeName(a,"input")){var c=a.value;return a.setAttribute("type",b),c&&(a.value=c),b}}}}}),Zb={set:function(a,b,c){return b===!1?n.removeAttr(a,c):a.setAttribute(c,c),c}},n.each(n.expr.match.bool.source.match(/\w+/g),function(a,b){var c=$b[b]||n.find.attr;$b[b]=function(a,b,d){var e,f;return d||(f=$b[b],$b[b]=e,e=null!=c(a,b,d)?b.toLowerCase():null,$b[b]=f),e}});var _b=/^(?:input|select|textarea|button)$/i;n.fn.extend({prop:function(a,b){return J(this,n.prop,a,b,arguments.length>1)},removeProp:function(a){return this.each(function(){delete this[n.propFix[a]||a]})}}),n.extend({propFix:{"for":"htmlFor","class":"className"},prop:function(a,b,c){var d,e,f,g=a.nodeType;if(a&&3!==g&&8!==g&&2!==g)return f=1!==g||!n.isXMLDoc(a),f&&(b=n.propFix[b]||b,e=n.propHooks[b]),void 0!==c?e&&"set"in e&&void 0!==(d=e.set(a,c,b))?d:a[b]=c:e&&"get"in e&&null!==(d=e.get(a,b))?d:a[b]},propHooks:{tabIndex:{get:function(a){return a.hasAttribute("tabindex")||_b.test(a.nodeName)||a.href?a.tabIndex:-1}}}}),k.optSelected||(n.propHooks.selected={get:function(a){var b=a.parentNode;return b&&b.parentNode&&b.parentNode.selectedIndex,null}}),n.each(["tabIndex","readOnly","maxLength","cellSpacing","cellPadding","rowSpan","colSpan","useMap","frameBorder","contentEditable"],function(){n.propFix[this.toLowerCase()]=this});var ac=/[\t\r\n\f]/g;n.fn.extend({addClass:function(a){var b,c,d,e,f,g,h="string"==typeof a&&a,i=0,j=this.length;if(n.isFunction(a))return this.each(function(b){n(this).addClass(a.call(this,b,this.className))});if(h)for(b=(a||"").match(E)||[];j>i;i++)if(c=this[i],d=1===c.nodeType&&(c.className?(" "+c.className+" ").replace(ac," "):" ")){f=0;while(e=b[f++])d.indexOf(" "+e+" ")<0&&(d+=e+" ");g=n.trim(d),c.className!==g&&(c.className=g)}return this},removeClass:function(a){var b,c,d,e,f,g,h=0===arguments.length||"string"==typeof a&&a,i=0,j=this.length;if(n.isFunction(a))return this.each(function(b){n(this).removeClass(a.call(this,b,this.className))});if(h)for(b=(a||"").match(E)||[];j>i;i++)if(c=this[i],d=1===c.nodeType&&(c.className?(" "+c.className+" ").replace(ac," "):"")){f=0;while(e=b[f++])while(d.indexOf(" "+e+" ")>=0)d=d.replace(" "+e+" "," ");g=a?n.trim(d):"",c.className!==g&&(c.className=g)}return this},toggleClass:function(a,b){var c=typeof a;return"boolean"==typeof b&&"string"===c?b?this.addClass(a):this.removeClass(a):this.each(n.isFunction(a)?function(c){n(this).toggleClass(a.call(this,c,this.className,b),b)}:function(){if("string"===c){var b,d=0,e=n(this),f=a.match(E)||[];while(b=f[d++])e.hasClass(b)?e.removeClass(b):e.addClass(b)}else(c===U||"boolean"===c)&&(this.className&&L.set(this,"__className__",this.className),this.className=this.className||a===!1?"":L.get(this,"__className__")||"")})},hasClass:function(a){for(var b=" "+a+" ",c=0,d=this.length;d>c;c++)if(1===this[c].nodeType&&(" "+this[c].className+" ").replace(ac," ").indexOf(b)>=0)return!0;return!1}});var bc=/\r/g;n.fn.extend({val:function(a){var b,c,d,e=this[0];{if(arguments.length)return d=n.isFunction(a),this.each(function(c){var e;1===this.nodeType&&(e=d?a.call(this,c,n(this).val()):a,null==e?e="":"number"==typeof e?e+="":n.isArray(e)&&(e=n.map(e,function(a){return null==a?"":a+""})),b=n.valHooks[this.type]||n.valHooks[this.nodeName.toLowerCase()],b&&"set"in b&&void 0!==b.set(this,e,"value")||(this.value=e))});if(e)return b=n.valHooks[e.type]||n.valHooks[e.nodeName.toLowerCase()],b&&"get"in b&&void 0!==(c=b.get(e,"value"))?c:(c=e.value,"string"==typeof c?c.replace(bc,""):null==c?"":c)}}}),n.extend({valHooks:{option:{get:function(a){var b=n.find.attr(a,"value");return null!=b?b:n.trim(n.text(a))}},select:{get:function(a){for(var b,c,d=a.options,e=a.selectedIndex,f="select-one"===a.type||0>e,g=f?null:[],h=f?e+1:d.length,i=0>e?h:f?e:0;h>i;i++)if(c=d[i],!(!c.selected&&i!==e||(k.optDisabled?c.disabled:null!==c.getAttribute("disabled"))||c.parentNode.disabled&&n.nodeName(c.parentNode,"optgroup"))){if(b=n(c).val(),f)return b;g.push(b)}return g},set:function(a,b){var c,d,e=a.options,f=n.makeArray(b),g=e.length;while(g--)d=e[g],(d.selected=n.inArray(d.value,f)>=0)&&(c=!0);return c||(a.selectedIndex=-1),f}}}}),n.each(["radio","checkbox"],function(){n.valHooks[this]={set:function(a,b){return n.isArray(b)?a.checked=n.inArray(n(a).val(),b)>=0:void 0}},k.checkOn||(n.valHooks[this].get=function(a){return null===a.getAttribute("value")?"on":a.value})}),n.each("blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu".split(" "),function(a,b){n.fn[b]=function(a,c){return arguments.length>0?this.on(b,null,a,c):this.trigger(b)}}),n.fn.extend({hover:function(a,b){return this.mouseenter(a).mouseleave(b||a)},bind:function(a,b,c){return this.on(a,null,b,c)},unbind:function(a,b){return this.off(a,null,b)},delegate:function(a,b,c,d){return this.on(b,a,c,d)},undelegate:function(a,b,c){return 1===arguments.length?this.off(a,"**"):this.off(b,a||"**",c)}});var cc=n.now(),dc=/\?/;n.parseJSON=function(a){return JSON.parse(a+"")},n.parseXML=function(a){var b,c;if(!a||"string"!=typeof a)return null;try{c=new DOMParser,b=c.parseFromString(a,"text/xml")}catch(d){b=void 0}return(!b||b.getElementsByTagName("parsererror").length)&&n.error("Invalid XML: "+a),b};var ec=/#.*$/,fc=/([?&])_=[^&]*/,gc=/^(.*?):[ \t]*([^\r\n]*)$/gm,hc=/^(?:about|app|app-storage|.+-extension|file|res|widget):$/,ic=/^(?:GET|HEAD)$/,jc=/^\/\//,kc=/^([\w.+-]+:)(?:\/\/(?:[^\/?#]*@|)([^\/?#:]*)(?::(\d+)|)|)/,lc={},mc={},nc="*/".concat("*"),oc=a.location.href,pc=kc.exec(oc.toLowerCase())||[];function qc(a){return function(b,c){"string"!=typeof b&&(c=b,b="*");var d,e=0,f=b.toLowerCase().match(E)||[];if(n.isFunction(c))while(d=f[e++])"+"===d[0]?(d=d.slice(1)||"*",(a[d]=a[d]||[]).unshift(c)):(a[d]=a[d]||[]).push(c)}}function rc(a,b,c,d){var e={},f=a===mc;function g(h){var i;return e[h]=!0,n.each(a[h]||[],function(a,h){var j=h(b,c,d);return"string"!=typeof j||f||e[j]?f?!(i=j):void 0:(b.dataTypes.unshift(j),g(j),!1)}),i}return g(b.dataTypes[0])||!e["*"]&&g("*")}function sc(a,b){var c,d,e=n.ajaxSettings.flatOptions||{};for(c in b)void 0!==b[c]&&((e[c]?a:d||(d={}))[c]=b[c]);return d&&n.extend(!0,a,d),a}function tc(a,b,c){var d,e,f,g,h=a.contents,i=a.dataTypes;while("*"===i[0])i.shift(),void 0===d&&(d=a.mimeType||b.getResponseHeader("Content-Type"));if(d)for(e in h)if(h[e]&&h[e].test(d)){i.unshift(e);break}if(i[0]in c)f=i[0];else{for(e in c){if(!i[0]||a.converters[e+" "+i[0]]){f=e;break}g||(g=e)}f=f||g}return f?(f!==i[0]&&i.unshift(f),c[f]):void 0}function uc(a,b,c,d){var e,f,g,h,i,j={},k=a.dataTypes.slice();if(k[1])for(g in a.converters)j[g.toLowerCase()]=a.converters[g];f=k.shift();while(f)if(a.responseFields[f]&&(c[a.responseFields[f]]=b),!i&&d&&a.dataFilter&&(b=a.dataFilter(b,a.dataType)),i=f,f=k.shift())if("*"===f)f=i;else if("*"!==i&&i!==f){if(g=j[i+" "+f]||j["* "+f],!g)for(e in j)if(h=e.split(" "),h[1]===f&&(g=j[i+" "+h[0]]||j["* "+h[0]])){g===!0?g=j[e]:j[e]!==!0&&(f=h[0],k.unshift(h[1]));break}if(g!==!0)if(g&&a["throws"])b=g(b);else try{b=g(b)}catch(l){return{state:"parsererror",error:g?l:"No conversion from "+i+" to "+f}}}return{state:"success",data:b}}n.extend({active:0,lastModified:{},etag:{},ajaxSettings:{url:oc,type:"GET",isLocal:hc.test(pc[1]),global:!0,processData:!0,async:!0,contentType:"application/x-www-form-urlencoded; charset=UTF-8",accepts:{"*":nc,text:"text/plain",html:"text/html",xml:"application/xml, text/xml",json:"application/json, text/javascript"},contents:{xml:/xml/,html:/html/,json:/json/},responseFields:{xml:"responseXML",text:"responseText",json:"responseJSON"},converters:{"* text":String,"text html":!0,"text json":n.parseJSON,"text xml":n.parseXML},flatOptions:{url:!0,context:!0}},ajaxSetup:function(a,b){return b?sc(sc(a,n.ajaxSettings),b):sc(n.ajaxSettings,a)},ajaxPrefilter:qc(lc),ajaxTransport:qc(mc),ajax:function(a,b){"object"==typeof a&&(b=a,a=void 0),b=b||{};var c,d,e,f,g,h,i,j,k=n.ajaxSetup({},b),l=k.context||k,m=k.context&&(l.nodeType||l.jquery)?n(l):n.event,o=n.Deferred(),p=n.Callbacks("once memory"),q=k.statusCode||{},r={},s={},t=0,u="canceled",v={readyState:0,getResponseHeader:function(a){var b;if(2===t){if(!f){f={};while(b=gc.exec(e))f[b[1].toLowerCase()]=b[2]}b=f[a.toLowerCase()]}return null==b?null:b},getAllResponseHeaders:function(){return 2===t?e:null},setRequestHeader:function(a,b){var c=a.toLowerCase();return t||(a=s[c]=s[c]||a,r[a]=b),this},overrideMimeType:function(a){return t||(k.mimeType=a),this},statusCode:function(a){var b;if(a)if(2>t)for(b in a)q[b]=[q[b],a[b]];else v.always(a[v.status]);return this},abort:function(a){var b=a||u;return c&&c.abort(b),x(0,b),this}};if(o.promise(v).complete=p.add,v.success=v.done,v.error=v.fail,k.url=((a||k.url||oc)+"").replace(ec,"").replace(jc,pc[1]+"//"),k.type=b.method||b.type||k.method||k.type,k.dataTypes=n.trim(k.dataType||"*").toLowerCase().match(E)||[""],null==k.crossDomain&&(h=kc.exec(k.url.toLowerCase()),k.crossDomain=!(!h||h[1]===pc[1]&&h[2]===pc[2]&&(h[3]||("http:"===h[1]?"80":"443"))===(pc[3]||("http:"===pc[1]?"80":"443")))),k.data&&k.processData&&"string"!=typeof k.data&&(k.data=n.param(k.data,k.traditional)),rc(lc,k,b,v),2===t)return v;i=n.event&&k.global,i&&0===n.active++&&n.event.trigger("ajaxStart"),k.type=k.type.toUpperCase(),k.hasContent=!ic.test(k.type),d=k.url,k.hasContent||(k.data&&(d=k.url+=(dc.test(d)?"&":"?")+k.data,delete k.data),k.cache===!1&&(k.url=fc.test(d)?d.replace(fc,"$1_="+cc++):d+(dc.test(d)?"&":"?")+"_="+cc++)),k.ifModified&&(n.lastModified[d]&&v.setRequestHeader("If-Modified-Since",n.lastModified[d]),n.etag[d]&&v.setRequestHeader("If-None-Match",n.etag[d])),(k.data&&k.hasContent&&k.contentType!==!1||b.contentType)&&v.setRequestHeader("Content-Type",k.contentType),v.setRequestHeader("Accept",k.dataTypes[0]&&k.accepts[k.dataTypes[0]]?k.accepts[k.dataTypes[0]]+("*"!==k.dataTypes[0]?", "+nc+"; q=0.01":""):k.accepts["*"]);for(j in k.headers)v.setRequestHeader(j,k.headers[j]);if(k.beforeSend&&(k.beforeSend.call(l,v,k)===!1||2===t))return v.abort();u="abort";for(j in{success:1,error:1,complete:1})v[j](k[j]);if(c=rc(mc,k,b,v)){v.readyState=1,i&&m.trigger("ajaxSend",[v,k]),k.async&&k.timeout>0&&(g=setTimeout(function(){v.abort("timeout")},k.timeout));try{t=1,c.send(r,x)}catch(w){if(!(2>t))throw w;x(-1,w)}}else x(-1,"No Transport");function x(a,b,f,h){var j,r,s,u,w,x=b;2!==t&&(t=2,g&&clearTimeout(g),c=void 0,e=h||"",v.readyState=a>0?4:0,j=a>=200&&300>a||304===a,f&&(u=tc(k,v,f)),u=uc(k,u,v,j),j?(k.ifModified&&(w=v.getResponseHeader("Last-Modified"),w&&(n.lastModified[d]=w),w=v.getResponseHeader("etag"),w&&(n.etag[d]=w)),204===a||"HEAD"===k.type?x="nocontent":304===a?x="notmodified":(x=u.state,r=u.data,s=u.error,j=!s)):(s=x,(a||!x)&&(x="error",0>a&&(a=0))),v.status=a,v.statusText=(b||x)+"",j?o.resolveWith(l,[r,x,v]):o.rejectWith(l,[v,x,s]),v.statusCode(q),q=void 0,i&&m.trigger(j?"ajaxSuccess":"ajaxError",[v,k,j?r:s]),p.fireWith(l,[v,x]),i&&(m.trigger("ajaxComplete",[v,k]),--n.active||n.event.trigger("ajaxStop")))}return v},getJSON:function(a,b,c){return n.get(a,b,c,"json")},getScript:function(a,b){return n.get(a,void 0,b,"script")}}),n.each(["get","post"],function(a,b){n[b]=function(a,c,d,e){return n.isFunction(c)&&(e=e||d,d=c,c=void 0),n.ajax({url:a,type:b,dataType:e,data:c,success:d})}}),n._evalUrl=function(a){return n.ajax({url:a,type:"GET",dataType:"script",async:!1,global:!1,"throws":!0})},n.fn.extend({wrapAll:function(a){var b;return n.isFunction(a)?this.each(function(b){n(this).wrapAll(a.call(this,b))}):(this[0]&&(b=n(a,this[0].ownerDocument).eq(0).clone(!0),this[0].parentNode&&b.insertBefore(this[0]),b.map(function(){var a=this;while(a.firstElementChild)a=a.firstElementChild;return a}).append(this)),this)},wrapInner:function(a){return this.each(n.isFunction(a)?function(b){n(this).wrapInner(a.call(this,b))}:function(){var b=n(this),c=b.contents();c.length?c.wrapAll(a):b.append(a)})},wrap:function(a){var b=n.isFunction(a);return this.each(function(c){n(this).wrapAll(b?a.call(this,c):a)})},unwrap:function(){return this.parent().each(function(){n.nodeName(this,"body")||n(this).replaceWith(this.childNodes)}).end()}}),n.expr.filters.hidden=function(a){return a.offsetWidth<=0&&a.offsetHeight<=0},n.expr.filters.visible=function(a){return!n.expr.filters.hidden(a)};var vc=/%20/g,wc=/\[\]$/,xc=/\r?\n/g,yc=/^(?:submit|button|image|reset|file)$/i,zc=/^(?:input|select|textarea|keygen)/i;function Ac(a,b,c,d){var e;if(n.isArray(b))n.each(b,function(b,e){c||wc.test(a)?d(a,e):Ac(a+"["+("object"==typeof e?b:"")+"]",e,c,d)});else if(c||"object"!==n.type(b))d(a,b);else for(e in b)Ac(a+"["+e+"]",b[e],c,d)}n.param=function(a,b){var c,d=[],e=function(a,b){b=n.isFunction(b)?b():null==b?"":b,d[d.length]=encodeURIComponent(a)+"="+encodeURIComponent(b)};if(void 0===b&&(b=n.ajaxSettings&&n.ajaxSettings.traditional),n.isArray(a)||a.jquery&&!n.isPlainObject(a))n.each(a,function(){e(this.name,this.value)});else for(c in a)Ac(c,a[c],b,e);return d.join("&").replace(vc,"+")},n.fn.extend({serialize:function(){return n.param(this.serializeArray())},serializeArray:function(){return this.map(function(){var a=n.prop(this,"elements");return a?n.makeArray(a):this}).filter(function(){var a=this.type;return this.name&&!n(this).is(":disabled")&&zc.test(this.nodeName)&&!yc.test(a)&&(this.checked||!T.test(a))}).map(function(a,b){var c=n(this).val();return null==c?null:n.isArray(c)?n.map(c,function(a){return{name:b.name,value:a.replace(xc,"\r\n")}}):{name:b.name,value:c.replace(xc,"\r\n")}}).get()}}),n.ajaxSettings.xhr=function(){try{return new XMLHttpRequest}catch(a){}};var Bc=0,Cc={},Dc={0:200,1223:204},Ec=n.ajaxSettings.xhr();a.attachEvent&&a.attachEvent("onunload",function(){for(var a in Cc)Cc[a]()}),k.cors=!!Ec&&"withCredentials"in Ec,k.ajax=Ec=!!Ec,n.ajaxTransport(function(a){var b;return k.cors||Ec&&!a.crossDomain?{send:function(c,d){var e,f=a.xhr(),g=++Bc;if(f.open(a.type,a.url,a.async,a.username,a.password),a.xhrFields)for(e in a.xhrFields)f[e]=a.xhrFields[e];a.mimeType&&f.overrideMimeType&&f.overrideMimeType(a.mimeType),a.crossDomain||c["X-Requested-With"]||(c["X-Requested-With"]="XMLHttpRequest");for(e in c)f.setRequestHeader(e,c[e]);b=function(a){return function(){b&&(delete Cc[g],b=f.onload=f.onerror=null,"abort"===a?f.abort():"error"===a?d(f.status,f.statusText):d(Dc[f.status]||f.status,f.statusText,"string"==typeof f.responseText?{text:f.responseText}:void 0,f.getAllResponseHeaders()))}},f.onload=b(),f.onerror=b("error"),b=Cc[g]=b("abort");try{f.send(a.hasContent&&a.data||null)}catch(h){if(b)throw h}},abort:function(){b&&b()}}:void 0}),n.ajaxSetup({accepts:{script:"text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"},contents:{script:/(?:java|ecma)script/},converters:{"text script":function(a){return n.globalEval(a),a}}}),n.ajaxPrefilter("script",function(a){void 0===a.cache&&(a.cache=!1),a.crossDomain&&(a.type="GET")}),n.ajaxTransport("script",function(a){if(a.crossDomain){var b,c;return{send:function(d,e){b=n("<script>").prop({async:!0,charset:a.scriptCharset,src:a.url}).on("load error",c=function(a){b.remove(),c=null,a&&e("error"===a.type?404:200,a.type)}),l.head.appendChild(b[0])},abort:function(){c&&c()}}}});var Fc=[],Gc=/(=)\?(?=&|$)|\?\?/;n.ajaxSetup({jsonp:"callback",jsonpCallback:function(){var a=Fc.pop()||n.expando+"_"+cc++;return this[a]=!0,a}}),n.ajaxPrefilter("json jsonp",function(b,c,d){var e,f,g,h=b.jsonp!==!1&&(Gc.test(b.url)?"url":"string"==typeof b.data&&!(b.contentType||"").indexOf("application/x-www-form-urlencoded")&&Gc.test(b.data)&&"data");return h||"jsonp"===b.dataTypes[0]?(e=b.jsonpCallback=n.isFunction(b.jsonpCallback)?b.jsonpCallback():b.jsonpCallback,h?b[h]=b[h].replace(Gc,"$1"+e):b.jsonp!==!1&&(b.url+=(dc.test(b.url)?"&":"?")+b.jsonp+"="+e),b.converters["script json"]=function(){return g||n.error(e+" was not called"),g[0]},b.dataTypes[0]="json",f=a[e],a[e]=function(){g=arguments},d.always(function(){a[e]=f,b[e]&&(b.jsonpCallback=c.jsonpCallback,Fc.push(e)),g&&n.isFunction(f)&&f(g[0]),g=f=void 0}),"script"):void 0}),n.parseHTML=function(a,b,c){if(!a||"string"!=typeof a)return null;"boolean"==typeof b&&(c=b,b=!1),b=b||l;var d=v.exec(a),e=!c&&[];return d?[b.createElement(d[1])]:(d=n.buildFragment([a],b,e),e&&e.length&&n(e).remove(),n.merge([],d.childNodes))};var Hc=n.fn.load;n.fn.load=function(a,b,c){if("string"!=typeof a&&Hc)return Hc.apply(this,arguments);var d,e,f,g=this,h=a.indexOf(" ");return h>=0&&(d=n.trim(a.slice(h)),a=a.slice(0,h)),n.isFunction(b)?(c=b,b=void 0):b&&"object"==typeof b&&(e="POST"),g.length>0&&n.ajax({url:a,type:e,dataType:"html",data:b}).done(function(a){f=arguments,g.html(d?n("<div>").append(n.parseHTML(a)).find(d):a)}).complete(c&&function(a,b){g.each(c,f||[a.responseText,b,a])}),this},n.each(["ajaxStart","ajaxStop","ajaxComplete","ajaxError","ajaxSuccess","ajaxSend"],function(a,b){n.fn[b]=function(a){return this.on(b,a)}}),n.expr.filters.animated=function(a){return n.grep(n.timers,function(b){return a===b.elem}).length};var Ic=a.document.documentElement;function Jc(a){return n.isWindow(a)?a:9===a.nodeType&&a.defaultView}n.offset={setOffset:function(a,b,c){var d,e,f,g,h,i,j,k=n.css(a,"position"),l=n(a),m={};"static"===k&&(a.style.position="relative"),h=l.offset(),f=n.css(a,"top"),i=n.css(a,"left"),j=("absolute"===k||"fixed"===k)&&(f+i).indexOf("auto")>-1,j?(d=l.position(),g=d.top,e=d.left):(g=parseFloat(f)||0,e=parseFloat(i)||0),n.isFunction(b)&&(b=b.call(a,c,h)),null!=b.top&&(m.top=b.top-h.top+g),null!=b.left&&(m.left=b.left-h.left+e),"using"in b?b.using.call(a,m):l.css(m)}},n.fn.extend({offset:function(a){if(arguments.length)return void 0===a?this:this.each(function(b){n.offset.setOffset(this,a,b)});var b,c,d=this[0],e={top:0,left:0},f=d&&d.ownerDocument;if(f)return b=f.documentElement,n.contains(b,d)?(typeof d.getBoundingClientRect!==U&&(e=d.getBoundingClientRect()),c=Jc(f),{top:e.top+c.pageYOffset-b.clientTop,left:e.left+c.pageXOffset-b.clientLeft}):e},position:function(){if(this[0]){var a,b,c=this[0],d={top:0,left:0};return"fixed"===n.css(c,"position")?b=c.getBoundingClientRect():(a=this.offsetParent(),b=this.offset(),n.nodeName(a[0],"html")||(d=a.offset()),d.top+=n.css(a[0],"borderTopWidth",!0),d.left+=n.css(a[0],"borderLeftWidth",!0)),{top:b.top-d.top-n.css(c,"marginTop",!0),left:b.left-d.left-n.css(c,"marginLeft",!0)}}},offsetParent:function(){return this.map(function(){var a=this.offsetParent||Ic;while(a&&!n.nodeName(a,"html")&&"static"===n.css(a,"position"))a=a.offsetParent;return a||Ic})}}),n.each({scrollLeft:"pageXOffset",scrollTop:"pageYOffset"},function(b,c){var d="pageYOffset"===c;n.fn[b]=function(e){return J(this,function(b,e,f){var g=Jc(b);return void 0===f?g?g[c]:b[e]:void(g?g.scrollTo(d?a.pageXOffset:f,d?f:a.pageYOffset):b[e]=f)},b,e,arguments.length,null)}}),n.each(["top","left"],function(a,b){n.cssHooks[b]=yb(k.pixelPosition,function(a,c){return c?(c=xb(a,b),vb.test(c)?n(a).position()[b]+"px":c):void 0})}),n.each({Height:"height",Width:"width"},function(a,b){n.each({padding:"inner"+a,content:b,"":"outer"+a},function(c,d){n.fn[d]=function(d,e){var f=arguments.length&&(c||"boolean"!=typeof d),g=c||(d===!0||e===!0?"margin":"border");return J(this,function(b,c,d){var e;return n.isWindow(b)?b.document.documentElement["client"+a]:9===b.nodeType?(e=b.documentElement,Math.max(b.body["scroll"+a],e["scroll"+a],b.body["offset"+a],e["offset"+a],e["client"+a])):void 0===d?n.css(b,c,g):n.style(b,c,d,g)},b,f?d:void 0,f,null)}})}),n.fn.size=function(){return this.length},n.fn.andSelf=n.fn.addBack,"function"==typeof define&&define.amd&&define("jquery",[],function(){return n});var Kc=a.jQuery,Lc=a.$;return n.noConflict=function(b){return a.$===n&&(a.$=Lc),b&&a.jQuery===n&&(a.jQuery=Kc),n},typeof b===U&&(a.jQuery=a.$=n),n});
 //# sourceMappingURL=jquery.min.map
+// apiCheck.js v7.2.4 built with ♥ by Kent C. Dodds (ó ì_í)=óò=(ì_í ò)
+
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define(factory);
+	else if(typeof exports === 'object')
+		exports["apiCheck"] = factory();
+	else
+		root["apiCheck"] = factory();
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/*!******************!*\
+  !*** ./index.js ***!
+  \******************/
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	module.exports = __webpack_require__(/*! ./apiCheck */ 1);
+
+/***/ },
+/* 1 */
+/*!*********************!*\
+  !*** ./apiCheck.js ***!
+  \*********************/
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var stringify = __webpack_require__(/*! json-stringify-safe */ 4);
+	var apiCheckUtil = __webpack_require__(/*! ./apiCheckUtil */ 2);
+	var each = apiCheckUtil.each;
+	var isError = apiCheckUtil.isError;
+	var t = apiCheckUtil.t;
+	var arrayify = apiCheckUtil.arrayify;
+	var getCheckerDisplay = apiCheckUtil.getCheckerDisplay;
+	var typeOf = apiCheckUtil.typeOf;
+	var getError = apiCheckUtil.getError;
+
+	var checkers = __webpack_require__(/*! ./checkers */ 3);
+	var apiCheckApis = getApiCheckApis();
+
+	module.exports = getApiCheckInstance;
+	module.exports.utils = apiCheckUtil;
+	module.exports.globalConfig = {
+	  verbose: false,
+	  disabled: false
+	};
+
+	var apiCheckApiCheck = getApiCheckInstance({
+	  output: { prefix: "apiCheck" }
+	});
+	module.exports.internalChecker = apiCheckApiCheck;
+
+	each(checkers, function (checker, name) {
+	  return module.exports[name] = checker;
+	});
+
+	function getApiCheckInstance() {
+	  var config = arguments[0] === undefined ? {} : arguments[0];
+	  var extraCheckers = arguments[1] === undefined ? {} : arguments[1];
+
+	  /* jshint maxcomplexity:6 */
+	  if (apiCheckApiCheck && arguments.length) {
+	    apiCheckApiCheck["throw"](apiCheckApis.getApiCheckInstanceCheckers, arguments, {
+	      prefix: "creating an apiCheck instance"
+	    });
+	  }
+
+	  var additionalProperties = {
+	    "throw": getApiCheck(true),
+	    warn: getApiCheck(false),
+	    getErrorMessage: getErrorMessage,
+	    handleErrorMessage: handleErrorMessage,
+	    config: {
+	      output: config.output || {
+	        prefix: "",
+	        suffix: "",
+	        docsBaseUrl: ""
+	      },
+	      verbose: config.verbose || false,
+	      disabled: config.disabled || false
+	    },
+	    utils: apiCheckUtil
+	  };
+
+	  each(additionalProperties, function (wrapper, name) {
+	    return apiCheck[name] = wrapper;
+	  });
+
+	  var disabled = apiCheck.disabled || module.exports.globalConfig.disabled;
+	  each(checkers.getCheckers(disabled), function (checker, name) {
+	    return apiCheck[name] = checker;
+	  });
+	  each(extraCheckers, function (checker, name) {
+	    return apiCheck[name] = checker;
+	  });
+
+	  return apiCheck;
+
+	  /**
+	   * This is the instance function. Other things are attached to this see additional properties above.
+	   * @param api {Array}
+	   * @param args {arguments}
+	   * @param output {Object}
+	   * @returns {Object} - if this has a failed = true property, then it failed
+	   */
+	  function apiCheck(api, args, output) {
+	    /* jshint maxcomplexity:8 */
+	    if (apiCheck.config.disabled || module.exports.globalConfig.disabled) {
+	      return {
+	        apiTypes: {}, argTypes: {},
+	        passed: true, message: "",
+	        failed: false
+	      }; // empty version of what is normally returned
+	    }
+	    checkApiCheckApi(arguments);
+	    if (!Array.isArray(api)) {
+	      api = [api];
+	      args = [args];
+	    } else {
+	      // turn arguments into an array
+	      args = Array.prototype.slice.call(args);
+	    }
+	    var messages = checkEnoughArgs(api, args);
+	    if (!messages.length) {
+	      // this is where we actually go perform the checks.
+	      messages = checkApiWithArgs(api, args);
+	    }
+
+	    var returnObject = getTypes(api, args);
+	    if (messages.length) {
+	      returnObject.message = apiCheck.getErrorMessage(api, args, messages, output);
+	      returnObject.failed = true;
+	      returnObject.passed = false;
+	    } else {
+	      returnObject.message = "";
+	      returnObject.failed = false;
+	      returnObject.passed = true;
+	    }
+	    return returnObject;
+	  }
+
+	  /**
+	   * checkApiCheckApi, should be read like: check apiCheck api. As in, check the api for apiCheck :-)
+	   * @param checkApiArgs
+	   */
+	  function checkApiCheckApi(checkApiArgs) {
+	    var api = checkApiArgs[0];
+	    var args = checkApiArgs[1];
+	    var isArrayOrArgs = Array.isArray(args) || args && typeof args === "object" && typeof args.length === "number";
+
+	    if (Array.isArray(api) && !isArrayOrArgs) {
+	      throw new Error(getErrorMessage(api, [args], ["If an array is provided for the api, an array must be provided for the args as well."], { prefix: "apiCheck" }));
+	    }
+	    // dog fooding here
+	    var errors = checkApiWithArgs(apiCheckApis.checkApiCheckApi, checkApiArgs);
+	    if (errors.length) {
+	      var message = apiCheck.getErrorMessage(apiCheckApis.checkApiCheckApi, checkApiArgs, errors, {
+	        prefix: "apiCheck"
+	      });
+	      apiCheck.handleErrorMessage(message, true);
+	    }
+	  }
+
+	  function getApiCheck(shouldThrow) {
+	    return function apiCheckWrapper(api, args, output) {
+	      var result = apiCheck(api, args, output);
+	      apiCheck.handleErrorMessage(result.message, shouldThrow);
+	      return result; // wont get here if an error is thrown
+	    };
+	  }
+
+	  function handleErrorMessage(message, shouldThrow) {
+	    if (shouldThrow && message) {
+	      throw new Error(message);
+	    } else if (message) {
+	      console.warn(message);
+	    }
+	  }
+
+	  function getErrorMessage(api, args) {
+	    var messages = arguments[2] === undefined ? [] : arguments[2];
+	    var output = arguments[3] === undefined ? {} : arguments[3];
+
+	    var gOut = apiCheck.config.output || {};
+	    var prefix = getPrefix();
+	    var suffix = getSuffix();
+	    var url = getUrl();
+	    var message = "apiCheck failed! " + messages.join(", ");
+	    var passedAndShouldHavePassed = "\n\n" + buildMessageFromApiAndArgs(api, args);
+	    return ("" + prefix + " " + message + " " + suffix + " " + (url || "") + "" + passedAndShouldHavePassed).trim();
+
+	    function getPrefix() {
+	      var prefix = output.onlyPrefix;
+	      if (!prefix) {
+	        prefix = ("" + (gOut.prefix || "") + " " + (output.prefix || "")).trim();
+	      }
+	      return prefix;
+	    }
+
+	    function getSuffix() {
+	      var suffix = output.onlySuffix;
+	      if (!suffix) {
+	        suffix = ("" + (output.suffix || "") + " " + (gOut.suffix || "")).trim();
+	      }
+	      return suffix;
+	    }
+
+	    function getUrl() {
+	      var url = output.url;
+	      if (!url) {
+	        url = gOut.docsBaseUrl && output.urlSuffix && ("" + gOut.docsBaseUrl + "" + output.urlSuffix).trim();
+	      }
+	      return url;
+	    }
+	  }
+
+	  function buildMessageFromApiAndArgs(api, args) {
+	    var _getTypes = getTypes(api, args);
+
+	    var apiTypes = _getTypes.apiTypes;
+	    var argTypes = _getTypes.argTypes;
+
+	    var copy = Array.prototype.slice.call(args || []);
+	    var replacedItems = [];
+	    replaceFunctionWithName(copy);
+	    var passedArgs = getObjectString(copy);
+	    argTypes = getObjectString(argTypes);
+	    apiTypes = getObjectString(apiTypes);
+
+	    return generateMessage();
+
+	    // functions
+
+	    function replaceFunctionWithName(obj) {
+	      each(obj, function (val, name) {
+	        /* jshint maxcomplexity:6 */
+	        if (replacedItems.indexOf(val) === -1) {
+	          // avoid recursive problems
+	          replacedItems.push(val);
+	          if (typeof val === "object") {
+	            replaceFunctionWithName(obj);
+	          } else if (typeof val === "function") {
+	            obj[name] = val.displayName || val.name || "anonymous function";
+	          }
+	        }
+	      });
+	    }
+
+	    function getObjectString(types) {
+	      if (!types || !types.length) {
+	        return "nothing";
+	      } else if (types && types.length === 1) {
+	        types = types[0];
+	      }
+	      return stringify(types, null, 2);
+	    }
+
+	    function generateMessage() {
+	      var n = "\n";
+	      var useS = true;
+	      if (args && args.length === 1) {
+	        if (typeof args[0] === "object") {
+	          useS = !!Object.keys(args[0]).length;
+	        } else {
+	          useS = false;
+	        }
+	      }
+	      var types = "type" + (useS ? "s" : "");
+	      var newLine = n + n;
+	      return "You passed:" + n + "" + passedArgs + "" + newLine + ("With the " + types + ":" + n + "" + argTypes + "" + newLine) + ("The API calls for:" + n + "" + apiTypes);
+	    }
+	  }
+
+	  function getTypes(api, args) {
+	    api = arrayify(api);
+	    args = arrayify(args);
+	    var apiTypes = api.map(function (checker, index) {
+	      var specified = module.exports.globalConfig.hasOwnProperty("verbose");
+	      return getCheckerDisplay(checker, {
+	        terse: specified ? !module.exports.globalConfig.verbose : !apiCheck.config.verbose,
+	        obj: args[index],
+	        addHelpers: true
+	      });
+	    });
+	    var argTypes = args.map(function (arg) {
+	      return getArgDisplay(arg, []);
+	    });
+	    return { argTypes: argTypes, apiTypes: apiTypes };
+	  }
+	}
+
+	// STATELESS FUNCTIONS
+
+	/**
+	 * This is where the magic happens for actually checking the arguments with the api.
+	 * @param api {Array} - checkers
+	 * @param args {Array} - and arguments object
+	 * @returns {Array}
+	 */
+	function checkApiWithArgs(api, args) {
+	  /* jshint maxcomplexity:7 */
+	  var messages = [];
+	  var failed = false;
+	  var checkerIndex = 0;
+	  var argIndex = 0;
+	  var arg = undefined,
+	      checker = undefined,
+	      res = undefined,
+	      lastChecker = undefined,
+	      argName = undefined,
+	      argFailed = undefined,
+	      skipPreviousChecker = undefined;
+	  /* jshint -W084 */
+	  while ((checker = api[checkerIndex++]) && argIndex < args.length) {
+	    arg = args[argIndex++];
+	    argName = "Argument " + argIndex + (checker.isOptional ? " (optional)" : "");
+	    res = checker(arg, "value", argName);
+	    argFailed = isError(res);
+	    lastChecker = checkerIndex >= api.length;
+	    skipPreviousChecker = checkerIndex > 1 && api[checkerIndex - 1].isOptional;
+	    if (argFailed && lastChecker || argFailed && !lastChecker && !checker.isOptional && !skipPreviousChecker) {
+	      failed = true;
+	      messages.push(getCheckerErrorMessage(res, checker, arg));
+	    } else if (argFailed && checker.isOptional) {
+	      argIndex--;
+	    } else {
+	      messages.push("" + t(argName) + " passed");
+	    }
+	  }
+	  return failed ? messages : [];
+	}
+
+	checkerTypeType.type = "function with __apiCheckData property and `${function.type}` property";
+	function checkerTypeType(checkerType, name, location) {
+	  var apiCheckDataChecker = checkers.shape({
+	    type: checkers.string,
+	    optional: checkers.bool
+	  });
+	  var asFunc = checkers.func.withProperties({ __apiCheckData: apiCheckDataChecker });
+	  var asShape = checkers.shape({ __apiCheckData: apiCheckDataChecker });
+	  var wrongShape = checkers.oneOfType([asFunc, asShape])(checkerType, name, location);
+	  if (isError(wrongShape)) {
+	    return wrongShape;
+	  }
+	  if (typeof checkerType !== "function" && !checkerType.hasOwnProperty(checkerType.__apiCheckData.type)) {
+	    return getError(name, location, checkerTypeType.type);
+	  }
+	}
+
+	function getCheckerErrorMessage(res, checker, val) {
+	  var checkerHelp = getCheckerHelp(checker, val);
+	  checkerHelp = checkerHelp ? " - " + checkerHelp : "";
+	  return res.message + checkerHelp;
+	}
+
+	function getCheckerHelp(_ref, val) {
+	  var help = _ref.help;
+
+	  if (!help) {
+	    return "";
+	  }
+	  if (typeof help === "function") {
+	    help = help(val);
+	  }
+	  return help;
+	}
+
+	function checkEnoughArgs(api, args) {
+	  var requiredArgs = api.filter(function (a) {
+	    return !a.isOptional;
+	  });
+	  if (args.length < requiredArgs.length) {
+	    return ["Not enough arguments specified. Requires `" + requiredArgs.length + "`, you passed `" + args.length + "`"];
+	  } else {
+	    return [];
+	  }
+	}
+
+	function getArgDisplay(arg, gottenArgs) {
+	  /* jshint maxcomplexity:7 */
+	  var cName = arg && arg.constructor && arg.constructor.name;
+	  var type = typeOf(arg);
+	  if (type === "function") {
+	    if (hasKeys()) {
+	      var properties = stringify(getDisplayIfNotGotten());
+	      return cName + " (with properties: " + properties + ")";
+	    }
+	    return cName;
+	  }
+
+	  if (arg === null) {
+	    return "null";
+	  }
+
+	  if (type !== "array" && type !== "object") {
+	    return type;
+	  }
+
+	  if (hasKeys()) {
+	    return getDisplayIfNotGotten();
+	  }
+
+	  return cName;
+
+	  // utility functions
+	  function hasKeys() {
+	    return arg && Object.keys(arg).length;
+	  }
+
+	  function getDisplayIfNotGotten() {
+	    if (gottenArgs.indexOf(arg) !== -1) {
+	      return "[Circular]";
+	    }
+	    gottenArgs.push(arg);
+	    return getDisplay(arg, gottenArgs);
+	  }
+	}
+
+	function getDisplay(obj, gottenArgs) {
+	  var argDisplay = {};
+	  each(obj, function (v, k) {
+	    return argDisplay[k] = getArgDisplay(v, gottenArgs);
+	  });
+	  return argDisplay;
+	}
+
+	function getApiCheckApis() {
+	  var os = checkers.string.optional;
+
+	  var checkerFnChecker = checkers.func.withProperties({
+	    type: checkers.oneOfType([checkers.string, checkerTypeType]).optional,
+	    displayName: checkers.string.optional,
+	    shortType: checkers.string.optional,
+	    notOptional: checkers.bool.optional,
+	    notRequired: checkers.bool.optional
+	  });
+
+	  var getApiCheckInstanceCheckers = [checkers.shape({
+	    output: checkers.shape({
+	      prefix: checkers.string.optional,
+	      suffix: checkers.string.optional,
+	      docsBaseUrl: checkers.string.optional
+	    }).strict.optional,
+	    verbose: checkers.bool.optional,
+	    disabled: checkers.bool.optional
+	  }).strict.optional, checkers.objectOf(checkerFnChecker).optional];
+
+	  var checkApiCheckApi = [checkers.typeOrArrayOf(checkerFnChecker), checkers.any.optional, checkers.shape({
+	    prefix: os, suffix: os, urlSuffix: os, // appended case
+	    onlyPrefix: os, onlySuffix: os, url: os // override case
+	  }).strict.optional];
+
+	  return {
+	    checkerFnChecker: checkerFnChecker,
+	    getApiCheckInstanceCheckers: getApiCheckInstanceCheckers,
+	    checkApiCheckApi: checkApiCheckApi
+	  };
+	}
+
+/***/ },
+/* 2 */
+/*!*************************!*\
+  !*** ./apiCheckUtil.js ***!
+  \*************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _defineProperty = function (obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); };
+
+	var stringify = __webpack_require__(/*! json-stringify-safe */ 4);
+	var checkerHelpers = {
+	  addOptional: addOptional, getRequiredVersion: getRequiredVersion, setupChecker: setupChecker, addNullable: addNullable
+	};
+
+	module.exports = {
+	  each: each, copy: copy, typeOf: typeOf, arrayify: arrayify, getCheckerDisplay: getCheckerDisplay,
+	  isError: isError, list: list, getError: getError, nAtL: nAtL, t: t, undef: undef, checkerHelpers: checkerHelpers,
+	  noop: noop
+	};
+
+	function copy(obj) {
+	  var type = typeOf(obj);
+	  var daCopy = undefined;
+	  if (type === "array") {
+	    daCopy = [];
+	  } else if (type === "object") {
+	    daCopy = {};
+	  } else {
+	    return obj;
+	  }
+	  each(obj, function (val, key) {
+	    daCopy[key] = val; // cannot single-line this because we don't want to abort the each
+	  });
+	  return daCopy;
+	}
+
+	function typeOf(obj) {
+	  if (Array.isArray(obj)) {
+	    return "array";
+	  } else if (obj instanceof RegExp) {
+	    return "object";
+	  } else {
+	    return typeof obj;
+	  }
+	}
+
+	function getCheckerDisplay(checker, options) {
+	  /* jshint maxcomplexity:7 */
+	  var display = undefined;
+	  var short = options && options.short;
+	  if (short && checker.shortType) {
+	    display = checker.shortType;
+	  } else if (!short && typeof checker.type === "object" || checker.type === "function") {
+	    display = getCheckerType(checker, options);
+	  } else {
+	    display = getCheckerType(checker, options) || checker.displayName || checker.name;
+	  }
+	  return display;
+	}
+
+	function getCheckerType(_ref, options) {
+	  var type = _ref.type;
+
+	  if (typeof type === "function") {
+	    var __apiCheckData = type.__apiCheckData;
+	    var typeTypes = type(options);
+	    type = _defineProperty({
+	      __apiCheckData: __apiCheckData }, __apiCheckData.type, typeTypes);
+	  }
+	  return type;
+	}
+
+	function arrayify(obj) {
+	  if (!obj) {
+	    return [];
+	  } else if (Array.isArray(obj)) {
+	    return obj;
+	  } else {
+	    return [obj];
+	  }
+	}
+
+	function each(obj, iterator, context) {
+	  if (Array.isArray(obj)) {
+	    return eachArry.apply(undefined, arguments);
+	  } else {
+	    return eachObj.apply(undefined, arguments);
+	  }
+	}
+
+	function eachObj(obj, iterator, context) {
+	  var ret;
+	  var hasOwn = Object.prototype.hasOwnProperty;
+	  for (var key in obj) {
+	    if (hasOwn.call(obj, key)) {
+	      ret = iterator.call(context, obj[key], key, obj);
+	      if (ret === false) {
+	        return ret;
+	      }
+	    }
+	  }
+	  return true;
+	}
+
+	function eachArry(obj, iterator, context) {
+	  var ret;
+	  var length = obj.length;
+	  for (var i = 0; i < length; i++) {
+	    ret = iterator.call(context, obj[i], i, obj);
+	    if (ret === false) {
+	      return ret;
+	    }
+	  }
+	  return true;
+	}
+
+	function isError(obj) {
+	  return obj instanceof Error;
+	}
+
+	function list(arry, join, finalJoin) {
+	  arry = arrayify(arry);
+	  var copy = arry.slice();
+	  var last = copy.pop();
+	  if (copy.length === 1) {
+	    join = " ";
+	  }
+	  return copy.join(join) + ("" + (copy.length ? join + finalJoin : "") + "" + last);
+	}
+
+	function getError(name, location, checkerType) {
+	  if (typeof checkerType === "function") {
+	    checkerType = checkerType({ short: true });
+	  }
+	  var stringType = typeof checkerType !== "object" ? checkerType : stringify(checkerType);
+	  return new Error("" + nAtL(name, location) + " must be " + t(stringType));
+	}
+
+	function nAtL(name, location) {
+	  var tName = t(name || "value");
+	  var tLocation = !location ? "" : " at " + t(location);
+	  return "" + tName + "" + tLocation;
+	}
+
+	function t(thing) {
+	  return "`" + thing + "`";
+	}
+
+	function undef(thing) {
+	  return typeof thing === "undefined";
+	}
+
+	/**
+	 * This will set up the checker with all of the defaults that most checkers want like required by default and an
+	 * optional version
+	 * @param checker
+	 * @param properties properties to add to the checker
+	 * @param disabled - when set to true, this will set the checker to a no-op function
+	 */
+	function setupChecker(checker, properties, disabled) {
+	  /* jshint maxcomplexity:9 */
+	  if (disabled) {
+	    // swap out the checker for its own copy of noop
+	    checker = getNoop();
+	    checker.isNoop = true;
+	  }
+
+	  if (typeof checker.type === "string") {
+	    checker.shortType = checker.type;
+	  }
+
+	  // assign all properties given
+	  each(properties, function (prop, name) {
+	    return checker[name] = prop;
+	  });
+
+	  if (!checker.displayName) {
+	    checker.displayName = "apiCheck " + t(checker.shortType || checker.type || checker.name) + " type checker";
+	  }
+
+	  if (!checker.notRequired) {
+	    checker = getRequiredVersion(checker, disabled);
+	  }
+
+	  if (!checker.notNullable) {
+	    addNullable(checker, disabled);
+	  }
+
+	  if (!checker.notOptional) {
+	    addOptional(checker, disabled);
+	  }
+
+	  return checker;
+	}
+
+	function getRequiredVersion(checker, disabled) {
+	  var requiredChecker = disabled ? getNoop() : function requiredChecker(val, name, location, obj) {
+	    if (undef(val) && !checker.isOptional) {
+	      var tLocation = location ? " in " + t(location) : "";
+	      var type = getCheckerDisplay(checker, { short: true });
+	      var stringType = typeof type !== "object" ? type : stringify(type);
+	      return new Error("Required " + t(name) + " not specified" + tLocation + ". Must be " + t(stringType));
+	    } else {
+	      return checker(val, name, location, obj);
+	    }
+	  };
+	  copyProps(checker, requiredChecker);
+	  requiredChecker.originalChecker = checker;
+	  return requiredChecker;
+	}
+
+	function addOptional(checker, disabled) {
+	  var optionalCheck = disabled ? getNoop() : function optionalCheck(val, name, location, obj) {
+	    if (!undef(val)) {
+	      return checker(val, name, location, obj);
+	    }
+	  };
+	  // inherit all properties on the original checker
+	  copyProps(checker, optionalCheck);
+
+	  optionalCheck.isOptional = true;
+	  optionalCheck.displayName = checker.displayName + " (optional)";
+	  optionalCheck.originalChecker = checker;
+
+	  // the magic line that allows you to add .optional to the end of the checkers
+	  checker.optional = optionalCheck;
+
+	  fixType(checker, checker.optional);
+	}
+
+	function addNullable(checker, disabled) {
+	  var nullableCheck = disabled ? getNoop() : function nullableCheck(val, name, location, obj) {
+	    if (val !== null) {
+	      return checker(val, name, location, obj);
+	    }
+	  };
+	  // inherit all properties on the original checker
+	  copyProps(checker, nullableCheck);
+
+	  nullableCheck.isNullable = true;
+	  nullableCheck.displayName = checker.displayName + " (nullable)";
+	  nullableCheck.originalChecker = checker;
+
+	  // the magic line that allows you to add .nullable to the end of the checkers
+	  checker.nullable = nullableCheck;
+
+	  fixType(checker, checker.nullable);
+	  if (!checker.notOptional) {
+	    addOptional(checker.nullable, disabled);
+	  }
+	}
+
+	function fixType(checker, checkerCopy) {
+	  // fix type, because it's not a straight copy...
+	  // the reason is we need to specify type.__apiCheckData.optional as true for the terse/verbose option.
+	  // we also want to add "(optional)" to the types with a string
+	  if (typeof checkerCopy.type === "object") {
+	    checkerCopy.type = copy(checkerCopy.type); // make our own copy of this
+	  } else if (typeof checkerCopy.type === "function") {
+	    checkerCopy.type = function () {
+	      return checker.type.apply(checker, arguments);
+	    };
+	  } else {
+	    checkerCopy.type += " (optional)";
+	    return;
+	  }
+	  checkerCopy.type.__apiCheckData = copy(checker.type.__apiCheckData) || {}; // and this
+	  checkerCopy.type.__apiCheckData.optional = true;
+	}
+
+	// UTILS
+
+	function copyProps(src, dest) {
+	  each(Object.keys(src), function (key) {
+	    return dest[key] = src[key];
+	  });
+	}
+
+	function noop() {}
+
+	function getNoop() {
+	  /* istanbul ignore next */
+	  return function noop() {};
+	}
+
+/***/ },
+/* 3 */
+/*!*********************!*\
+  !*** ./checkers.js ***!
+  \*********************/
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var stringify = __webpack_require__(/*! json-stringify-safe */ 4);
+
+	var _require = __webpack_require__(/*! ./apiCheckUtil */ 2);
+
+	var typeOf = _require.typeOf;
+	var each = _require.each;
+	var copy = _require.copy;
+	var getCheckerDisplay = _require.getCheckerDisplay;
+	var isError = _require.isError;
+	var arrayify = _require.arrayify;
+	var list = _require.list;
+	var getError = _require.getError;
+	var nAtL = _require.nAtL;
+	var t = _require.t;
+	var checkerHelpers = _require.checkerHelpers;
+	var undef = _require.undef;
+	var setupChecker = checkerHelpers.setupChecker;
+
+	var checkers = module.exports = getCheckers();
+	module.exports.getCheckers = getCheckers;
+
+	function getCheckers(disabled) {
+	  return {
+	    array: typeOfCheckGetter("Array"),
+	    bool: typeOfCheckGetter("Boolean"),
+	    number: typeOfCheckGetter("Number"),
+	    string: typeOfCheckGetter("String"),
+	    func: funcCheckGetter(),
+	    object: objectCheckGetter(),
+
+	    emptyObject: emptyObjectCheckGetter(),
+
+	    instanceOf: instanceCheckGetter,
+	    oneOf: oneOfCheckGetter,
+	    oneOfType: oneOfTypeCheckGetter,
+
+	    arrayOf: arrayOfCheckGetter,
+	    objectOf: objectOfCheckGetter,
+	    typeOrArrayOf: typeOrArrayOfCheckGetter,
+
+	    range: rangeCheckGetter,
+
+	    shape: getShapeCheckGetter(),
+	    args: argumentsCheckerGetter(),
+
+	    any: anyCheckGetter(),
+	    "null": nullCheckGetter()
+
+	  };
+
+	  function typeOfCheckGetter(type) {
+	    var lType = type.toLowerCase();
+	    return setupChecker(function typeOfCheckerDefinition(val, name, location) {
+	      if (typeOf(val) !== lType) {
+	        return getError(name, location, type);
+	      }
+	    }, { type: type }, disabled);
+	  }
+
+	  function funcCheckGetter() {
+	    var type = "Function";
+	    var functionChecker = setupChecker(function functionCheckerDefinition(val, name, location) {
+	      if (typeOf(val) !== "function") {
+	        return getError(name, location, type);
+	      }
+	    }, { type: type }, disabled);
+
+	    functionChecker.withProperties = function getWithPropertiesChecker(properties) {
+	      var apiError = checkers.objectOf(checkers.func)(properties, "properties", "apiCheck.func.withProperties");
+	      if (isError(apiError)) {
+	        throw apiError;
+	      }
+	      var shapeChecker = checkers.shape(properties, true);
+	      shapeChecker.type.__apiCheckData.type = "func.withProperties";
+
+	      return setupChecker(function functionWithPropertiesChecker(val, name, location) {
+	        var notFunction = checkers.func(val, name, location);
+	        if (isError(notFunction)) {
+	          return notFunction;
+	        }
+	        return shapeChecker(val, name, location);
+	      }, { type: shapeChecker.type, shortType: "func.withProperties" }, disabled);
+	    };
+	    return functionChecker;
+	  }
+
+	  function objectCheckGetter() {
+	    var type = "Object";
+	    var nullType = "Object (null ok)";
+	    var objectNullOkChecker = setupChecker(function objectNullOkCheckerDefinition(val, name, location) {
+	      if (typeOf(val) !== "object") {
+	        return getError(name, location, nullType);
+	      }
+	    }, { type: nullType }, disabled);
+
+	    var objectChecker = setupChecker(function objectCheckerDefinition(val, name, location) {
+	      if (val === null || isError(objectNullOkChecker(val, name, location))) {
+	        return getError(name, location, objectChecker.type);
+	      }
+	    }, { type: type, nullOk: objectNullOkChecker }, disabled);
+
+	    return objectChecker;
+	  }
+
+	  function instanceCheckGetter(classToCheck) {
+	    return setupChecker(function instanceCheckerDefinition(val, name, location) {
+	      if (!(val instanceof classToCheck)) {
+	        return getError(name, location, classToCheck.name);
+	      }
+	    }, { type: classToCheck.name }, disabled);
+	  }
+
+	  function oneOfCheckGetter(enums) {
+	    var type = {
+	      __apiCheckData: { optional: false, type: "enum" },
+	      "enum": enums
+	    };
+	    var shortType = "oneOf[" + enums.map(function (enm) {
+	      return stringify(enm);
+	    }).join(", ") + "]";
+	    return setupChecker(function oneOfCheckerDefinition(val, name, location) {
+	      if (!enums.some(function (enm) {
+	        return enm === val;
+	      })) {
+	        return getError(name, location, shortType);
+	      }
+	    }, { type: type, shortType: shortType }, disabled);
+	  }
+
+	  function oneOfTypeCheckGetter(checkers) {
+	    var checkersDisplay = checkers.map(function (checker) {
+	      return getCheckerDisplay(checker, { short: true });
+	    });
+	    var shortType = "oneOfType[" + checkersDisplay.join(", ") + "]";
+	    function type(options) {
+	      if (options && options.short) {
+	        return shortType;
+	      }
+	      return checkers.map(function (checker) {
+	        return getCheckerDisplay(checker, options);
+	      });
+	    }
+	    type.__apiCheckData = { optional: false, type: "oneOfType" };
+	    return setupChecker(function oneOfTypeCheckerDefinition(val, name, location) {
+	      if (!checkers.some(function (checker) {
+	        return !isError(checker(val, name, location));
+	      })) {
+	        return getError(name, location, shortType);
+	      }
+	    }, { type: type, shortType: shortType }, disabled);
+	  }
+
+	  function arrayOfCheckGetter(checker) {
+	    var shortCheckerDisplay = getCheckerDisplay(checker, { short: true });
+	    var shortType = "arrayOf[" + shortCheckerDisplay + "]";
+
+	    function type(options) {
+	      if (options && options.short) {
+	        return shortType;
+	      }
+	      return getCheckerDisplay(checker, options);
+	    }
+	    type.__apiCheckData = { optional: false, type: "arrayOf" };
+
+	    return setupChecker(function arrayOfCheckerDefinition(val, name, location) {
+	      if (isError(checkers.array(val)) || !val.every(function (item) {
+	        return !isError(checker(item));
+	      })) {
+	        return getError(name, location, shortType);
+	      }
+	    }, { type: type, shortType: shortType }, disabled);
+	  }
+
+	  function objectOfCheckGetter(checker) {
+	    var checkerDisplay = getCheckerDisplay(checker, { short: true });
+	    var shortType = "objectOf[" + checkerDisplay + "]";
+
+	    function type(options) {
+	      if (options && options.short) {
+	        return shortType;
+	      }
+	      return getCheckerDisplay(checker, options);
+	    }
+	    type.__apiCheckData = { optional: false, type: "objectOf" };
+
+	    return setupChecker(function objectOfCheckerDefinition(val, name, location) {
+	      var notObject = checkers.object(val, name, location);
+	      if (isError(notObject)) {
+	        return notObject;
+	      }
+	      var allTypesSuccess = each(val, function (item, key) {
+	        if (isError(checker(item, key, name))) {
+	          return false;
+	        }
+	      });
+	      if (!allTypesSuccess) {
+	        return getError(name, location, shortType);
+	      }
+	    }, { type: type, shortType: shortType }, disabled);
+	  }
+
+	  function typeOrArrayOfCheckGetter(checker) {
+	    var checkerDisplay = getCheckerDisplay(checker, { short: true });
+	    var shortType = "typeOrArrayOf[" + checkerDisplay + "]";
+
+	    function type(options) {
+	      if (options && options.short) {
+	        return shortType;
+	      }
+	      return getCheckerDisplay(checker, options);
+	    }
+
+	    type.__apiCheckData = { optional: false, type: "typeOrArrayOf" };
+	    return setupChecker(function typeOrArrayOfDefinition(val, name, location, obj) {
+	      if (isError(checkers.oneOfType([checker, checkers.arrayOf(checker)])(val, name, location, obj))) {
+	        return getError(name, location, shortType);
+	      }
+	    }, { type: type, shortType: shortType }, disabled);
+	  }
+
+	  function getShapeCheckGetter() {
+	    function shapeCheckGetter(shape, nonObject) {
+	      var shapeTypes = {};
+	      each(shape, function (checker, prop) {
+	        shapeTypes[prop] = getCheckerDisplay(checker);
+	      });
+	      function type() {
+	        var options = arguments[0] === undefined ? {} : arguments[0];
+
+	        var ret = {};
+	        var terse = options.terse;
+	        var obj = options.obj;
+	        var addHelpers = options.addHelpers;
+
+	        var parentRequired = options.required;
+	        each(shape, function (checker, prop) {
+	          /* jshint maxcomplexity:6 */
+	          var specified = obj && obj.hasOwnProperty(prop);
+	          var required = undef(parentRequired) ? !checker.isOptional : parentRequired;
+	          if (!terse || (specified || !checker.isOptional)) {
+	            ret[prop] = getCheckerDisplay(checker, { terse: terse, obj: obj && obj[prop], required: required, addHelpers: addHelpers });
+	          }
+	          if (addHelpers) {
+	            modifyTypeDisplayToHelpOut(ret, prop, specified, checker, required);
+	          }
+	        });
+	        return ret;
+
+	        function modifyTypeDisplayToHelpOut(ret, prop, specified, checker, required) {
+	          if (!specified && required && !checker.isOptional) {
+	            var item = "ITEM";
+	            if (checker.type && checker.type.__apiCheckData) {
+	              item = checker.type.__apiCheckData.type.toUpperCase();
+	            }
+	            addHelper("missing", "MISSING THIS " + item, " <-- YOU ARE MISSING THIS");
+	          } else if (specified) {
+	            var error = checker(obj[prop], prop, null, obj);
+	            if (isError(error)) {
+	              addHelper("error", "THIS IS THE PROBLEM: " + error.message, " <-- THIS IS THE PROBLEM: " + error.message);
+	            }
+	          }
+
+	          function addHelper(property, objectMessage, stringMessage) {
+	            if (typeof ret[prop] === "string") {
+	              ret[prop] += stringMessage;
+	            } else {
+	              ret[prop].__apiCheckData[property] = objectMessage;
+	            }
+	          }
+	        }
+	      }
+
+	      type.__apiCheckData = { strict: false, optional: false, type: "shape" };
+	      var shapeChecker = setupChecker(function shapeCheckerDefinition(val, name, location) {
+	        /* jshint maxcomplexity:6 */
+	        var isObject = !nonObject && checkers.object(val, name, location);
+	        if (isError(isObject)) {
+	          return isObject;
+	        }
+	        var shapePropError = undefined;
+	        location = location ? location + (name ? "/" : "") : "";
+	        name = name || "";
+	        each(shape, function (checker, prop) {
+	          if (val.hasOwnProperty(prop) || !checker.isOptional) {
+	            shapePropError = checker(val[prop], prop, "" + location + "" + name, val);
+	            return !isError(shapePropError);
+	          }
+	        });
+	        if (isError(shapePropError)) {
+	          return shapePropError;
+	        }
+	      }, { type: type, shortType: "shape" }, disabled);
+
+	      function strictType() {
+	        return type.apply(undefined, arguments);
+	      }
+
+	      strictType.__apiCheckData = copy(shapeChecker.type.__apiCheckData);
+	      strictType.__apiCheckData.strict = true;
+	      shapeChecker.strict = setupChecker(function strictShapeCheckerDefinition(val, name, location) {
+	        var shapeError = shapeChecker(val, name, location);
+	        if (isError(shapeError)) {
+	          return shapeError;
+	        }
+	        var allowedProperties = Object.keys(shape);
+	        var extraProps = Object.keys(val).filter(function (prop) {
+	          return allowedProperties.indexOf(prop) === -1;
+	        });
+	        if (extraProps.length) {
+	          return new Error("" + nAtL(name, location) + " cannot have extra properties: " + t(extraProps.join("`, `")) + "." + ("It is limited to " + t(allowedProperties.join("`, `"))));
+	        }
+	      }, { type: strictType, shortType: "strict shape" }, disabled);
+
+	      return shapeChecker;
+	    }
+
+	    shapeCheckGetter.ifNot = function ifNot(otherProps, propChecker) {
+	      if (!Array.isArray(otherProps)) {
+	        otherProps = [otherProps];
+	      }
+	      var description = undefined;
+	      if (otherProps.length === 1) {
+	        description = "specified only if " + otherProps[0] + " is not specified";
+	      } else {
+	        description = "specified only if none of the following are specified: [" + list(otherProps, ", ", "and ") + "]";
+	      }
+	      var shortType = "ifNot[" + otherProps.join(", ") + "]";
+	      var type = getTypeForShapeChild(propChecker, description, shortType);
+	      return setupChecker(function ifNotChecker(prop, propName, location, obj) {
+	        var propExists = obj && obj.hasOwnProperty(propName);
+	        var otherPropsExist = otherProps.some(function (otherProp) {
+	          return obj && obj.hasOwnProperty(otherProp);
+	        });
+	        if (propExists === otherPropsExist) {
+	          return getError(propName, location, type);
+	        } else if (propExists) {
+	          return propChecker(prop, propName, location, obj);
+	        }
+	      }, { notRequired: true, type: type, shortType: shortType }, disabled);
+	    };
+
+	    shapeCheckGetter.onlyIf = function onlyIf(otherProps, propChecker) {
+	      otherProps = arrayify(otherProps);
+	      var description = undefined;
+	      if (otherProps.length === 1) {
+	        description = "specified only if " + otherProps[0] + " is also specified";
+	      } else {
+	        description = "specified only if all of the following are specified: [" + list(otherProps, ", ", "and ") + "]";
+	      }
+	      var shortType = "onlyIf[" + otherProps.join(", ") + "]";
+	      var type = getTypeForShapeChild(propChecker, description, shortType);
+	      return setupChecker(function onlyIfCheckerDefinition(prop, propName, location, obj) {
+	        var othersPresent = otherProps.every(function (prop) {
+	          return obj.hasOwnProperty(prop);
+	        });
+	        if (!othersPresent) {
+	          return getError(propName, location, type);
+	        } else {
+	          return propChecker(prop, propName, location, obj);
+	        }
+	      }, { type: type, shortType: shortType }, disabled);
+	    };
+
+	    shapeCheckGetter.requiredIfNot = function shapeRequiredIfNot(otherProps, propChecker) {
+	      if (!Array.isArray(otherProps)) {
+	        otherProps = [otherProps];
+	      }
+	      return getRequiredIfNotChecker(false, otherProps, propChecker);
+	    };
+
+	    shapeCheckGetter.requiredIfNot.all = function shapeRequiredIfNotAll(otherProps, propChecker) {
+	      if (!Array.isArray(otherProps)) {
+	        throw new Error("requiredIfNot.all must be passed an array");
+	      }
+	      return getRequiredIfNotChecker(true, otherProps, propChecker);
+	    };
+
+	    function getRequiredIfNotChecker(all, otherProps, propChecker) {
+	      var props = t(otherProps.join(", "));
+	      var ifProps = "if " + (all ? "all of" : "at least one of");
+	      var description = "specified " + ifProps + " these are not specified: " + props + " (otherwise it's optional)";
+	      var shortType = "requiredIfNot" + (all ? ".all" : "") + "[" + otherProps.join(", ") + "}]";
+	      var type = getTypeForShapeChild(propChecker, description, shortType);
+	      return setupChecker(function shapeRequiredIfNotDefinition(prop, propName, location, obj) {
+	        var propExists = obj && obj.hasOwnProperty(propName);
+	        var iteration = all ? "every" : "some";
+	        var otherPropsExist = otherProps[iteration](function (otherProp) {
+	          return obj && obj.hasOwnProperty(otherProp);
+	        });
+	        if (!otherPropsExist && !propExists) {
+	          return getError(propName, location, type);
+	        } else if (propExists) {
+	          return propChecker(prop, propName, location, obj);
+	        }
+	      }, { type: type, notRequired: true }, disabled);
+	    }
+
+	    return shapeCheckGetter;
+
+	    function getTypeForShapeChild(propChecker, description, shortType) {
+	      function type(options) {
+	        if (options && options.short) {
+	          return shortType;
+	        }
+	        return getCheckerDisplay(propChecker);
+	      }
+	      type.__apiCheckData = { optional: false, type: "ifNot", description: description };
+	      return type;
+	    }
+	  }
+
+	  function argumentsCheckerGetter() {
+	    var type = "function arguments";
+	    return setupChecker(function argsCheckerDefinition(val, name, location) {
+	      if (Array.isArray(val) || isError(checkers.object(val)) || isError(checkers.number(val.length))) {
+	        return getError(name, location, type);
+	      }
+	    }, { type: type }, disabled);
+	  }
+
+	  function anyCheckGetter() {
+	    return setupChecker(function anyCheckerDefinition() {}, { type: "any" }, disabled);
+	  }
+
+	  function nullCheckGetter() {
+	    var type = "null";
+	    return setupChecker(function nullChecker(val, name, location) {
+	      if (val !== null) {
+	        return getError(name, location, type);
+	      }
+	    }, { type: type }, disabled);
+	  }
+
+	  function rangeCheckGetter(min, max) {
+	    var type = "Range (" + min + " - " + max + ")";
+	    return setupChecker(function rangeChecker(val, name, location) {
+	      if (typeof val !== "number" || val < min || val > max) {
+	        return getError(name, location, type);
+	      }
+	    }, { type: type }, disabled);
+	  }
+
+	  function emptyObjectCheckGetter() {
+	    var type = "empty object";
+	    return setupChecker(function emptyObjectChecker(val, name, location) {
+	      if (typeOf(val) !== "object" || val === null || Object.keys(val).length) {
+	        return getError(name, location, type);
+	      }
+	    }, { type: type }, disabled);
+	  }
+	}
+
+	// don't do anything
+
+/***/ },
+/* 4 */
+/*!*********************************************!*\
+  !*** ../~/json-stringify-safe/stringify.js ***!
+  \*********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = stringify;
+
+	function getSerialize (fn, decycle) {
+	  var seen = [], keys = [];
+	  decycle = decycle || function(key, value) {
+	    return '[Circular ' + getPath(value, seen, keys) + ']'
+	  };
+	  return function(key, value) {
+	    var ret = value;
+	    if (typeof value === 'object' && value) {
+	      if (seen.indexOf(value) !== -1)
+	        ret = decycle(key, value);
+	      else {
+	        seen.push(value);
+	        keys.push(key);
+	      }
+	    }
+	    if (fn) ret = fn(key, ret);
+	    return ret;
+	  }
+	}
+
+	function getPath (value, seen, keys) {
+	  var index = seen.indexOf(value);
+	  var path = [ keys[index] ];
+	  for (index--; index >= 0; index--) {
+	    if (seen[index][ path[0] ] === value) {
+	      value = seen[index];
+	      path.unshift(keys[index]);
+	    }
+	  }
+	  return '~' + path.join('.');
+	}
+
+	function stringify(obj, fn, spaces, decycle) {
+	  return JSON.stringify(obj, getSerialize(fn, decycle), spaces);
+	}
+
+	stringify.getSerialize = getSerialize;
+
+
+/***/ }
+/******/ ])
+});
+
 /**
  * @license AngularJS v1.3.15
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -26312,6 +27620,6079 @@ var minlengthDirective = function() {
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}</style>');
+/*
+ AngularJS v1.4.0
+ (c) 2010-2015 Google, Inc. http://angularjs.org
+ License: MIT
+*/
+(function(n,h,p){'use strict';function E(a){var f=[];r(f,h.noop).chars(a);return f.join("")}function g(a,f){var d={},c=a.split(","),b;for(b=0;b<c.length;b++)d[f?h.lowercase(c[b]):c[b]]=!0;return d}function F(a,f){function d(a,b,d,l){b=h.lowercase(b);if(s[b])for(;e.last()&&t[e.last()];)c("",e.last());u[b]&&e.last()==b&&c("",b);(l=v[b]||!!l)||e.push(b);var m={};d.replace(G,function(b,a,f,c,d){m[a]=q(f||c||d||"")});f.start&&f.start(b,m,l)}function c(b,a){var c=0,d;if(a=h.lowercase(a))for(c=e.length-
+1;0<=c&&e[c]!=a;c--);if(0<=c){for(d=e.length-1;d>=c;d--)f.end&&f.end(e[d]);e.length=c}}"string"!==typeof a&&(a=null===a||"undefined"===typeof a?"":""+a);var b,k,e=[],m=a,l;for(e.last=function(){return e[e.length-1]};a;){l="";k=!0;if(e.last()&&w[e.last()])a=a.replace(new RegExp("([\\W\\w]*)<\\s*\\/\\s*"+e.last()+"[^>]*>","i"),function(a,b){b=b.replace(H,"$1").replace(I,"$1");f.chars&&f.chars(q(b));return""}),c("",e.last());else{if(0===a.indexOf("\x3c!--"))b=a.indexOf("--",4),0<=b&&a.lastIndexOf("--\x3e",
+b)===b&&(f.comment&&f.comment(a.substring(4,b)),a=a.substring(b+3),k=!1);else if(x.test(a)){if(b=a.match(x))a=a.replace(b[0],""),k=!1}else if(J.test(a)){if(b=a.match(y))a=a.substring(b[0].length),b[0].replace(y,c),k=!1}else K.test(a)&&((b=a.match(z))?(b[4]&&(a=a.substring(b[0].length),b[0].replace(z,d)),k=!1):(l+="<",a=a.substring(1)));k&&(b=a.indexOf("<"),l+=0>b?a:a.substring(0,b),a=0>b?"":a.substring(b),f.chars&&f.chars(q(l)))}if(a==m)throw L("badparse",a);m=a}c()}function q(a){if(!a)return"";A.innerHTML=
+a.replace(/</g,"&lt;");return A.textContent}function B(a){return a.replace(/&/g,"&amp;").replace(M,function(a){var d=a.charCodeAt(0);a=a.charCodeAt(1);return"&#"+(1024*(d-55296)+(a-56320)+65536)+";"}).replace(N,function(a){return"&#"+a.charCodeAt(0)+";"}).replace(/</g,"&lt;").replace(/>/g,"&gt;")}function r(a,f){var d=!1,c=h.bind(a,a.push);return{start:function(a,k,e){a=h.lowercase(a);!d&&w[a]&&(d=a);d||!0!==C[a]||(c("<"),c(a),h.forEach(k,function(d,e){var k=h.lowercase(e),g="img"===a&&"src"===k||
+"background"===k;!0!==O[k]||!0===D[k]&&!f(d,g)||(c(" "),c(e),c('="'),c(B(d)),c('"'))}),c(e?"/>":">"))},end:function(a){a=h.lowercase(a);d||!0!==C[a]||(c("</"),c(a),c(">"));a==d&&(d=!1)},chars:function(a){d||c(B(a))}}}var L=h.$$minErr("$sanitize"),z=/^<((?:[a-zA-Z])[\w:-]*)((?:\s+[\w:-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)\s*(>?)/,y=/^<\/\s*([\w:-]+)[^>]*>/,G=/([\w:-]+)(?:\s*=\s*(?:(?:"((?:[^"])*)")|(?:'((?:[^'])*)')|([^>\s]+)))?/g,K=/^</,J=/^<\//,H=/\x3c!--(.*?)--\x3e/g,x=/<!DOCTYPE([^>]*?)>/i,
+I=/<!\[CDATA\[(.*?)]]\x3e/g,M=/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,N=/([^\#-~| |!])/g,v=g("area,br,col,hr,img,wbr");n=g("colgroup,dd,dt,li,p,tbody,td,tfoot,th,thead,tr");p=g("rp,rt");var u=h.extend({},p,n),s=h.extend({},n,g("address,article,aside,blockquote,caption,center,del,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5,h6,header,hgroup,hr,ins,map,menu,nav,ol,pre,script,section,table,ul")),t=h.extend({},p,g("a,abbr,acronym,b,bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,q,ruby,rp,rt,s,samp,small,span,strike,strong,sub,sup,time,tt,u,var"));
+n=g("circle,defs,desc,ellipse,font-face,font-face-name,font-face-src,g,glyph,hkern,image,linearGradient,line,marker,metadata,missing-glyph,mpath,path,polygon,polyline,radialGradient,rect,stop,svg,switch,text,title,tspan,use");var w=g("script,style"),C=h.extend({},v,s,t,u,n),D=g("background,cite,href,longdesc,src,usemap,xlink:href");n=g("abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,color,cols,colspan,compact,coords,dir,face,headers,height,hreflang,hspace,ismap,lang,language,nohref,nowrap,rel,rev,rows,rowspan,rules,scope,scrolling,shape,size,span,start,summary,target,title,type,valign,value,vspace,width");
+p=g("accent-height,accumulate,additive,alphabetic,arabic-form,ascent,baseProfile,bbox,begin,by,calcMode,cap-height,class,color,color-rendering,content,cx,cy,d,dx,dy,descent,display,dur,end,fill,fill-rule,font-family,font-size,font-stretch,font-style,font-variant,font-weight,from,fx,fy,g1,g2,glyph-name,gradientUnits,hanging,height,horiz-adv-x,horiz-origin-x,ideographic,k,keyPoints,keySplines,keyTimes,lang,marker-end,marker-mid,marker-start,markerHeight,markerUnits,markerWidth,mathematical,max,min,offset,opacity,orient,origin,overline-position,overline-thickness,panose-1,path,pathLength,points,preserveAspectRatio,r,refX,refY,repeatCount,repeatDur,requiredExtensions,requiredFeatures,restart,rotate,rx,ry,slope,stemh,stemv,stop-color,stop-opacity,strikethrough-position,strikethrough-thickness,stroke,stroke-dasharray,stroke-dashoffset,stroke-linecap,stroke-linejoin,stroke-miterlimit,stroke-opacity,stroke-width,systemLanguage,target,text-anchor,to,transform,type,u1,u2,underline-position,underline-thickness,unicode,unicode-range,units-per-em,values,version,viewBox,visibility,width,widths,x,x-height,x1,x2,xlink:actuate,xlink:arcrole,xlink:role,xlink:show,xlink:title,xlink:type,xml:base,xml:lang,xml:space,xmlns,xmlns:xlink,y,y1,y2,zoomAndPan",
+!0);var O=h.extend({},D,p,n),A=document.createElement("pre");h.module("ngSanitize",[]).provider("$sanitize",function(){this.$get=["$$sanitizeUri",function(a){return function(f){var d=[];F(f,r(d,function(c,b){return!/^unsafe/.test(a(c,b))}));return d.join("")}}]});h.module("ngSanitize").filter("linky",["$sanitize",function(a){var f=/((ftp|https?):\/\/|(www\.)|(mailto:)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]/,d=/^mailto:/;return function(c,b){function k(a){a&&g.push(E(a))}function e(a,c){g.push("<a ");
+h.isDefined(b)&&g.push('target="',b,'" ');g.push('href="',a.replace(/"/g,"&quot;"),'">');k(c);g.push("</a>")}if(!c)return c;for(var m,l=c,g=[],n,p;m=l.match(f);)n=m[0],m[2]||m[4]||(n=(m[3]?"http://":"mailto:")+n),p=m.index,k(l.substr(0,p)),e(n,m[0].replace(d,"")),l=l.substring(p+m[0].length);k(l);return a(g.join(""))}}])})(window,window.angular);
+//# sourceMappingURL=angular-sanitize.min.js.map
+
+/*
+Author: Geraint Luff and others
+Year: 2013
+
+This code is released into the "public domain" by its author(s).  Anybody may use, alter and distribute the code without restriction.  The author makes no guarantees, and takes no liability of any kind for use of this code.
+
+If you find a bug or make an improvement, it would be courteous to let the author know, but it is not compulsory.
+*/
+(function (global, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define([], factory);
+  } else if (typeof module !== 'undefined' && module.exports){
+    // CommonJS. Define export.
+    module.exports = factory();
+  } else {
+    // Browser globals
+    global.tv4 = factory();
+  }
+}(this, function () {
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FObject%2Fkeys
+if (!Object.keys) {
+	Object.keys = (function () {
+		var hasOwnProperty = Object.prototype.hasOwnProperty,
+			hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+			dontEnums = [
+				'toString',
+				'toLocaleString',
+				'valueOf',
+				'hasOwnProperty',
+				'isPrototypeOf',
+				'propertyIsEnumerable',
+				'constructor'
+			],
+			dontEnumsLength = dontEnums.length;
+
+		return function (obj) {
+			if (typeof obj !== 'object' && typeof obj !== 'function' || obj === null) {
+				throw new TypeError('Object.keys called on non-object');
+			}
+
+			var result = [];
+
+			for (var prop in obj) {
+				if (hasOwnProperty.call(obj, prop)) {
+					result.push(prop);
+				}
+			}
+
+			if (hasDontEnumBug) {
+				for (var i=0; i < dontEnumsLength; i++) {
+					if (hasOwnProperty.call(obj, dontEnums[i])) {
+						result.push(dontEnums[i]);
+					}
+				}
+			}
+			return result;
+		};
+	})();
+}
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
+if (!Object.create) {
+	Object.create = (function(){
+		function F(){}
+
+		return function(o){
+			if (arguments.length !== 1) {
+				throw new Error('Object.create implementation only accepts one parameter.');
+			}
+			F.prototype = o;
+			return new F();
+		};
+	})();
+}
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FArray%2FisArray
+if(!Array.isArray) {
+	Array.isArray = function (vArg) {
+		return Object.prototype.toString.call(vArg) === "[object Array]";
+	};
+}
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FArray%2FindexOf
+if (!Array.prototype.indexOf) {
+	Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+		if (this === null) {
+			throw new TypeError();
+		}
+		var t = Object(this);
+		var len = t.length >>> 0;
+
+		if (len === 0) {
+			return -1;
+		}
+		var n = 0;
+		if (arguments.length > 1) {
+			n = Number(arguments[1]);
+			if (n !== n) { // shortcut for verifying if it's NaN
+				n = 0;
+			} else if (n !== 0 && n !== Infinity && n !== -Infinity) {
+				n = (n > 0 || -1) * Math.floor(Math.abs(n));
+			}
+		}
+		if (n >= len) {
+			return -1;
+		}
+		var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
+		for (; k < len; k++) {
+			if (k in t && t[k] === searchElement) {
+				return k;
+			}
+		}
+		return -1;
+	};
+}
+
+// Grungey Object.isFrozen hack
+if (!Object.isFrozen) {
+	Object.isFrozen = function (obj) {
+		var key = "tv4_test_frozen_key";
+		while (obj.hasOwnProperty(key)) {
+			key += Math.random();
+		}
+		try {
+			obj[key] = true;
+			delete obj[key];
+			return false;
+		} catch (e) {
+			return true;
+		}
+	};
+}
+var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive, trackUnknownProperties) {
+	this.missing = [];
+	this.missingMap = {};
+	this.formatValidators = parent ? Object.create(parent.formatValidators) : {};
+	this.schemas = parent ? Object.create(parent.schemas) : {};
+	this.collectMultiple = collectMultiple;
+	this.errors = [];
+	this.handleError = collectMultiple ? this.collectError : this.returnError;
+	if (checkRecursive) {
+		this.checkRecursive = true;
+		this.scanned = [];
+		this.scannedFrozen = [];
+		this.scannedFrozenSchemas = [];
+		this.scannedFrozenValidationErrors = [];
+		this.validatedSchemasKey = 'tv4_validation_id';
+		this.validationErrorsKey = 'tv4_validation_errors_id';
+	}
+	if (trackUnknownProperties) {
+		this.trackUnknownProperties = true;
+		this.knownPropertyPaths = {};
+		this.unknownPropertyPaths = {};
+	}
+	this.errorMessages = errorMessages;
+	this.definedKeywords = {};
+	if (parent) {
+		for (var key in parent.definedKeywords) {
+			this.definedKeywords[key] = parent.definedKeywords[key].slice(0);
+		}
+	}
+};
+ValidatorContext.prototype.defineKeyword = function (keyword, keywordFunction) {
+	this.definedKeywords[keyword] = this.definedKeywords[keyword] || [];
+	this.definedKeywords[keyword].push(keywordFunction);
+};
+ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
+	var messageTemplate = this.errorMessages[code] || ErrorMessagesDefault[code];
+	if (typeof messageTemplate !== 'string') {
+		return new ValidationError(code, "Unknown error code " + code + ": " + JSON.stringify(messageParams), dataPath, schemaPath, subErrors);
+	}
+	// Adapted from Crockford's supplant()
+	var message = messageTemplate.replace(/\{([^{}]*)\}/g, function (whole, varName) {
+		var subValue = messageParams[varName];
+		return typeof subValue === 'string' || typeof subValue === 'number' ? subValue : whole;
+	});
+	return new ValidationError(code, message, dataPath, schemaPath, subErrors);
+};
+ValidatorContext.prototype.returnError = function (error) {
+	return error;
+};
+ValidatorContext.prototype.collectError = function (error) {
+	if (error) {
+		this.errors.push(error);
+	}
+	return null;
+};
+ValidatorContext.prototype.prefixErrors = function (startIndex, dataPath, schemaPath) {
+	for (var i = startIndex; i < this.errors.length; i++) {
+		this.errors[i] = this.errors[i].prefixWith(dataPath, schemaPath);
+	}
+	return this;
+};
+ValidatorContext.prototype.banUnknownProperties = function () {
+	for (var unknownPath in this.unknownPropertyPaths) {
+		var error = this.createError(ErrorCodes.UNKNOWN_PROPERTY, {path: unknownPath}, unknownPath, "");
+		var result = this.handleError(error);
+		if (result) {
+			return result;
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.addFormat = function (format, validator) {
+	if (typeof format === 'object') {
+		for (var key in format) {
+			this.addFormat(key, format[key]);
+		}
+		return this;
+	}
+	this.formatValidators[format] = validator;
+};
+ValidatorContext.prototype.resolveRefs = function (schema, urlHistory) {
+	if (schema['$ref'] !== undefined) {
+		urlHistory = urlHistory || {};
+		if (urlHistory[schema['$ref']]) {
+			return this.createError(ErrorCodes.CIRCULAR_REFERENCE, {urls: Object.keys(urlHistory).join(', ')}, '', '');
+		}
+		urlHistory[schema['$ref']] = true;
+		schema = this.getSchema(schema['$ref'], urlHistory);
+	}
+	return schema;
+};
+ValidatorContext.prototype.getSchema = function (url, urlHistory) {
+	var schema;
+	if (this.schemas[url] !== undefined) {
+		schema = this.schemas[url];
+		return this.resolveRefs(schema, urlHistory);
+	}
+	var baseUrl = url;
+	var fragment = "";
+	if (url.indexOf('#') !== -1) {
+		fragment = url.substring(url.indexOf("#") + 1);
+		baseUrl = url.substring(0, url.indexOf("#"));
+	}
+	if (typeof this.schemas[baseUrl] === 'object') {
+		schema = this.schemas[baseUrl];
+		var pointerPath = decodeURIComponent(fragment);
+		if (pointerPath === "") {
+			return this.resolveRefs(schema, urlHistory);
+		} else if (pointerPath.charAt(0) !== "/") {
+			return undefined;
+		}
+		var parts = pointerPath.split("/").slice(1);
+		for (var i = 0; i < parts.length; i++) {
+			var component = parts[i].replace(/~1/g, "/").replace(/~0/g, "~");
+			if (schema[component] === undefined) {
+				schema = undefined;
+				break;
+			}
+			schema = schema[component];
+		}
+		if (schema !== undefined) {
+			return this.resolveRefs(schema, urlHistory);
+		}
+	}
+	if (this.missing[baseUrl] === undefined) {
+		this.missing.push(baseUrl);
+		this.missing[baseUrl] = baseUrl;
+		this.missingMap[baseUrl] = baseUrl;
+	}
+};
+ValidatorContext.prototype.searchSchemas = function (schema, url) {
+	if (schema && typeof schema === "object") {
+		if (typeof schema.id === "string") {
+			if (isTrustedUrl(url, schema.id)) {
+				if (this.schemas[schema.id] === undefined) {
+					this.schemas[schema.id] = schema;
+				}
+			}
+		}
+		for (var key in schema) {
+			if (key !== "enum") {
+				if (typeof schema[key] === "object") {
+					this.searchSchemas(schema[key], url);
+				} else if (key === "$ref") {
+					var uri = getDocumentUri(schema[key]);
+					if (uri && this.schemas[uri] === undefined && this.missingMap[uri] === undefined) {
+						this.missingMap[uri] = uri;
+					}
+				}
+			}
+		}
+	}
+};
+ValidatorContext.prototype.addSchema = function (url, schema) {
+	//overload
+	if (typeof url !== 'string' || typeof schema === 'undefined') {
+		if (typeof url === 'object' && typeof url.id === 'string') {
+			schema = url;
+			url = schema.id;
+		}
+		else {
+			return;
+		}
+	}
+	if (url = getDocumentUri(url) + "#") {
+		// Remove empty fragment
+		url = getDocumentUri(url);
+	}
+	this.schemas[url] = schema;
+	delete this.missingMap[url];
+	normSchema(schema, url);
+	this.searchSchemas(schema, url);
+};
+
+ValidatorContext.prototype.getSchemaMap = function () {
+	var map = {};
+	for (var key in this.schemas) {
+		map[key] = this.schemas[key];
+	}
+	return map;
+};
+
+ValidatorContext.prototype.getSchemaUris = function (filterRegExp) {
+	var list = [];
+	for (var key in this.schemas) {
+		if (!filterRegExp || filterRegExp.test(key)) {
+			list.push(key);
+		}
+	}
+	return list;
+};
+
+ValidatorContext.prototype.getMissingUris = function (filterRegExp) {
+	var list = [];
+	for (var key in this.missingMap) {
+		if (!filterRegExp || filterRegExp.test(key)) {
+			list.push(key);
+		}
+	}
+	return list;
+};
+
+ValidatorContext.prototype.dropSchemas = function () {
+	this.schemas = {};
+	this.reset();
+};
+ValidatorContext.prototype.reset = function () {
+	this.missing = [];
+	this.missingMap = {};
+	this.errors = [];
+};
+
+ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, schemaPathParts, dataPointerPath) {
+	var topLevel;
+	schema = this.resolveRefs(schema);
+	if (!schema) {
+		return null;
+	} else if (schema instanceof ValidationError) {
+		this.errors.push(schema);
+		return schema;
+	}
+
+	var startErrorCount = this.errors.length;
+	var frozenIndex, scannedFrozenSchemaIndex = null, scannedSchemasIndex = null;
+	if (this.checkRecursive && data && typeof data === 'object') {
+		topLevel = !this.scanned.length;
+		if (data[this.validatedSchemasKey]) {
+			var schemaIndex = data[this.validatedSchemasKey].indexOf(schema);
+			if (schemaIndex !== -1) {
+				this.errors = this.errors.concat(data[this.validationErrorsKey][schemaIndex]);
+				return null;
+			}
+		}
+		if (Object.isFrozen(data)) {
+			frozenIndex = this.scannedFrozen.indexOf(data);
+			if (frozenIndex !== -1) {
+				var frozenSchemaIndex = this.scannedFrozenSchemas[frozenIndex].indexOf(schema);
+				if (frozenSchemaIndex !== -1) {
+					this.errors = this.errors.concat(this.scannedFrozenValidationErrors[frozenIndex][frozenSchemaIndex]);
+					return null;
+				}
+			}
+		}
+		this.scanned.push(data);
+		if (Object.isFrozen(data)) {
+			if (frozenIndex === -1) {
+				frozenIndex = this.scannedFrozen.length;
+				this.scannedFrozen.push(data);
+				this.scannedFrozenSchemas.push([]);
+			}
+			scannedFrozenSchemaIndex = this.scannedFrozenSchemas[frozenIndex].length;
+			this.scannedFrozenSchemas[frozenIndex][scannedFrozenSchemaIndex] = schema;
+			this.scannedFrozenValidationErrors[frozenIndex][scannedFrozenSchemaIndex] = [];
+		} else {
+			if (!data[this.validatedSchemasKey]) {
+				try {
+					Object.defineProperty(data, this.validatedSchemasKey, {
+						value: [],
+						configurable: true
+					});
+					Object.defineProperty(data, this.validationErrorsKey, {
+						value: [],
+						configurable: true
+					});
+				} catch (e) {
+					//IE 7/8 workaround
+					data[this.validatedSchemasKey] = [];
+					data[this.validationErrorsKey] = [];
+				}
+			}
+			scannedSchemasIndex = data[this.validatedSchemasKey].length;
+			data[this.validatedSchemasKey][scannedSchemasIndex] = schema;
+			data[this.validationErrorsKey][scannedSchemasIndex] = [];
+		}
+	}
+
+	var errorCount = this.errors.length;
+	var error = this.validateBasic(data, schema, dataPointerPath)
+		|| this.validateNumeric(data, schema, dataPointerPath)
+		|| this.validateString(data, schema, dataPointerPath)
+		|| this.validateArray(data, schema, dataPointerPath)
+		|| this.validateObject(data, schema, dataPointerPath)
+		|| this.validateCombinations(data, schema, dataPointerPath)
+		|| this.validateFormat(data, schema, dataPointerPath)
+		|| this.validateDefinedKeywords(data, schema, dataPointerPath)
+		|| null;
+
+	if (topLevel) {
+		while (this.scanned.length) {
+			var item = this.scanned.pop();
+			delete item[this.validatedSchemasKey];
+		}
+		this.scannedFrozen = [];
+		this.scannedFrozenSchemas = [];
+	}
+
+	if (error || errorCount !== this.errors.length) {
+		while ((dataPathParts && dataPathParts.length) || (schemaPathParts && schemaPathParts.length)) {
+			var dataPart = (dataPathParts && dataPathParts.length) ? "" + dataPathParts.pop() : null;
+			var schemaPart = (schemaPathParts && schemaPathParts.length) ? "" + schemaPathParts.pop() : null;
+			if (error) {
+				error = error.prefixWith(dataPart, schemaPart);
+			}
+			this.prefixErrors(errorCount, dataPart, schemaPart);
+		}
+	}
+	
+	if (scannedFrozenSchemaIndex !== null) {
+		this.scannedFrozenValidationErrors[frozenIndex][scannedFrozenSchemaIndex] = this.errors.slice(startErrorCount);
+	} else if (scannedSchemasIndex !== null) {
+		data[this.validationErrorsKey][scannedSchemasIndex] = this.errors.slice(startErrorCount);
+	}
+
+	return this.handleError(error);
+};
+ValidatorContext.prototype.validateFormat = function (data, schema) {
+	if (typeof schema.format !== 'string' || !this.formatValidators[schema.format]) {
+		return null;
+	}
+	var errorMessage = this.formatValidators[schema.format].call(null, data, schema);
+	if (typeof errorMessage === 'string' || typeof errorMessage === 'number') {
+		return this.createError(ErrorCodes.FORMAT_CUSTOM, {message: errorMessage}).prefixWith(null, "format");
+	} else if (errorMessage && typeof errorMessage === 'object') {
+		return this.createError(ErrorCodes.FORMAT_CUSTOM, {message: errorMessage.message || "?"}, errorMessage.dataPath || null, errorMessage.schemaPath || "/format");
+	}
+	return null;
+};
+ValidatorContext.prototype.validateDefinedKeywords = function (data, schema) {
+	for (var key in this.definedKeywords) {
+		var validationFunctions = this.definedKeywords[key];
+		for (var i = 0; i < validationFunctions.length; i++) {
+			var func = validationFunctions[i];
+			var result = func(data, schema[key], schema);
+			if (typeof result === 'string' || typeof result === 'number') {
+				return this.createError(ErrorCodes.KEYWORD_CUSTOM, {key: key, message: result}).prefixWith(null, "format");
+			} else if (result && typeof result === 'object') {
+				var code = result.code || ErrorCodes.KEYWORD_CUSTOM;
+				if (typeof code === 'string') {
+					if (!ErrorCodes[code]) {
+						throw new Error('Undefined error code (use defineError): ' + code);
+					}
+					code = ErrorCodes[code];
+				}
+				var messageParams = (typeof result.message === 'object') ? result.message : {key: key, message: result.message || "?"};
+				var schemaPath = result.schemaPath ||( "/" + key.replace(/~/g, '~0').replace(/\//g, '~1'));
+				return this.createError(code, messageParams, result.dataPath || null, schemaPath);
+			}
+		}
+	}
+	return null;
+};
+
+function recursiveCompare(A, B) {
+	if (A === B) {
+		return true;
+	}
+	if (typeof A === "object" && typeof B === "object") {
+		if (Array.isArray(A) !== Array.isArray(B)) {
+			return false;
+		} else if (Array.isArray(A)) {
+			if (A.length !== B.length) {
+				return false;
+			}
+			for (var i = 0; i < A.length; i++) {
+				if (!recursiveCompare(A[i], B[i])) {
+					return false;
+				}
+			}
+		} else {
+			var key;
+			for (key in A) {
+				if (B[key] === undefined && A[key] !== undefined) {
+					return false;
+				}
+			}
+			for (key in B) {
+				if (A[key] === undefined && B[key] !== undefined) {
+					return false;
+				}
+			}
+			for (key in A) {
+				if (!recursiveCompare(A[key], B[key])) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
+ValidatorContext.prototype.validateBasic = function validateBasic(data, schema, dataPointerPath) {
+	var error;
+	if (error = this.validateType(data, schema, dataPointerPath)) {
+		return error.prefixWith(null, "type");
+	}
+	if (error = this.validateEnum(data, schema, dataPointerPath)) {
+		return error.prefixWith(null, "type");
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateType = function validateType(data, schema) {
+	if (schema.type === undefined) {
+		return null;
+	}
+	var dataType = typeof data;
+	if (data === null) {
+		dataType = "null";
+	} else if (Array.isArray(data)) {
+		dataType = "array";
+	}
+	var allowedTypes = schema.type;
+	if (typeof allowedTypes !== "object") {
+		allowedTypes = [allowedTypes];
+	}
+
+	for (var i = 0; i < allowedTypes.length; i++) {
+		var type = allowedTypes[i];
+		if (type === dataType || (type === "integer" && dataType === "number" && (data % 1 === 0))) {
+			return null;
+		}
+	}
+	return this.createError(ErrorCodes.INVALID_TYPE, {type: dataType, expected: allowedTypes.join("/")});
+};
+
+ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
+	if (schema["enum"] === undefined) {
+		return null;
+	}
+	for (var i = 0; i < schema["enum"].length; i++) {
+		var enumVal = schema["enum"][i];
+		if (recursiveCompare(data, enumVal)) {
+			return null;
+		}
+	}
+	return this.createError(ErrorCodes.ENUM_MISMATCH, {value: (typeof JSON !== 'undefined') ? JSON.stringify(data) : data});
+};
+
+ValidatorContext.prototype.validateNumeric = function validateNumeric(data, schema, dataPointerPath) {
+	return this.validateMultipleOf(data, schema, dataPointerPath)
+		|| this.validateMinMax(data, schema, dataPointerPath)
+		|| null;
+};
+
+ValidatorContext.prototype.validateMultipleOf = function validateMultipleOf(data, schema) {
+	var multipleOf = schema.multipleOf || schema.divisibleBy;
+	if (multipleOf === undefined) {
+		return null;
+	}
+	if (typeof data === "number") {
+		if (data % multipleOf !== 0) {
+			return this.createError(ErrorCodes.NUMBER_MULTIPLE_OF, {value: data, multipleOf: multipleOf});
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema) {
+	if (typeof data !== "number") {
+		return null;
+	}
+	if (schema.minimum !== undefined) {
+		if (data < schema.minimum) {
+			return this.createError(ErrorCodes.NUMBER_MINIMUM, {value: data, minimum: schema.minimum}).prefixWith(null, "minimum");
+		}
+		if (schema.exclusiveMinimum && data === schema.minimum) {
+			return this.createError(ErrorCodes.NUMBER_MINIMUM_EXCLUSIVE, {value: data, minimum: schema.minimum}).prefixWith(null, "exclusiveMinimum");
+		}
+	}
+	if (schema.maximum !== undefined) {
+		if (data > schema.maximum) {
+			return this.createError(ErrorCodes.NUMBER_MAXIMUM, {value: data, maximum: schema.maximum}).prefixWith(null, "maximum");
+		}
+		if (schema.exclusiveMaximum && data === schema.maximum) {
+			return this.createError(ErrorCodes.NUMBER_MAXIMUM_EXCLUSIVE, {value: data, maximum: schema.maximum}).prefixWith(null, "exclusiveMaximum");
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateString = function validateString(data, schema, dataPointerPath) {
+	return this.validateStringLength(data, schema, dataPointerPath)
+		|| this.validateStringPattern(data, schema, dataPointerPath)
+		|| null;
+};
+
+ValidatorContext.prototype.validateStringLength = function validateStringLength(data, schema) {
+	if (typeof data !== "string") {
+		return null;
+	}
+	if (schema.minLength !== undefined) {
+		if (data.length < schema.minLength) {
+			return this.createError(ErrorCodes.STRING_LENGTH_SHORT, {length: data.length, minimum: schema.minLength}).prefixWith(null, "minLength");
+		}
+	}
+	if (schema.maxLength !== undefined) {
+		if (data.length > schema.maxLength) {
+			return this.createError(ErrorCodes.STRING_LENGTH_LONG, {length: data.length, maximum: schema.maxLength}).prefixWith(null, "maxLength");
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateStringPattern = function validateStringPattern(data, schema) {
+	if (typeof data !== "string" || schema.pattern === undefined) {
+		return null;
+	}
+	var regexp = new RegExp(schema.pattern);
+	if (!regexp.test(data)) {
+		return this.createError(ErrorCodes.STRING_PATTERN, {pattern: schema.pattern}).prefixWith(null, "pattern");
+	}
+	return null;
+};
+ValidatorContext.prototype.validateArray = function validateArray(data, schema, dataPointerPath) {
+	if (!Array.isArray(data)) {
+		return null;
+	}
+	return this.validateArrayLength(data, schema, dataPointerPath)
+		|| this.validateArrayUniqueItems(data, schema, dataPointerPath)
+		|| this.validateArrayItems(data, schema, dataPointerPath)
+		|| null;
+};
+
+ValidatorContext.prototype.validateArrayLength = function validateArrayLength(data, schema) {
+	var error;
+	if (schema.minItems !== undefined) {
+		if (data.length < schema.minItems) {
+			error = (this.createError(ErrorCodes.ARRAY_LENGTH_SHORT, {length: data.length, minimum: schema.minItems})).prefixWith(null, "minItems");
+			if (this.handleError(error)) {
+				return error;
+			}
+		}
+	}
+	if (schema.maxItems !== undefined) {
+		if (data.length > schema.maxItems) {
+			error = (this.createError(ErrorCodes.ARRAY_LENGTH_LONG, {length: data.length, maximum: schema.maxItems})).prefixWith(null, "maxItems");
+			if (this.handleError(error)) {
+				return error;
+			}
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateArrayUniqueItems = function validateArrayUniqueItems(data, schema) {
+	if (schema.uniqueItems) {
+		for (var i = 0; i < data.length; i++) {
+			for (var j = i + 1; j < data.length; j++) {
+				if (recursiveCompare(data[i], data[j])) {
+					var error = (this.createError(ErrorCodes.ARRAY_UNIQUE, {match1: i, match2: j})).prefixWith(null, "uniqueItems");
+					if (this.handleError(error)) {
+						return error;
+					}
+				}
+			}
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data, schema, dataPointerPath) {
+	if (schema.items === undefined) {
+		return null;
+	}
+	var error, i;
+	if (Array.isArray(schema.items)) {
+		for (i = 0; i < data.length; i++) {
+			if (i < schema.items.length) {
+				if (error = this.validateAll(data[i], schema.items[i], [i], ["items", i], dataPointerPath + "/" + i)) {
+					return error;
+				}
+			} else if (schema.additionalItems !== undefined) {
+				if (typeof schema.additionalItems === "boolean") {
+					if (!schema.additionalItems) {
+						error = (this.createError(ErrorCodes.ARRAY_ADDITIONAL_ITEMS, {})).prefixWith("" + i, "additionalItems");
+						if (this.handleError(error)) {
+							return error;
+						}
+					}
+				} else if (error = this.validateAll(data[i], schema.additionalItems, [i], ["additionalItems"], dataPointerPath + "/" + i)) {
+					return error;
+				}
+			}
+		}
+	} else {
+		for (i = 0; i < data.length; i++) {
+			if (error = this.validateAll(data[i], schema.items, [i], ["items"], dataPointerPath + "/" + i)) {
+				return error;
+			}
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateObject = function validateObject(data, schema, dataPointerPath) {
+	if (typeof data !== "object" || data === null || Array.isArray(data)) {
+		return null;
+	}
+	return this.validateObjectMinMaxProperties(data, schema, dataPointerPath)
+		|| this.validateObjectRequiredProperties(data, schema, dataPointerPath)
+		|| this.validateObjectProperties(data, schema, dataPointerPath)
+		|| this.validateObjectDependencies(data, schema, dataPointerPath)
+		|| null;
+};
+
+ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObjectMinMaxProperties(data, schema) {
+	var keys = Object.keys(data);
+	var error;
+	if (schema.minProperties !== undefined) {
+		if (keys.length < schema.minProperties) {
+			error = this.createError(ErrorCodes.OBJECT_PROPERTIES_MINIMUM, {propertyCount: keys.length, minimum: schema.minProperties}).prefixWith(null, "minProperties");
+			if (this.handleError(error)) {
+				return error;
+			}
+		}
+	}
+	if (schema.maxProperties !== undefined) {
+		if (keys.length > schema.maxProperties) {
+			error = this.createError(ErrorCodes.OBJECT_PROPERTIES_MAXIMUM, {propertyCount: keys.length, maximum: schema.maxProperties}).prefixWith(null, "maxProperties");
+			if (this.handleError(error)) {
+				return error;
+			}
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateObjectRequiredProperties = function validateObjectRequiredProperties(data, schema) {
+	if (schema.required !== undefined) {
+		for (var i = 0; i < schema.required.length; i++) {
+			var key = schema.required[i];
+			if (data[key] === undefined) {
+				var error = this.createError(ErrorCodes.OBJECT_REQUIRED, {key: key}).prefixWith(null, "" + i).prefixWith(null, "required");
+				if (this.handleError(error)) {
+					return error;
+				}
+			}
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateObjectProperties = function validateObjectProperties(data, schema, dataPointerPath) {
+	var error;
+	for (var key in data) {
+		var keyPointerPath = dataPointerPath + "/" + key.replace(/~/g, '~0').replace(/\//g, '~1');
+		var foundMatch = false;
+		if (schema.properties !== undefined && schema.properties[key] !== undefined) {
+			foundMatch = true;
+			if (error = this.validateAll(data[key], schema.properties[key], [key], ["properties", key], keyPointerPath)) {
+				return error;
+			}
+		}
+		if (schema.patternProperties !== undefined) {
+			for (var patternKey in schema.patternProperties) {
+				var regexp = new RegExp(patternKey);
+				if (regexp.test(key)) {
+					foundMatch = true;
+					if (error = this.validateAll(data[key], schema.patternProperties[patternKey], [key], ["patternProperties", patternKey], keyPointerPath)) {
+						return error;
+					}
+				}
+			}
+		}
+		if (!foundMatch) {
+			if (schema.additionalProperties !== undefined) {
+				if (this.trackUnknownProperties) {
+					this.knownPropertyPaths[keyPointerPath] = true;
+					delete this.unknownPropertyPaths[keyPointerPath];
+				}
+				if (typeof schema.additionalProperties === "boolean") {
+					if (!schema.additionalProperties) {
+						error = this.createError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, {}).prefixWith(key, "additionalProperties");
+						if (this.handleError(error)) {
+							return error;
+						}
+					}
+				} else {
+					if (error = this.validateAll(data[key], schema.additionalProperties, [key], ["additionalProperties"], keyPointerPath)) {
+						return error;
+					}
+				}
+			} else if (this.trackUnknownProperties && !this.knownPropertyPaths[keyPointerPath]) {
+				this.unknownPropertyPaths[keyPointerPath] = true;
+			}
+		} else if (this.trackUnknownProperties) {
+			this.knownPropertyPaths[keyPointerPath] = true;
+			delete this.unknownPropertyPaths[keyPointerPath];
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateObjectDependencies = function validateObjectDependencies(data, schema, dataPointerPath) {
+	var error;
+	if (schema.dependencies !== undefined) {
+		for (var depKey in schema.dependencies) {
+			if (data[depKey] !== undefined) {
+				var dep = schema.dependencies[depKey];
+				if (typeof dep === "string") {
+					if (data[dep] === undefined) {
+						error = this.createError(ErrorCodes.OBJECT_DEPENDENCY_KEY, {key: depKey, missing: dep}).prefixWith(null, depKey).prefixWith(null, "dependencies");
+						if (this.handleError(error)) {
+							return error;
+						}
+					}
+				} else if (Array.isArray(dep)) {
+					for (var i = 0; i < dep.length; i++) {
+						var requiredKey = dep[i];
+						if (data[requiredKey] === undefined) {
+							error = this.createError(ErrorCodes.OBJECT_DEPENDENCY_KEY, {key: depKey, missing: requiredKey}).prefixWith(null, "" + i).prefixWith(null, depKey).prefixWith(null, "dependencies");
+							if (this.handleError(error)) {
+								return error;
+							}
+						}
+					}
+				} else {
+					if (error = this.validateAll(data, dep, [], ["dependencies", depKey], dataPointerPath)) {
+						return error;
+					}
+				}
+			}
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateCombinations = function validateCombinations(data, schema, dataPointerPath) {
+	return this.validateAllOf(data, schema, dataPointerPath)
+		|| this.validateAnyOf(data, schema, dataPointerPath)
+		|| this.validateOneOf(data, schema, dataPointerPath)
+		|| this.validateNot(data, schema, dataPointerPath)
+		|| null;
+};
+
+ValidatorContext.prototype.validateAllOf = function validateAllOf(data, schema, dataPointerPath) {
+	if (schema.allOf === undefined) {
+		return null;
+	}
+	var error;
+	for (var i = 0; i < schema.allOf.length; i++) {
+		var subSchema = schema.allOf[i];
+		if (error = this.validateAll(data, subSchema, [], ["allOf", i], dataPointerPath)) {
+			return error;
+		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema, dataPointerPath) {
+	if (schema.anyOf === undefined) {
+		return null;
+	}
+	var errors = [];
+	var startErrorCount = this.errors.length;
+	var oldUnknownPropertyPaths, oldKnownPropertyPaths;
+	if (this.trackUnknownProperties) {
+		oldUnknownPropertyPaths = this.unknownPropertyPaths;
+		oldKnownPropertyPaths = this.knownPropertyPaths;
+	}
+	var errorAtEnd = true;
+	for (var i = 0; i < schema.anyOf.length; i++) {
+		if (this.trackUnknownProperties) {
+			this.unknownPropertyPaths = {};
+			this.knownPropertyPaths = {};
+		}
+		var subSchema = schema.anyOf[i];
+
+		var errorCount = this.errors.length;
+		var error = this.validateAll(data, subSchema, [], ["anyOf", i], dataPointerPath);
+
+		if (error === null && errorCount === this.errors.length) {
+			this.errors = this.errors.slice(0, startErrorCount);
+
+			if (this.trackUnknownProperties) {
+				for (var knownKey in this.knownPropertyPaths) {
+					oldKnownPropertyPaths[knownKey] = true;
+					delete oldUnknownPropertyPaths[knownKey];
+				}
+				for (var unknownKey in this.unknownPropertyPaths) {
+					if (!oldKnownPropertyPaths[unknownKey]) {
+						oldUnknownPropertyPaths[unknownKey] = true;
+					}
+				}
+				// We need to continue looping so we catch all the property definitions, but we don't want to return an error
+				errorAtEnd = false;
+				continue;
+			}
+
+			return null;
+		}
+		if (error) {
+			errors.push(error.prefixWith(null, "" + i).prefixWith(null, "anyOf"));
+		}
+	}
+	if (this.trackUnknownProperties) {
+		this.unknownPropertyPaths = oldUnknownPropertyPaths;
+		this.knownPropertyPaths = oldKnownPropertyPaths;
+	}
+	if (errorAtEnd) {
+		errors = errors.concat(this.errors.slice(startErrorCount));
+		this.errors = this.errors.slice(0, startErrorCount);
+		return this.createError(ErrorCodes.ANY_OF_MISSING, {}, "", "/anyOf", errors);
+	}
+};
+
+ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema, dataPointerPath) {
+	if (schema.oneOf === undefined) {
+		return null;
+	}
+	var validIndex = null;
+	var errors = [];
+	var startErrorCount = this.errors.length;
+	var oldUnknownPropertyPaths, oldKnownPropertyPaths;
+	if (this.trackUnknownProperties) {
+		oldUnknownPropertyPaths = this.unknownPropertyPaths;
+		oldKnownPropertyPaths = this.knownPropertyPaths;
+	}
+	for (var i = 0; i < schema.oneOf.length; i++) {
+		if (this.trackUnknownProperties) {
+			this.unknownPropertyPaths = {};
+			this.knownPropertyPaths = {};
+		}
+		var subSchema = schema.oneOf[i];
+
+		var errorCount = this.errors.length;
+		var error = this.validateAll(data, subSchema, [], ["oneOf", i], dataPointerPath);
+
+		if (error === null && errorCount === this.errors.length) {
+			if (validIndex === null) {
+				validIndex = i;
+			} else {
+				this.errors = this.errors.slice(0, startErrorCount);
+				return this.createError(ErrorCodes.ONE_OF_MULTIPLE, {index1: validIndex, index2: i}, "", "/oneOf");
+			}
+			if (this.trackUnknownProperties) {
+				for (var knownKey in this.knownPropertyPaths) {
+					oldKnownPropertyPaths[knownKey] = true;
+					delete oldUnknownPropertyPaths[knownKey];
+				}
+				for (var unknownKey in this.unknownPropertyPaths) {
+					if (!oldKnownPropertyPaths[unknownKey]) {
+						oldUnknownPropertyPaths[unknownKey] = true;
+					}
+				}
+			}
+		} else if (error) {
+			errors.push(error.prefixWith(null, "" + i).prefixWith(null, "oneOf"));
+		}
+	}
+	if (this.trackUnknownProperties) {
+		this.unknownPropertyPaths = oldUnknownPropertyPaths;
+		this.knownPropertyPaths = oldKnownPropertyPaths;
+	}
+	if (validIndex === null) {
+		errors = errors.concat(this.errors.slice(startErrorCount));
+		this.errors = this.errors.slice(0, startErrorCount);
+		return this.createError(ErrorCodes.ONE_OF_MISSING, {}, "", "/oneOf", errors);
+	} else {
+		this.errors = this.errors.slice(0, startErrorCount);
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateNot = function validateNot(data, schema, dataPointerPath) {
+	if (schema.not === undefined) {
+		return null;
+	}
+	var oldErrorCount = this.errors.length;
+	var oldUnknownPropertyPaths, oldKnownPropertyPaths;
+	if (this.trackUnknownProperties) {
+		oldUnknownPropertyPaths = this.unknownPropertyPaths;
+		oldKnownPropertyPaths = this.knownPropertyPaths;
+		this.unknownPropertyPaths = {};
+		this.knownPropertyPaths = {};
+	}
+	var error = this.validateAll(data, schema.not, null, null, dataPointerPath);
+	var notErrors = this.errors.slice(oldErrorCount);
+	this.errors = this.errors.slice(0, oldErrorCount);
+	if (this.trackUnknownProperties) {
+		this.unknownPropertyPaths = oldUnknownPropertyPaths;
+		this.knownPropertyPaths = oldKnownPropertyPaths;
+	}
+	if (error === null && notErrors.length === 0) {
+		return this.createError(ErrorCodes.NOT_PASSED, {}, "", "/not");
+	}
+	return null;
+};
+
+// parseURI() and resolveUrl() are from https://gist.github.com/1088850
+//   -  released as public domain by author ("Yaffle") - see comments on gist
+
+function parseURI(url) {
+	var m = String(url).replace(/^\s+|\s+$/g, '').match(/^([^:\/?#]+:)?(\/\/(?:[^:@]*(?::[^:@]*)?@)?(([^:\/?#]*)(?::(\d*))?))?([^?#]*)(\?[^#]*)?(#[\s\S]*)?/);
+	// authority = '//' + user + ':' + pass '@' + hostname + ':' port
+	return (m ? {
+		href     : m[0] || '',
+		protocol : m[1] || '',
+		authority: m[2] || '',
+		host     : m[3] || '',
+		hostname : m[4] || '',
+		port     : m[5] || '',
+		pathname : m[6] || '',
+		search   : m[7] || '',
+		hash     : m[8] || ''
+	} : null);
+}
+
+function resolveUrl(base, href) {// RFC 3986
+
+	function removeDotSegments(input) {
+		var output = [];
+		input.replace(/^(\.\.?(\/|$))+/, '')
+			.replace(/\/(\.(\/|$))+/g, '/')
+			.replace(/\/\.\.$/, '/../')
+			.replace(/\/?[^\/]*/g, function (p) {
+				if (p === '/..') {
+					output.pop();
+				} else {
+					output.push(p);
+				}
+		});
+		return output.join('').replace(/^\//, input.charAt(0) === '/' ? '/' : '');
+	}
+
+	href = parseURI(href || '');
+	base = parseURI(base || '');
+
+	return !href || !base ? null : (href.protocol || base.protocol) +
+		(href.protocol || href.authority ? href.authority : base.authority) +
+		removeDotSegments(href.protocol || href.authority || href.pathname.charAt(0) === '/' ? href.pathname : (href.pathname ? ((base.authority && !base.pathname ? '/' : '') + base.pathname.slice(0, base.pathname.lastIndexOf('/') + 1) + href.pathname) : base.pathname)) +
+		(href.protocol || href.authority || href.pathname ? href.search : (href.search || base.search)) +
+		href.hash;
+}
+
+function getDocumentUri(uri) {
+	return uri.split('#')[0];
+}
+function normSchema(schema, baseUri) {
+	if (schema && typeof schema === "object") {
+		if (baseUri === undefined) {
+			baseUri = schema.id;
+		} else if (typeof schema.id === "string") {
+			baseUri = resolveUrl(baseUri, schema.id);
+			schema.id = baseUri;
+		}
+		if (Array.isArray(schema)) {
+			for (var i = 0; i < schema.length; i++) {
+				normSchema(schema[i], baseUri);
+			}
+		} else {
+			if (typeof schema['$ref'] === "string") {
+				schema['$ref'] = resolveUrl(baseUri, schema['$ref']);
+			}
+			for (var key in schema) {
+				if (key !== "enum") {
+					normSchema(schema[key], baseUri);
+				}
+			}
+		}
+	}
+}
+
+var ErrorCodes = {
+	INVALID_TYPE: 0,
+	ENUM_MISMATCH: 1,
+	ANY_OF_MISSING: 10,
+	ONE_OF_MISSING: 11,
+	ONE_OF_MULTIPLE: 12,
+	NOT_PASSED: 13,
+	// Numeric errors
+	NUMBER_MULTIPLE_OF: 100,
+	NUMBER_MINIMUM: 101,
+	NUMBER_MINIMUM_EXCLUSIVE: 102,
+	NUMBER_MAXIMUM: 103,
+	NUMBER_MAXIMUM_EXCLUSIVE: 104,
+	// String errors
+	STRING_LENGTH_SHORT: 200,
+	STRING_LENGTH_LONG: 201,
+	STRING_PATTERN: 202,
+	// Object errors
+	OBJECT_PROPERTIES_MINIMUM: 300,
+	OBJECT_PROPERTIES_MAXIMUM: 301,
+	OBJECT_REQUIRED: 302,
+	OBJECT_ADDITIONAL_PROPERTIES: 303,
+	OBJECT_DEPENDENCY_KEY: 304,
+	// Array errors
+	ARRAY_LENGTH_SHORT: 400,
+	ARRAY_LENGTH_LONG: 401,
+	ARRAY_UNIQUE: 402,
+	ARRAY_ADDITIONAL_ITEMS: 403,
+	// Custom/user-defined errors
+	FORMAT_CUSTOM: 500,
+	KEYWORD_CUSTOM: 501,
+	// Schema structure
+	CIRCULAR_REFERENCE: 600,
+	// Non-standard validation options
+	UNKNOWN_PROPERTY: 1000
+};
+var ErrorCodeLookup = {};
+for (var key in ErrorCodes) {
+	ErrorCodeLookup[ErrorCodes[key]] = key;
+}
+var ErrorMessagesDefault = {
+	INVALID_TYPE: "invalid type: {type} (expected {expected})",
+	ENUM_MISMATCH: "No enum match for: {value}",
+	ANY_OF_MISSING: "Data does not match any schemas from \"anyOf\"",
+	ONE_OF_MISSING: "Data does not match any schemas from \"oneOf\"",
+	ONE_OF_MULTIPLE: "Data is valid against more than one schema from \"oneOf\": indices {index1} and {index2}",
+	NOT_PASSED: "Data matches schema from \"not\"",
+	// Numeric errors
+	NUMBER_MULTIPLE_OF: "Value {value} is not a multiple of {multipleOf}",
+	NUMBER_MINIMUM: "Value {value} is less than minimum {minimum}",
+	NUMBER_MINIMUM_EXCLUSIVE: "Value {value} is equal to exclusive minimum {minimum}",
+	NUMBER_MAXIMUM: "Value {value} is greater than maximum {maximum}",
+	NUMBER_MAXIMUM_EXCLUSIVE: "Value {value} is equal to exclusive maximum {maximum}",
+	// String errors
+	STRING_LENGTH_SHORT: "String is too short ({length} chars), minimum {minimum}",
+	STRING_LENGTH_LONG: "String is too long ({length} chars), maximum {maximum}",
+	STRING_PATTERN: "String does not match pattern: {pattern}",
+	// Object errors
+	OBJECT_PROPERTIES_MINIMUM: "Too few properties defined ({propertyCount}), minimum {minimum}",
+	OBJECT_PROPERTIES_MAXIMUM: "Too many properties defined ({propertyCount}), maximum {maximum}",
+	OBJECT_REQUIRED: "Missing required property: {key}",
+	OBJECT_ADDITIONAL_PROPERTIES: "Additional properties not allowed",
+	OBJECT_DEPENDENCY_KEY: "Dependency failed - key must exist: {missing} (due to key: {key})",
+	// Array errors
+	ARRAY_LENGTH_SHORT: "Array is too short ({length}), minimum {minimum}",
+	ARRAY_LENGTH_LONG: "Array is too long ({length}), maximum {maximum}",
+	ARRAY_UNIQUE: "Array items are not unique (indices {match1} and {match2})",
+	ARRAY_ADDITIONAL_ITEMS: "Additional items not allowed",
+	// Format errors
+	FORMAT_CUSTOM: "Format validation failed ({message})",
+	KEYWORD_CUSTOM: "Keyword failed: {key} ({message})",
+	// Schema structure
+	CIRCULAR_REFERENCE: "Circular $refs: {urls}",
+	// Non-standard validation options
+	UNKNOWN_PROPERTY: "Unknown property (not in schema)"
+};
+
+function ValidationError(code, message, dataPath, schemaPath, subErrors) {
+	Error.call(this);
+	if (code === undefined) {
+		throw new Error ("No code supplied for error: "+ message);
+	}
+	this.message = message;
+	this.code = code;
+	this.dataPath = dataPath || "";
+	this.schemaPath = schemaPath || "";
+	this.subErrors = subErrors || null;
+
+	var err = new Error(this.message);
+	this.stack = err.stack || err.stacktrace;
+	if (!this.stack) {
+		try {
+			throw err;
+		}
+		catch(err) {
+			this.stack = err.stack || err.stacktrace;
+		}
+	}
+}
+ValidationError.prototype = Object.create(Error.prototype);
+ValidationError.prototype.constructor = ValidationError;
+ValidationError.prototype.name = 'ValidationError';
+
+ValidationError.prototype.prefixWith = function (dataPrefix, schemaPrefix) {
+	if (dataPrefix !== null) {
+		dataPrefix = dataPrefix.replace(/~/g, "~0").replace(/\//g, "~1");
+		this.dataPath = "/" + dataPrefix + this.dataPath;
+	}
+	if (schemaPrefix !== null) {
+		schemaPrefix = schemaPrefix.replace(/~/g, "~0").replace(/\//g, "~1");
+		this.schemaPath = "/" + schemaPrefix + this.schemaPath;
+	}
+	if (this.subErrors !== null) {
+		for (var i = 0; i < this.subErrors.length; i++) {
+			this.subErrors[i].prefixWith(dataPrefix, schemaPrefix);
+		}
+	}
+	return this;
+};
+
+function isTrustedUrl(baseUrl, testUrl) {
+	if(testUrl.substring(0, baseUrl.length) === baseUrl){
+		var remainder = testUrl.substring(baseUrl.length);
+		if ((testUrl.length > 0 && testUrl.charAt(baseUrl.length - 1) === "/")
+			|| remainder.charAt(0) === "#"
+			|| remainder.charAt(0) === "?") {
+			return true;
+		}
+	}
+	return false;
+}
+
+var languages = {};
+function createApi(language) {
+	var globalContext = new ValidatorContext();
+	var currentLanguage = language || 'en';
+	var api = {
+		addFormat: function () {
+			globalContext.addFormat.apply(globalContext, arguments);
+		},
+		language: function (code) {
+			if (!code) {
+				return currentLanguage;
+			}
+			if (!languages[code]) {
+				code = code.split('-')[0]; // fall back to base language
+			}
+			if (languages[code]) {
+				currentLanguage = code;
+				return code; // so you can tell if fall-back has happened
+			}
+			return false;
+		},
+		addLanguage: function (code, messageMap) {
+			var key;
+			for (key in ErrorCodes) {
+				if (messageMap[key] && !messageMap[ErrorCodes[key]]) {
+					messageMap[ErrorCodes[key]] = messageMap[key];
+				}
+			}
+			var rootCode = code.split('-')[0];
+			if (!languages[rootCode]) { // use for base language if not yet defined
+				languages[code] = messageMap;
+				languages[rootCode] = messageMap;
+			} else {
+				languages[code] = Object.create(languages[rootCode]);
+				for (key in messageMap) {
+					if (typeof languages[rootCode][key] === 'undefined') {
+						languages[rootCode][key] = messageMap[key];
+					}
+					languages[code][key] = messageMap[key];
+				}
+			}
+			return this;
+		},
+		freshApi: function (language) {
+			var result = createApi();
+			if (language) {
+				result.language(language);
+			}
+			return result;
+		},
+		validate: function (data, schema, checkRecursive, banUnknownProperties) {
+			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], checkRecursive, banUnknownProperties);
+			if (typeof schema === "string") {
+				schema = {"$ref": schema};
+			}
+			context.addSchema("", schema);
+			var error = context.validateAll(data, schema, null, null, "");
+			if (!error && banUnknownProperties) {
+				error = context.banUnknownProperties();
+			}
+			this.error = error;
+			this.missing = context.missing;
+			this.valid = (error === null);
+			return this.valid;
+		},
+		validateResult: function () {
+			var result = {};
+			this.validate.apply(result, arguments);
+			return result;
+		},
+		validateMultiple: function (data, schema, checkRecursive, banUnknownProperties) {
+			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive, banUnknownProperties);
+			if (typeof schema === "string") {
+				schema = {"$ref": schema};
+			}
+			context.addSchema("", schema);
+			context.validateAll(data, schema, null, null, "");
+			if (banUnknownProperties) {
+				context.banUnknownProperties();
+			}
+			var result = {};
+			result.errors = context.errors;
+			result.missing = context.missing;
+			result.valid = (result.errors.length === 0);
+			return result;
+		},
+		addSchema: function () {
+			return globalContext.addSchema.apply(globalContext, arguments);
+		},
+		getSchema: function () {
+			return globalContext.getSchema.apply(globalContext, arguments);
+		},
+		getSchemaMap: function () {
+			return globalContext.getSchemaMap.apply(globalContext, arguments);
+		},
+		getSchemaUris: function () {
+			return globalContext.getSchemaUris.apply(globalContext, arguments);
+		},
+		getMissingUris: function () {
+			return globalContext.getMissingUris.apply(globalContext, arguments);
+		},
+		dropSchemas: function () {
+			globalContext.dropSchemas.apply(globalContext, arguments);
+		},
+		defineKeyword: function () {
+			globalContext.defineKeyword.apply(globalContext, arguments);
+		},
+		defineError: function (codeName, codeNumber, defaultMessage) {
+			if (typeof codeName !== 'string' || !/^[A-Z]+(_[A-Z]+)*$/.test(codeName)) {
+				throw new Error('Code name must be a string in UPPER_CASE_WITH_UNDERSCORES');
+			}
+			if (typeof codeNumber !== 'number' || codeNumber%1 !== 0 || codeNumber < 10000) {
+				throw new Error('Code number must be an integer > 10000');
+			}
+			if (typeof ErrorCodes[codeName] !== 'undefined') {
+				throw new Error('Error already defined: ' + codeName + ' as ' + ErrorCodes[codeName]);
+			}
+			if (typeof ErrorCodeLookup[codeNumber] !== 'undefined') {
+				throw new Error('Error code already used: ' + ErrorCodeLookup[codeNumber] + ' as ' + codeNumber);
+			}
+			ErrorCodes[codeName] = codeNumber;
+			ErrorCodeLookup[codeNumber] = codeName;
+			ErrorMessagesDefault[codeName] = ErrorMessagesDefault[codeNumber] = defaultMessage;
+			for (var langCode in languages) {
+				var language = languages[langCode];
+				if (language[codeName]) {
+					language[codeNumber] = language[codeNumber] || language[codeName];
+				}
+			}
+		},
+		reset: function () {
+			globalContext.reset();
+			this.error = null;
+			this.missing = [];
+			this.valid = true;
+		},
+		missing: [],
+		error: null,
+		valid: true,
+		normSchema: normSchema,
+		resolveUrl: resolveUrl,
+		getDocumentUri: getDocumentUri,
+		errorCodes: ErrorCodes
+	};
+	return api;
+}
+
+var tv4 = createApi();
+tv4.addLanguage('en-gb', ErrorMessagesDefault);
+
+//legacy property
+tv4.tv4 = tv4;
+
+return tv4; // used by _header.js to globalise.
+
+}));
+// angular-formly version 6.12.0 built with ♥ by Astrism <astrisms@gmail.com>, Kent C. Dodds <kent@doddsfamily.us> (ó ì_í)=óò=(ì_í ò)
+
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory(require("angular"), require("api-check"));
+	else if(typeof define === 'function' && define.amd)
+		define(["angular", "api-check"], factory);
+	else if(typeof exports === 'object')
+		exports["ngFormly"] = factory(require("angular"), require("api-check"));
+	else
+		root["ngFormly"] = factory(root["angular"], root["apiCheck"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_6__) {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+
+
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var index = _interopRequire(__webpack_require__(1));
+
+	module.exports = index;
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var angular = _interopRequire(__webpack_require__(3));
+
+	var formlyApiCheck = _interopRequire(__webpack_require__(5));
+
+	var formlyErrorAndWarningsUrlPrefix = _interopRequire(__webpack_require__(7));
+
+	var formlyUsability = _interopRequire(__webpack_require__(8));
+
+	var formlyConfig = _interopRequire(__webpack_require__(9));
+
+	var formlyValidationMessages = _interopRequire(__webpack_require__(11));
+
+	var formlyUtil = _interopRequire(__webpack_require__(12));
+
+	var formlyWarn = _interopRequire(__webpack_require__(2));
+
+	var formlyCustomValidation = _interopRequire(__webpack_require__(13));
+
+	var formlyField = _interopRequire(__webpack_require__(14));
+
+	var formlyFocus = _interopRequire(__webpack_require__(15));
+
+	var formlyForm = _interopRequire(__webpack_require__(16));
+
+	var formlyNgModelAttrsManipulator = _interopRequire(__webpack_require__(17));
+
+	var formlyCustomTags = _interopRequire(__webpack_require__(18));
+
+	var ngModuleName = "formly";
+
+	module.exports = ngModuleName;
+
+	var ngModule = angular.module(ngModuleName, []);
+
+	ngModule.constant("formlyApiCheck", formlyApiCheck);
+	ngModule.constant("formlyErrorAndWarningsUrlPrefix", formlyErrorAndWarningsUrlPrefix);
+	ngModule.constant("formlyVersion", ("6.12.0")); // <-- webpack variable
+
+	ngModule.provider("formlyUsability", formlyUsability);
+	ngModule.provider("formlyConfig", formlyConfig);
+
+	ngModule.factory("formlyValidationMessages", formlyValidationMessages);
+	ngModule.factory("formlyUtil", formlyUtil);
+	ngModule.factory("formlyWarn", formlyWarn);
+
+	ngModule.directive("formlyCustomValidation", formlyCustomValidation);
+	ngModule.directive("formlyField", formlyField);
+	ngModule.directive("formlyFocus", formlyFocus);
+	ngModule.directive("formlyForm", formlyForm);
+
+	ngModule.run(formlyNgModelAttrsManipulator);
+	ngModule.run(formlyCustomTags);
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
+
+	module.exports = formlyWarn;
+
+	// @ngInject
+	function formlyWarn(formlyConfig, formlyErrorAndWarningsUrlPrefix, $log) {
+	  return function warn() {
+	    if (!formlyConfig.disableWarnings) {
+	      var args = Array.prototype.slice.call(arguments);
+	      var warnInfoSlug = args.shift();
+	      args.unshift("Formly Warning:");
+	      args.push("" + formlyErrorAndWarningsUrlPrefix + "" + warnInfoSlug);
+	      $log.warn.apply($log, _toConsumableArray(args));
+	    }
+	  };
+	}
+	formlyWarn.$inject = ["formlyConfig", "formlyErrorAndWarningsUrlPrefix", "$log"];
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// some versions of angular don't export the angular module properly,
+	// so we get it from window in this case.
+	"use strict";
+
+	var angular = __webpack_require__(4);
+
+	if (!angular.version) {
+	  angular = window.angular;
+	}
+	module.exports = angular;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var angular = _interopRequire(__webpack_require__(3));
+
+	var apiCheckFactory = _interopRequire(__webpack_require__(6));
+
+	var apiCheck = apiCheckFactory({
+	  output: {
+	    prefix: "angular-formly:",
+	    docsBaseUrl: __webpack_require__(7)
+	  }
+	});
+
+	function shapeRequiredIfNot(otherProps, propChecker) {
+	  if (!angular.isArray(otherProps)) {
+	    otherProps = [otherProps];
+	  }
+	  var type = "specified if these are not specified: `" + otherProps.join(", ") + "` (otherwise it's optional)";
+	  function shapeRequiredIfNotDefinition(prop, propName, location, obj) {
+	    var propExists = obj && obj.hasOwnProperty(propName);
+	    var otherPropsExist = otherProps.some(function (otherProp) {
+	      return obj && obj.hasOwnProperty(otherProp);
+	    });
+	    if (!otherPropsExist && !propExists) {
+	      return apiCheck.utils.getError(propName, location, type);
+	    } else if (propExists) {
+	      return propChecker(prop, propName, location, obj);
+	    }
+	  }
+	  shapeRequiredIfNotDefinition.type = type;
+	  return apiCheck.utils.checkerHelpers.setupChecker(shapeRequiredIfNotDefinition);
+	}
+
+	function nullable(checker) {
+	  return apiCheck.oneOfType([apiCheck.oneOf([null]), checker]);
+	}
+
+	var formlyExpression = apiCheck.oneOfType([apiCheck.string, apiCheck.func]);
+	var specifyWrapperType = nullable(apiCheck.typeOrArrayOf(apiCheck.string));
+
+	var apiCheckProperty = apiCheck.objectOf(apiCheck.func);
+
+	var apiCheckInstanceProperty = apiCheck.shape.onlyIf("apiCheck", apiCheck.func.withProperties({
+	  warn: apiCheck.func,
+	  "throw": apiCheck.func,
+	  shape: apiCheck.func
+	}));
+
+	var apiCheckFunctionProperty = apiCheck.shape.onlyIf("apiCheck", apiCheck.oneOf(["throw", "warn"]));
+
+	var formlyWrapperType = apiCheck.shape({
+	  name: shapeRequiredIfNot("types", apiCheck.string).optional,
+	  template: apiCheck.shape.ifNot("templateUrl", apiCheck.string).optional,
+	  templateUrl: apiCheck.shape.ifNot("template", apiCheck.string).optional,
+	  types: apiCheck.typeOrArrayOf(apiCheck.string).optional,
+	  overwriteOk: apiCheck.bool.optional,
+	  validateOptions: apiCheck.func.optional,
+	  apiCheck: apiCheckProperty.optional,
+	  apiCheckInstance: apiCheckInstanceProperty.optional,
+	  apiCheckFunction: apiCheckFunctionProperty.optional,
+	  apiCheckOptions: apiCheck.object.optional
+	}).strict;
+
+	var expressionProperties = apiCheck.objectOf(apiCheck.oneOfType([formlyExpression, apiCheck.shape({
+	  expression: formlyExpression,
+	  message: formlyExpression.optional
+	}).strict]));
+
+	var modelChecker = apiCheck.oneOfType([apiCheck.string, apiCheck.object]);
+
+	var templateManipulators = nullable(apiCheck.shape({
+	  preWrapper: nullable(apiCheck.arrayOf(apiCheck.func)).optional,
+	  postWrapper: nullable(apiCheck.arrayOf(apiCheck.func)).optional
+	}).strict);
+
+	var fieldOptionsApiShape = {
+	  $$hashKey: apiCheck.any.optional,
+	  type: apiCheck.shape.ifNot(["template", "templateUrl"], apiCheck.string).optional,
+	  template: apiCheck.shape.ifNot(["type", "templateUrl"], apiCheck.oneOfType([apiCheck.string, apiCheck.func])).optional,
+	  templateUrl: apiCheck.shape.ifNot(["type", "template"], apiCheck.oneOfType([apiCheck.string, apiCheck.func])).optional,
+	  key: apiCheck.oneOfType([apiCheck.string, apiCheck.number]).optional,
+	  model: modelChecker.optional,
+	  className: apiCheck.string.optional,
+	  id: apiCheck.string.optional,
+	  expressionProperties: expressionProperties.optional,
+	  data: apiCheck.object.optional,
+	  templateOptions: apiCheck.object.optional,
+	  wrapper: specifyWrapperType.optional,
+	  modelOptions: apiCheck.shape({
+	    updateOn: apiCheck.string.optional,
+	    debounce: apiCheck.oneOfType([apiCheck.objectOf(apiCheck.number), apiCheck.number]).optional,
+	    allowInvalid: apiCheck.bool.optional,
+	    getterSetter: apiCheck.bool.optional,
+	    timezone: apiCheck.string.optional
+	  }).optional,
+	  watcher: apiCheck.typeOrArrayOf(apiCheck.shape({
+	    expression: formlyExpression.optional,
+	    listener: formlyExpression
+	  })).optional,
+	  validators: apiCheck.objectOf(apiCheck.oneOfType([formlyExpression, apiCheck.shape({
+	    expression: formlyExpression,
+	    message: formlyExpression.optional
+	  }).strict])).optional,
+	  noFormControl: apiCheck.bool.optional,
+	  hide: apiCheck.bool.optional,
+	  hideExpression: formlyExpression.optional,
+	  ngModelAttrs: apiCheck.objectOf(apiCheck.shape({
+	    expression: apiCheck.shape.ifNot(["value", "attribute", "bound"], apiCheck.any).optional,
+	    value: apiCheck.shape.ifNot("expression", apiCheck.any).optional,
+	    attribute: apiCheck.shape.ifNot("expression", apiCheck.any).optional,
+	    bound: apiCheck.shape.ifNot("expression", apiCheck.any).optional
+	  }).strict).optional,
+	  elementAttributes: apiCheck.objectOf(apiCheck.string).optional,
+	  optionsTypes: apiCheck.typeOrArrayOf(apiCheck.string).optional,
+	  link: apiCheck.func.optional,
+	  controller: apiCheck.oneOfType([apiCheck.string, apiCheck.func, apiCheck.array]).optional,
+	  validation: apiCheck.shape({
+	    show: nullable(apiCheck.bool).optional,
+	    messages: apiCheck.objectOf(formlyExpression).optional,
+	    errorExistsAndShouldBeVisible: apiCheck.bool.optional
+	  }).optional,
+	  formControl: apiCheck.object.optional,
+	  value: apiCheck.func.optional,
+	  runExpressions: apiCheck.func.optional,
+	  templateManipulators: templateManipulators.optional,
+	  resetModel: apiCheck.func.optional,
+	  updateInitialValue: apiCheck.func.optional,
+	  initialValue: apiCheck.any.optional,
+	  defaultValue: apiCheck.any.optional
+	};
+
+	var formlyFieldOptions = apiCheck.shape(fieldOptionsApiShape).strict;
+
+	var formOptionsApi = apiCheck.shape({
+	  formState: apiCheck.object.optional,
+	  resetModel: apiCheck.func.optional,
+	  updateInitialValue: apiCheck.func.optional,
+	  removeChromeAutoComplete: apiCheck.bool.optional,
+	  templateManipulators: templateManipulators.optional,
+	  wrapper: specifyWrapperType.optional
+	}).strict;
+
+	var fieldGroup = apiCheck.shape({
+	  $$hashKey: apiCheck.any.optional,
+	  key: apiCheck.oneOfType([apiCheck.string, apiCheck.number]).optional,
+	  // danger. Nested field groups wont get api-checked...
+	  fieldGroup: apiCheck.arrayOf(apiCheck.oneOfType([formlyFieldOptions, apiCheck.object])),
+	  className: apiCheck.string.optional,
+	  options: formOptionsApi.optional,
+	  hide: apiCheck.bool.optional,
+	  hideExpression: formlyExpression.optional,
+	  model: modelChecker.optional,
+	  form: apiCheck.object.optional,
+	  elementAttributes: apiCheck.objectOf(apiCheck.string).optional
+	}).strict;
+
+	var typeOptionsDefaultOptions = angular.copy(fieldOptionsApiShape);
+	typeOptionsDefaultOptions.key = apiCheck.string.optional;
+
+	var formlyTypeOptions = apiCheck.shape({
+	  name: apiCheck.string,
+	  template: apiCheck.shape.ifNot("templateUrl", apiCheck.oneOfType([apiCheck.string, apiCheck.func])).optional,
+	  templateUrl: apiCheck.shape.ifNot("template", apiCheck.oneOfType([apiCheck.string, apiCheck.func])).optional,
+	  controller: apiCheck.oneOfType([apiCheck.func, apiCheck.string, apiCheck.array]).optional,
+	  link: apiCheck.func.optional,
+	  defaultOptions: apiCheck.oneOfType([apiCheck.func, apiCheck.shape(typeOptionsDefaultOptions)]).optional,
+	  "extends": apiCheck.string.optional,
+	  wrapper: specifyWrapperType.optional,
+	  data: apiCheck.object.optional,
+	  validateOptions: apiCheck.func.optional,
+	  apiCheck: apiCheckProperty.optional,
+	  apiCheckInstance: apiCheckInstanceProperty.optional,
+	  apiCheckFunction: apiCheckFunctionProperty.optional,
+	  apiCheckOptions: apiCheck.object.optional,
+	  overwriteOk: apiCheck.bool.optional
+	}).strict;
+
+	angular.extend(apiCheck, {
+	  formlyTypeOptions: formlyTypeOptions, formlyFieldOptions: formlyFieldOptions, formlyExpression: formlyExpression, formlyWrapperType: formlyWrapperType, fieldGroup: fieldGroup, formOptionsApi: formOptionsApi
+	});
+
+	module.exports = apiCheck;
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_6__;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	module.exports = "https://github.com/formly-js/angular-formly/blob/" + ("6.12.0") + "/other/ERRORS_AND_WARNINGS.md#";
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var angular = _interopRequire(__webpack_require__(3));
+
+	module.exports = formlyUsability;
+
+	// @ngInject
+	function formlyUsability(formlyApiCheck, formlyErrorAndWarningsUrlPrefix) {
+	  var _this = this;
+
+	  angular.extend(this, {
+	    getFormlyError: getFormlyError,
+	    getFieldError: getFieldError,
+	    checkWrapper: checkWrapper,
+	    checkWrapperTemplate: checkWrapperTemplate,
+	    getErrorMessage: getErrorMessage,
+	    $get: function () {
+	      return _this;
+	    }
+	  });
+
+	  function getFieldError(errorInfoSlug, message, field) {
+	    if (arguments.length < 3) {
+	      field = message;
+	      message = errorInfoSlug;
+	      errorInfoSlug = null;
+	    }
+	    return new Error(getErrorMessage(errorInfoSlug, message) + (" Field definition: " + angular.toJson(field)));
+	  }
+
+	  function getFormlyError(errorInfoSlug, message) {
+	    if (!message) {
+	      message = errorInfoSlug;
+	      errorInfoSlug = null;
+	    }
+	    return new Error(getErrorMessage(errorInfoSlug, message));
+	  }
+
+	  function getErrorMessage(errorInfoSlug, message) {
+	    var url = "";
+	    if (errorInfoSlug !== null) {
+	      url = "" + formlyErrorAndWarningsUrlPrefix + "" + errorInfoSlug;
+	    }
+	    return "Formly Error: " + message + ". " + url;
+	  }
+
+	  function checkWrapper(wrapper) {
+	    formlyApiCheck["throw"](formlyApiCheck.formlyWrapperType, wrapper, {
+	      prefix: "formlyConfig.setWrapper",
+	      urlSuffix: "setwrapper-validation-failed"
+	    });
+	  }
+
+	  function checkWrapperTemplate(template, additionalInfo) {
+	    var formlyTransclude = "<formly-transclude></formly-transclude>";
+	    if (template.indexOf(formlyTransclude) === -1) {
+	      throw getFormlyError("Template wrapper templates must use \"" + formlyTransclude + "\" somewhere in them. " + ("This one does not have \"<formly-transclude></formly-transclude>\" in it: " + template) + "\n" + ("Additional information: " + JSON.stringify(additionalInfo)));
+	    }
+	  }
+	}
+	formlyUsability.$inject = ["formlyApiCheck", "formlyErrorAndWarningsUrlPrefix"];
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var angular = _interopRequire(__webpack_require__(3));
+
+	var utils = _interopRequire(__webpack_require__(10));
+
+	module.exports = formlyConfig;
+
+	// @ngInject
+	function formlyConfig(formlyUsabilityProvider, formlyApiCheck) {
+	  var _this2 = this;
+
+	  var typeMap = {};
+	  var templateWrappersMap = {};
+	  var defaultWrapperName = "default";
+	  var _this = this;
+	  var getError = formlyUsabilityProvider.getFormlyError;
+
+	  angular.extend(this, {
+	    setType: setType,
+	    getType: getType,
+	    setWrapper: setWrapper,
+	    getWrapper: getWrapper,
+	    getWrapperByType: getWrapperByType,
+	    removeWrapperByName: removeWrapperByName,
+	    removeWrappersForType: removeWrappersForType,
+	    disableWarnings: false,
+	    extras: {
+	      disableNgModelAttrsManipulator: false,
+	      ngModelAttrsManipulatorPreferUnbound: false,
+	      removeChromeAutoComplete: false,
+	      defaultHideDirective: "ng-if",
+	      getFieldId: null
+	    },
+	    templateManipulators: {
+	      preWrapper: [],
+	      postWrapper: []
+	    },
+	    $get: function () {
+	      return _this2;
+	    }
+	  });
+
+	  function setType(options) {
+	    if (angular.isArray(options)) {
+	      angular.forEach(options, setType);
+	    } else if (angular.isObject(options)) {
+	      checkType(options);
+	      if (options["extends"]) {
+	        extendTypeOptions(options);
+	      }
+	      typeMap[options.name] = options;
+	    } else {
+	      throw getError("You must provide an object or array for setType. You provided: " + JSON.stringify(arguments));
+	    }
+	  }
+
+	  function checkType(options) {
+	    formlyApiCheck["throw"](formlyApiCheck.formlyTypeOptions, options, {
+	      prefix: "formlyConfig.setType",
+	      url: "settype-validation-failed"
+	    });
+	    if (!options.overwriteOk) {
+	      checkOverwrite(options.name, typeMap, options, "types");
+	    } else {
+	      options.overwriteOk = undefined;
+	    }
+	  }
+
+	  function extendTypeOptions(options) {
+	    var extendsType = getType(options["extends"], true, options);
+	    extendTypeControllerFunction(options, extendsType);
+	    extendTypeLinkFunction(options, extendsType);
+	    extendTypeValidateOptionsFunction(options, extendsType);
+	    extendTypeDefaultOptions(options, extendsType);
+	    utils.reverseDeepMerge(options, extendsType);
+	    extendTemplate(options, extendsType);
+	  }
+
+	  function extendTemplate(options, extendsType) {
+	    if (options.template && extendsType.templateUrl) {
+	      delete options.templateUrl;
+	    } else if (options.templateUrl && extendsType.template) {
+	      delete options.template;
+	    }
+	  }
+
+	  function extendTypeControllerFunction(options, extendsType) {
+	    var extendsCtrl = extendsType.controller;
+	    if (!angular.isDefined(extendsCtrl)) {
+	      return;
+	    }
+	    var optionsCtrl = options.controller;
+	    if (angular.isDefined(optionsCtrl)) {
+	      options.controller = function ($scope, $controller) {
+	        $controller(extendsCtrl, { $scope: $scope });
+	        $controller(optionsCtrl, { $scope: $scope });
+	      };
+	      options.controller.$inject = ["$scope", "$controller"];
+	    } else {
+	      options.controller = extendsCtrl;
+	    }
+	  }
+
+	  function extendTypeLinkFunction(options, extendsType) {
+	    var extendsFn = extendsType.link;
+	    if (!angular.isDefined(extendsFn)) {
+	      return;
+	    }
+	    var optionsFn = options.link;
+	    if (angular.isDefined(optionsFn)) {
+	      options.link = function () {
+	        extendsFn.apply(undefined, arguments);
+	        optionsFn.apply(undefined, arguments);
+	      };
+	    } else {
+	      options.link = extendsFn;
+	    }
+	  }
+
+	  function extendTypeValidateOptionsFunction(options, extendsType) {
+	    var extendsFn = extendsType.validateOptions;
+	    if (!angular.isDefined(extendsFn)) {
+	      return;
+	    }
+	    var optionsFn = options.validateOptions;
+	    var originalDefaultOptions = options.defaultOptions;
+	    if (angular.isDefined(optionsFn)) {
+	      options.validateOptions = function (opts) {
+	        optionsFn(opts);
+	        var mergedOptions = angular.copy(opts);
+	        var defaultOptions = originalDefaultOptions;
+	        if (defaultOptions) {
+	          if (angular.isFunction(defaultOptions)) {
+	            defaultOptions = defaultOptions(mergedOptions);
+	          }
+	          utils.reverseDeepMerge(mergedOptions, defaultOptions);
+	        }
+	        extendsFn(mergedOptions);
+	      };
+	    } else {
+	      options.validateOptions = extendsFn;
+	    }
+	  }
+
+	  function extendTypeDefaultOptions(options, extendsType) {
+	    var extendsDO = extendsType.defaultOptions;
+	    if (!angular.isDefined(extendsDO)) {
+	      return;
+	    }
+	    var optionsDO = options.defaultOptions;
+	    var optionsDOIsFn = angular.isFunction(optionsDO);
+	    var extendsDOIsFn = angular.isFunction(extendsDO);
+	    if (extendsDOIsFn) {
+	      options.defaultOptions = function defaultOptions(opts) {
+	        var extendsDefaultOptions = extendsDO(opts);
+	        var mergedDefaultOptions = {};
+	        utils.reverseDeepMerge(mergedDefaultOptions, opts, extendsDefaultOptions);
+	        var extenderOptionsDefaultOptions = optionsDO;
+	        if (optionsDOIsFn) {
+	          extenderOptionsDefaultOptions = extenderOptionsDefaultOptions(mergedDefaultOptions);
+	        }
+	        utils.reverseDeepMerge(extendsDefaultOptions, extenderOptionsDefaultOptions);
+	        return extendsDefaultOptions;
+	      };
+	    } else if (optionsDOIsFn) {
+	      options.defaultOptions = function defaultOptions(opts) {
+	        var newDefaultOptions = {};
+	        utils.reverseDeepMerge(newDefaultOptions, opts, extendsDO);
+	        return optionsDO(newDefaultOptions);
+	      };
+	    }
+	  }
+
+	  function getType(name, throwError, errorContext) {
+	    if (!name) {
+	      return undefined;
+	    }
+	    var type = typeMap[name];
+	    if (!type && throwError === true) {
+	      throw getError("There is no type by the name of \"" + name + "\": " + JSON.stringify(errorContext));
+	    } else {
+	      return type;
+	    }
+	  }
+
+	  function setWrapper(_x, _x2) {
+	    var _again = true;
+
+	    _function: while (_again) {
+	      _again = false;
+	      var options = _x,
+	          name = _x2;
+
+	      if (angular.isArray(options)) {
+	        return options.map(function (wrapperOptions) {
+	          return setWrapper(wrapperOptions);
+	        });
+	      } else if (angular.isObject(options)) {
+	        options.types = getOptionsTypes(options);
+	        options.name = getOptionsName(options, name);
+	        checkWrapperAPI(options);
+	        templateWrappersMap[options.name] = options;
+	        return options;
+	      } else if (angular.isString(options)) {
+	        _x = {
+	          template: options,
+	          name: name
+	        };
+	        _again = true;
+	        continue _function;
+	      }
+	    }
+	  }
+
+	  function getOptionsTypes(options) {
+	    if (angular.isString(options.types)) {
+	      return [options.types];
+	    }
+	    if (!angular.isDefined(options.types)) {
+	      return [];
+	    } else {
+	      return options.types;
+	    }
+	  }
+
+	  function getOptionsName(options, name) {
+	    return options.name || name || options.types.join(" ") || defaultWrapperName;
+	  }
+
+	  function checkWrapperAPI(options) {
+	    formlyUsabilityProvider.checkWrapper(options);
+	    if (options.template) {
+	      formlyUsabilityProvider.checkWrapperTemplate(options.template, options);
+	    }
+	    if (!options.overwriteOk) {
+	      checkOverwrite(options.name, templateWrappersMap, options, "templateWrappers");
+	    } else {
+	      delete options.overwriteOk;
+	    }
+	    checkWrapperTypes(options);
+	  }
+
+	  function checkWrapperTypes(options) {
+	    var shouldThrow = !angular.isArray(options.types) || !options.types.every(angular.isString);
+	    if (shouldThrow) {
+	      throw getError("Attempted to create a template wrapper with types that is not a string or an array of strings");
+	    }
+	  }
+
+	  function checkOverwrite(property, object, newValue, objectName) {
+	    if (object.hasOwnProperty(property)) {
+	      warn(["Attempting to overwrite " + property + " on " + objectName + " which is currently", "" + JSON.stringify(object[property]) + " with " + JSON.stringify(newValue), "To supress this warning, specify the property \"overwriteOk: true\""].join(" "));
+	    }
+	  }
+
+	  function getWrapper(name) {
+	    return templateWrappersMap[name || defaultWrapperName];
+	  }
+
+	  function getWrapperByType(type) {
+	    /* jshint maxcomplexity:6 */
+	    var wrappers = [];
+	    for (var name in templateWrappersMap) {
+	      if (templateWrappersMap.hasOwnProperty(name)) {
+	        if (templateWrappersMap[name].types && templateWrappersMap[name].types.indexOf(type) !== -1) {
+	          wrappers.push(templateWrappersMap[name]);
+	        }
+	      }
+	    }
+	    return wrappers;
+	  }
+
+	  function removeWrapperByName(name) {
+	    var wrapper = templateWrappersMap[name];
+	    delete templateWrappersMap[name];
+	    return wrapper;
+	  }
+
+	  function removeWrappersForType(type) {
+	    var wrappers = getWrapperByType(type);
+	    if (!wrappers) {
+	      return undefined;
+	    }
+	    if (!angular.isArray(wrappers)) {
+	      return removeWrapperByName(wrappers.name);
+	    } else {
+	      wrappers.forEach(function (wrapper) {
+	        return removeWrapperByName(wrapper.name);
+	      });
+	      return wrappers;
+	    }
+	  }
+
+	  function warn() {
+	    if (!_this.disableWarnings) {
+	      /* eslint no-console:0 */
+	      console.warn.apply(console, arguments);
+	    }
+	  }
+	}
+	formlyConfig.$inject = ["formlyUsabilityProvider", "formlyApiCheck"];
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var angular = _interopRequire(__webpack_require__(3));
+
+	module.exports = { formlyEval: formlyEval, getFieldId: getFieldId, reverseDeepMerge: reverseDeepMerge, findByNodeName: findByNodeName, arrayify: arrayify, extendFunction: extendFunction };
+
+	function formlyEval(scope, expression, $modelValue, $viewValue, extraLocals) {
+	  if (angular.isFunction(expression)) {
+	    return expression($viewValue, $modelValue, scope, extraLocals);
+	  } else {
+	    return scope.$eval(expression, angular.extend({ $viewValue: $viewValue, $modelValue: $modelValue }, extraLocals));
+	  }
+	}
+
+	function getFieldId(formId, options, index) {
+	  if (options.id) {
+	    return options.id;
+	  }
+	  var type = options.type;
+	  if (!type && options.template) {
+	    type = "template";
+	  } else if (!type && options.templateUrl) {
+	    type = "templateUrl";
+	  }
+
+	  return [formId, type, options.key, index].join("_");
+	}
+
+	function reverseDeepMerge(dest) {
+	  angular.forEach(arguments, function (src, index) {
+	    if (!index) {
+	      return;
+	    }
+	    angular.forEach(src, function (val, prop) {
+	      if (!angular.isDefined(dest[prop])) {
+	        dest[prop] = angular.copy(val);
+	      } else if (objAndSameType(dest[prop], val)) {
+	        reverseDeepMerge(dest[prop], val);
+	      }
+	    });
+	  });
+	}
+
+	function objAndSameType(obj1, obj2) {
+	  return angular.isObject(obj1) && angular.isObject(obj2) && Object.getPrototypeOf(obj1) === Object.getPrototypeOf(obj2);
+	}
+
+	// recurse down a node tree to find a node with matching nodeName, for custom tags jQuery.find doesn't work in IE8
+	function findByNodeName(el, nodeName) {
+	  if (!el.prop) {
+	    // not a jQuery or jqLite object -> wrap it
+	    el = angular.element(el);
+	  }
+
+	  if (el.prop("nodeName") === nodeName.toUpperCase()) {
+	    return el;
+	  }
+
+	  var c = el.children();
+	  for (var i = 0; c && i < c.length; i++) {
+	    var node = findByNodeName(c[i], nodeName);
+	    if (node) {
+	      return node;
+	    }
+	  }
+	}
+
+	function arrayify(obj) {
+	  if (obj && !angular.isArray(obj)) {
+	    obj = [obj];
+	  } else if (!obj) {
+	    obj = [];
+	  }
+	  return obj;
+	}
+
+	function extendFunction() {
+	  for (var _len = arguments.length, fns = Array(_len), _key = 0; _key < _len; _key++) {
+	    fns[_key] = arguments[_key];
+	  }
+
+	  return function extendedFunction() {
+	    var args = arguments;
+	    fns.forEach(function (fn) {
+	      return fn.apply(null, args);
+	    });
+	  };
+	}
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	module.exports = formlyValidationMessages;
+
+	// @ngInject
+	function formlyValidationMessages() {
+
+	  var validationMessages = {
+	    addTemplateOptionValueMessage: addTemplateOptionValueMessage,
+	    addStringMessage: addStringMessage,
+	    messages: {}
+	  };
+
+	  return validationMessages;
+
+	  function addTemplateOptionValueMessage(name, prop, prefix, suffix, alternate) {
+	    validationMessages.messages[name] = templateOptionValue(prop, prefix, suffix, alternate);
+	  }
+
+	  function addStringMessage(name, string) {
+	    validationMessages.messages[name] = function () {
+	      return string;
+	    };
+	  }
+
+	  function templateOptionValue(prop, prefix, suffix, alternate) {
+	    return function getValidationMessage(viewValue, modelValue, scope) {
+	      if (scope.options.templateOptions[prop]) {
+	        return "" + prefix + " " + scope.options.templateOptions[prop] + " " + suffix;
+	      } else {
+	        return alternate;
+	      }
+	    };
+	  }
+	}
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var utils = _interopRequire(__webpack_require__(10));
+
+	module.exports = formlyUtil;
+
+	// @ngInject
+	function formlyUtil() {
+	  return utils;
+	}
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var angular = _interopRequire(__webpack_require__(3));
+
+	module.exports = formlyCustomValidation;
+
+	// @ngInject
+	function formlyCustomValidation(formlyUtil, $q) {
+	  return {
+	    restrict: "A",
+	    require: "ngModel",
+	    link: function formlyCustomValidationLink(scope, el, attrs, ctrl) {
+	      var opts = scope.options;
+	      if (opts.validators) {
+	        checkValidators(opts.validators);
+	      }
+	      opts.validation.messages = opts.validation.messages || {};
+	      angular.forEach(opts.validation.messages, function (message, key) {
+	        opts.validation.messages[key] = function () {
+	          return formlyUtil.formlyEval(scope, message, ctrl.$modelValue, ctrl.$viewValue);
+	        };
+	      });
+
+	      var useNewValidatorsApi = ctrl.hasOwnProperty("$validators") && !attrs.hasOwnProperty("useParsers");
+	      angular.forEach(opts.validators, function addValidatorToPipeline(validator, name) {
+	        var message = validator.message;
+	        if (message) {
+	          opts.validation.messages[name] = function () {
+	            return formlyUtil.formlyEval(scope, message, ctrl.$modelValue, ctrl.$viewValue);
+	          };
+	        }
+	        validator = angular.isObject(validator) ? validator.expression : validator;
+	        var isPossiblyAsync = !angular.isString(validator);
+	        if (useNewValidatorsApi) {
+	          setupWithValidators();
+	        } else {
+	          setupWithParsers();
+	        }
+
+	        function setupWithValidators() {
+	          var validatorCollection = isPossiblyAsync ? "$asyncValidators" : "$validators";
+	          ctrl[validatorCollection][name] = function evalValidity(modelValue, viewValue) {
+	            var value = formlyUtil.formlyEval(scope, validator, modelValue, viewValue);
+	            if (isPossiblyAsync) {
+	              return isPromiseLike(value) ? value : value ? $q.when(value) : $q.reject(value);
+	            } else {
+	              return value;
+	            }
+	          };
+	        }
+
+	        function setupWithParsers() {
+	          var inFlightValidator = undefined;
+	          ctrl.$parsers.unshift(function evalValidityOfParser(viewValue) {
+	            var isValid = formlyUtil.formlyEval(scope, validator, ctrl.$modelValue, viewValue);
+	            if (isPromiseLike(isValid)) {
+	              ctrl.$pending = ctrl.$pending || {};
+	              ctrl.$pending[name] = true;
+	              inFlightValidator = isValid;
+	              isValid.then(function () {
+	                if (inFlightValidator === isValid) {
+	                  ctrl.$setValidity(name, true);
+	                }
+	              })["catch"](function () {
+	                if (inFlightValidator === isValid) {
+	                  ctrl.$setValidity(name, false);
+	                }
+	              })["finally"](function () {
+	                if (Object.keys(ctrl.$pending).length === 1) {
+	                  delete ctrl.$pending;
+	                } else {
+	                  delete ctrl.$pending[name];
+	                }
+	              });
+	            } else {
+	              ctrl.$setValidity(name, isValid);
+	            }
+	            return viewValue;
+	          });
+	        }
+	      });
+	    }
+	  };
+
+	  function isPromiseLike(obj) {
+	    return obj && angular.isFunction(obj.then);
+	  }
+
+	  function checkValidators(validators) {
+	    var allowedProperties = ["expression", "message"];
+	    var validatorsWithExtraProps = {};
+	    angular.forEach(validators, function (validator, name) {
+	      if (angular.isString(validator)) {
+	        return;
+	      }
+	      var extraProps = [];
+	      angular.forEach(validator, function (v, key) {
+	        if (allowedProperties.indexOf(key) === -1) {
+	          extraProps.push(key);
+	        }
+	      });
+	      if (extraProps.length) {
+	        validatorsWithExtraProps[name] = extraProps;
+	      }
+	    });
+	    if (Object.keys(validatorsWithExtraProps).length) {
+	      throw new Error(["Validators are only allowed to be functions or objects that have " + allowedProperties.join(", ") + ".", "You provided some extra properties: " + JSON.stringify(validatorsWithExtraProps)].join(" "));
+	    }
+	  }
+	}
+	formlyCustomValidation.$inject = ["formlyUtil", "$q"];
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var angular = _interopRequire(__webpack_require__(3));
+
+	module.exports = formlyField;
+
+	/**
+	 * @ngdoc directive
+	 * @name formlyField
+	 * @restrict AE
+	 */
+	// @ngInject
+	function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyConfig, formlyValidationMessages, formlyApiCheck, formlyUtil, formlyUsability, formlyWarn) {
+	  var arrayify = formlyUtil.arrayify;
+
+	  FormlyFieldController.$inject = ["$scope", "$timeout", "$parse", "$controller"];
+	  return {
+	    restrict: "AE",
+	    transclude: true,
+	    scope: {
+	      options: "=",
+	      model: "=",
+	      formId: "@", // TODO remove formId in a breaking release
+	      index: "=?",
+	      fields: "=?",
+	      formState: "=?",
+	      formOptions: "=?",
+	      form: "=?" // TODO require form in a breaking release
+	    },
+	    controller: FormlyFieldController,
+	    link: fieldLink
+	  };
+
+	  // @ngInject
+	  function FormlyFieldController($scope, $timeout, $parse, $controller) {
+	    /* eslint max-statements:[2, 31] */
+	    if ($scope.options.fieldGroup) {
+	      setupFieldGroup();
+	      return;
+	    }
+
+	    var fieldType = getFieldType($scope.options);
+	    simplifyLife($scope.options);
+	    mergeFieldOptionsWithTypeDefaults($scope.options, fieldType);
+	    extendOptionsWithDefaults($scope.options, $scope.index);
+	    checkApi($scope.options);
+	    // set field id to link labels and fields
+
+	    // initalization
+	    setFieldId();
+	    setDefaultValue();
+	    setInitialValue();
+	    runExpressions();
+	    addModelWatcher($scope, $scope.options);
+	    addValidationMessages($scope.options);
+	    invokeControllers($scope, $scope.options, fieldType);
+
+	    // function definitions
+	    function runExpressions() {
+	      // must run on next tick to make sure that the current value is correct.
+	      $timeout(function runExpressionsOnNextTick() {
+	        var field = $scope.options;
+	        var currentValue = valueGetterSetter();
+	        angular.forEach(field.expressionProperties, function runExpression(expression, prop) {
+	          var setter = $parse(prop).assign;
+	          var promise = $q.when(formlyUtil.formlyEval($scope, expression, currentValue, currentValue));
+	          promise.then(function setFieldValue(value) {
+	            setter(field, value);
+	          });
+	        });
+	      });
+	    }
+
+	    function valueGetterSetter(newVal) {
+	      if (!$scope.model || !$scope.options.key) {
+	        return undefined;
+	      }
+	      if (angular.isDefined(newVal)) {
+	        $scope.model[$scope.options.key] = newVal;
+	      }
+	      return $scope.model[$scope.options.key];
+	    }
+
+	    function simplifyLife(options) {
+	      // add a few empty objects (if they don't already exist) so you don't have to undefined check everywhere
+	      formlyUtil.reverseDeepMerge(options, {
+	        data: {},
+	        templateOptions: {},
+	        validation: {}
+	      });
+	      // create $scope.to so template authors can reference to instead of $scope.options.templateOptions
+	      $scope.to = $scope.options.templateOptions;
+	      $scope.formOptions = $scope.formOptions || {};
+	    }
+
+	    function setFieldId() {
+	      if (angular.isFunction(formlyConfig.extras.getFieldId)) {
+	        $scope.id = formlyConfig.extras.getFieldId($scope.options, $scope.model, $scope);
+	      } else {
+	        var formName = $scope.form && $scope.form.$name || $scope.formId;
+	        $scope.id = formlyUtil.getFieldId(formName, $scope.options, $scope.index);
+	      }
+	      $scope.options.id = $scope.id;
+	    }
+
+	    function setDefaultValue() {
+	      if (angular.isDefined($scope.options.defaultValue) && !angular.isDefined($scope.model[$scope.options.key])) {
+	        $scope.model[$scope.options.key] = $scope.options.defaultValue;
+	      }
+	    }
+
+	    function setInitialValue() {
+	      $scope.options.initialValue = $scope.model && $scope.model[$scope.options.key];
+	    }
+
+	    function mergeFieldOptionsWithTypeDefaults(options, type) {
+	      if (type) {
+	        mergeOptions(options, type.defaultOptions);
+	      }
+	      var properOrder = arrayify(options.optionsTypes).reverse(); // so the right things are overridden
+	      angular.forEach(properOrder, function (typeName) {
+	        mergeOptions(options, formlyConfig.getType(typeName, true, options).defaultOptions);
+	      });
+	    }
+
+	    function mergeOptions(options, extraOptions) {
+	      if (extraOptions) {
+	        if (angular.isFunction(extraOptions)) {
+	          extraOptions = extraOptions(options);
+	        }
+	        formlyUtil.reverseDeepMerge(options, extraOptions);
+	      }
+	    }
+
+	    function extendOptionsWithDefaults(options, index) {
+	      var key = options.key || index || 0;
+	      angular.extend(options, {
+	        // attach the key in case the formly-field directive is used directly
+	        key: key,
+	        value: valueGetterSetter,
+	        runExpressions: runExpressions,
+	        resetModel: resetModel,
+	        updateInitialValue: updateInitialValue
+	      });
+	    }
+
+	    // initialization functions
+	    function addModelWatcher(scope, options) {
+	      if (options.model) {
+	        scope.$watch("options.model", runExpressions, true);
+	      }
+	    }
+
+	    function resetModel() {
+	      $scope.model[$scope.options.key] = $scope.options.initialValue;
+	      if ($scope.options.formControl) {
+	        if (angular.isArray($scope.options.formControl)) {
+	          angular.forEach($scope.options.formControl, function (formControl) {
+	            resetFormControl(formControl, true);
+	          });
+	        } else {
+	          resetFormControl($scope.options.formControl);
+	        }
+	      }
+	    }
+
+	    function resetFormControl(formControl, isMultiNgModel) {
+	      if (!isMultiNgModel) {
+	        formControl.$setViewValue($scope.model[$scope.options.key]);
+	      }
+
+	      formControl.$render();
+	      formControl.$setUntouched();
+	      formControl.$setPristine();
+
+	      // To prevent breaking change requiring a digest to reset $viewModel
+	      if (!$scope.$root.$$phase) {
+	        $scope.$digest();
+	      }
+	    }
+
+	    function updateInitialValue() {
+	      $scope.options.initialValue = $scope.model[$scope.options.key];
+	    }
+
+	    function addValidationMessages(options) {
+	      options.validation.messages = options.validation.messages || {};
+	      angular.forEach(formlyValidationMessages.messages, function createFunctionForMessage(expression, name) {
+	        if (!options.validation.messages[name]) {
+	          options.validation.messages[name] = function evaluateMessage(viewValue, modelValue, scope) {
+	            return formlyUtil.formlyEval(scope, expression, modelValue, viewValue);
+	          };
+	        }
+	      });
+	    }
+
+	    function invokeControllers(scope) {
+	      var options = arguments[1] === undefined ? {} : arguments[1];
+	      var type = arguments[2] === undefined ? {} : arguments[2];
+
+	      angular.forEach([type.controller, options.controller], function (controller) {
+	        if (controller) {
+	          $controller(controller, { $scope: scope });
+	        }
+	      });
+	    }
+
+	    function setupFieldGroup() {
+	      $scope.options.options = $scope.options.options || {};
+	      $scope.options.options.formState = $scope.formState;
+	    }
+	  }
+
+	  // link function
+	  function fieldLink(scope, el) {
+	    if (scope.options.fieldGroup) {
+	      setFieldGroupTemplate();
+	      return;
+	    }
+
+	    addAttributes();
+	    addClasses();
+
+	    var type = getFieldType(scope.options);
+	    var args = arguments;
+	    var thusly = this;
+	    var fieldCount = 0;
+	    var fieldManipulators = getManipulators(scope.options, scope.formOptions);
+	    getFieldTemplate(scope.options).then(runManipulators(fieldManipulators.preWrapper)).then(transcludeInWrappers(scope.options, scope.formOptions)).then(runManipulators(fieldManipulators.postWrapper)).then(setElementTemplate).then(watchFormControl).then(callLinkFunctions)["catch"](function (error) {
+	      formlyWarn("there-was-a-problem-setting-the-template-for-this-field", "There was a problem setting the template for this field ", scope.options, error);
+	    });
+
+	    function setFieldGroupTemplate() {
+	      checkFieldGroupApi(scope.options);
+	      el.addClass("formly-field-group");
+	      var extraAttributes = "";
+	      if (scope.options.elementAttributes) {
+	        extraAttributes = Object.keys(scope.options.elementAttributes).map(function (key) {
+	          return "" + key + "=\"" + scope.options.elementAttributes[key] + "\"";
+	        }).join(" ");
+	      }
+	      var modelValue = "model";
+	      if (scope.options.key) {
+	        modelValue = "model['" + scope.options.key + "']";
+	      }
+	      setElementTemplate("\n          <formly-form model=\"" + modelValue + "\"\n                       fields=\"options.fieldGroup\"\n                       options=\"options.options\"\n                       form=\"options.form\"\n                       class=\"" + scope.options.className + "\"\n                       " + extraAttributes + "\n                       is-field-group>\n          </formly-form>\n        ");
+	    }
+
+	    function addAttributes() {
+	      if (scope.options.elementAttributes) {
+	        el.attr(scope.options.elementAttributes);
+	      }
+	    }
+
+	    function addClasses() {
+	      if (scope.options.className) {
+	        el.addClass(scope.options.className);
+	      }
+	      if (scope.options.type) {
+	        el.addClass("formly-field-" + scope.options.type);
+	      }
+	    }
+
+	    function setElementTemplate(templateString) {
+	      el.html(asHtml(templateString));
+	      $compile(el.contents())(scope);
+	      return templateString;
+	    }
+
+	    function watchFormControl(templateString) {
+	      var stopWatchingShowError = angular.noop;
+	      if (scope.options.noFormControl) {
+	        return;
+	      }
+	      var templateEl = angular.element("<div>" + templateString + "</div>");
+	      var ngModelNodes = templateEl[0].querySelectorAll("[ng-model],[data-ng-model]");
+
+	      if (ngModelNodes) {
+	        angular.forEach(ngModelNodes, function (ngModelNode) {
+	          fieldCount++;
+	          watchFieldNameOrExistence(ngModelNode.getAttribute("name"));
+	        });
+	      }
+
+	      function watchFieldNameOrExistence(name) {
+	        var nameExpressionRegex = /\{\{(.*?)}}/;
+	        var nameExpression = nameExpressionRegex.exec(name);
+	        if (nameExpression) {
+	          name = $interpolate(name)(scope);
+	        }
+	        watchFieldExistence(name);
+	      }
+
+	      function watchFieldExistence(name) {
+	        scope.$watch("form[\"" + name + "\"]", function formControlChange(formControl) {
+	          if (formControl) {
+	            if (fieldCount > 1) {
+	              if (!scope.options.formControl) {
+	                scope.options.formControl = [];
+	              }
+	              scope.options.formControl.push(formControl);
+	            } else {
+	              scope.options.formControl = formControl;
+	            }
+	            scope.fc = scope.options.formControl; // shortcut for template authors
+	            stopWatchingShowError();
+	            addShowMessagesWatcher();
+	          }
+	        });
+	      }
+
+	      function addShowMessagesWatcher() {
+	        stopWatchingShowError = scope.$watch(function watchShowValidationChange() {
+	          var customExpression = formlyConfig.extras.errorExistsAndShouldBeVisibleExpression;
+	          var options = scope.options;
+	          var fc = scope.fc;
+
+	          if (!fc.$invalid) {
+	            return false;
+	          } else if (typeof options.validation.show === "boolean") {
+	            return options.validation.show;
+	          } else if (customExpression) {
+	            return formlyUtil.formlyEval(scope, customExpression, fc.$modelValue, fc.$viewValue);
+	          } else {
+	            var noTouchedButDirty = angular.isUndefined(fc.$touched) && fc.$dirty;
+	            return scope.fc.$touched || noTouchedButDirty;
+	          }
+	        }, function onShowValidationChange(show) {
+	          scope.options.validation.errorExistsAndShouldBeVisible = show;
+	          scope.showError = show; // shortcut for template authors
+	        });
+	      }
+	    }
+
+	    function callLinkFunctions() {
+	      if (type && type.link) {
+	        type.link.apply(thusly, args);
+	      }
+	      if (scope.options.link) {
+	        scope.options.link.apply(thusly, args);
+	      }
+	    }
+
+	    function runManipulators(manipulators) {
+	      return function runManipulatorsOnTemplate(templateToManipulate) {
+	        var chain = $q.when(templateToManipulate);
+	        angular.forEach(manipulators, function (manipulator) {
+	          chain = chain.then(function (template) {
+	            return $q.when(manipulator(template, scope.options, scope)).then(function (newTemplate) {
+	              return angular.isString(newTemplate) ? newTemplate : asHtml(newTemplate);
+	            });
+	          });
+	        });
+	        return chain;
+	      };
+	    }
+	  }
+
+	  // sort-of stateless util functions
+	  function asHtml(el) {
+	    var wrapper = angular.element("<a></a>");
+	    return wrapper.append(el).html();
+	  }
+
+	  function getFieldType(options) {
+	    return options.type && formlyConfig.getType(options.type);
+	  }
+
+	  function getManipulators(options, formOptions) {
+	    var preWrapper = [];
+	    var postWrapper = [];
+	    addManipulators(options.templateManipulators);
+	    addManipulators(formOptions.templateManipulators);
+	    addManipulators(formlyConfig.templateManipulators);
+	    return { preWrapper: preWrapper, postWrapper: postWrapper };
+
+	    function addManipulators(manipulators) {
+	      /* eslint-disable */ // it doesn't understand this :-(
+
+	      var _ref = manipulators || {};
+
+	      var _ref$preWrapper = _ref.preWrapper;
+	      var pre = _ref$preWrapper === undefined ? [] : _ref$preWrapper;
+	      var _ref$postWrapper = _ref.postWrapper;
+	      var post = _ref$postWrapper === undefined ? [] : _ref$postWrapper;
+
+	      preWrapper = preWrapper.concat(pre);
+	      postWrapper = postWrapper.concat(post);
+	      /* eslint-enable */
+	    }
+	  }
+
+	  function getFieldTemplate(options) {
+	    function fromOptionsOrType(key, fieldType) {
+	      if (angular.isDefined(options[key])) {
+	        return options[key];
+	      } else if (fieldType && angular.isDefined(fieldType[key])) {
+	        return fieldType[key];
+	      }
+	    }
+
+	    var type = formlyConfig.getType(options.type, true, options);
+	    var template = fromOptionsOrType("template", type);
+	    var templateUrl = fromOptionsOrType("templateUrl", type);
+	    if (angular.isUndefined(template) && !templateUrl) {
+	      throw formlyUsability.getFieldError("type-type-has-no-template", "Type '" + options.type + "' has not template. On element:", options);
+	    }
+
+	    return getTemplate(templateUrl || template, angular.isUndefined(template), options);
+	  }
+
+	  function getTemplate(template, isUrl, options) {
+	    var templatePromise = undefined;
+	    if (angular.isFunction(template)) {
+	      templatePromise = $q.when(template(options));
+	    } else {
+	      templatePromise = $q.when(template);
+	    }
+
+	    if (!isUrl) {
+	      return templatePromise;
+	    } else {
+	      var _ret = (function () {
+	        var httpOptions = { cache: $templateCache };
+	        return {
+	          v: templatePromise.then(function (url) {
+	            return $http.get(url, httpOptions);
+	          }).then(function (response) {
+	            return response.data;
+	          })["catch"](function handleErrorGettingATemplate(error) {
+	            formlyWarn("problem-loading-template-for-templateurl", "Problem loading template for " + template, error);
+	          })
+	        };
+	      })();
+
+	      if (typeof _ret === "object") {
+	        return _ret.v;
+	      }
+	    }
+	  }
+
+	  function transcludeInWrappers(options, formOptions) {
+	    var wrapper = getWrapperOption(options, formOptions);
+
+	    return function transcludeTemplate(template) {
+	      if (!wrapper.length) {
+	        return $q.when(template);
+	      }
+
+	      wrapper.forEach(function (aWrapper) {
+	        formlyUsability.checkWrapper(aWrapper, options);
+	        aWrapper.validateOptions && aWrapper.validateOptions(options);
+	        runApiCheck(aWrapper, options);
+	      });
+	      var promises = wrapper.map(function (w) {
+	        return getTemplate(w.template || w.templateUrl, !w.template);
+	      });
+	      return $q.all(promises).then(function (wrappersTemplates) {
+	        wrappersTemplates.forEach(function (wrapperTemplate, index) {
+	          formlyUsability.checkWrapperTemplate(wrapperTemplate, wrapper[index]);
+	        });
+	        wrappersTemplates.reverse(); // wrapper 0 is wrapped in wrapper 1 and so on...
+	        var totalWrapper = wrappersTemplates.shift();
+	        wrappersTemplates.forEach(function (wrapperTemplate) {
+	          totalWrapper = doTransclusion(totalWrapper, wrapperTemplate);
+	        });
+	        return doTransclusion(totalWrapper, template);
+	      });
+	    };
+	  }
+
+	  function doTransclusion(wrapper, template) {
+	    var superWrapper = angular.element("<a></a>"); // this allows people not have to have a single root in wrappers
+	    superWrapper.append(wrapper);
+	    var transcludeEl = superWrapper.find("formly-transclude");
+	    if (!transcludeEl.length) {
+	      // try it using our custom find function
+	      transcludeEl = formlyUtil.findByNodeName(superWrapper, "formly-transclude");
+	    }
+	    transcludeEl.replaceWith(template);
+	    return superWrapper.html();
+	  }
+
+	  function getWrapperOption(options, formOptions) {
+	    /* eslint complexity:[6, 2] */
+	    var wrapper = options.wrapper;
+	    // explicit null means no wrapper
+	    if (wrapper === null) {
+	      return [];
+	    }
+
+	    // nothing specified means use the default wrapper for the type
+	    if (!wrapper) {
+	      // get all wrappers that specify they apply to this type
+	      wrapper = arrayify(formlyConfig.getWrapperByType(options.type));
+	    } else {
+	      wrapper = arrayify(wrapper).map(formlyConfig.getWrapper);
+	    }
+
+	    // get all wrappers for that the type specified that it uses.
+	    var type = formlyConfig.getType(options.type, true, options);
+	    if (type && type.wrapper) {
+	      var typeWrappers = arrayify(type.wrapper).map(formlyConfig.getWrapper);
+	      wrapper = wrapper.concat(typeWrappers);
+	    }
+
+	    // add form wrappers
+	    if (formOptions.wrapper) {
+	      var formWrappers = arrayify(formOptions.wrapper).map(formlyConfig.getWrapper);
+	      wrapper = wrapper.concat(formWrappers);
+	    }
+
+	    // add the default wrapper last
+	    var defaultWrapper = formlyConfig.getWrapper();
+	    if (defaultWrapper) {
+	      wrapper.push(defaultWrapper);
+	    }
+	    return wrapper;
+	  }
+
+	  function checkApi(options) {
+	    formlyApiCheck["throw"](formlyApiCheck.formlyFieldOptions, options, {
+	      prefix: "formly-field directive",
+	      url: "formly-field-directive-validation-failed"
+	    });
+	    // validate with the type
+	    var type = options.type && formlyConfig.getType(options.type);
+	    if (type) {
+	      if (type.validateOptions) {
+	        type.validateOptions(options);
+	      }
+	      runApiCheck(type, options);
+	    }
+	  }
+
+	  function checkFieldGroupApi(options) {
+	    formlyApiCheck["throw"](formlyApiCheck.fieldGroup, options, {
+	      prefix: "formly-field directive",
+	      url: "formly-field-directive-validation-failed"
+	    });
+	  }
+
+	  function runApiCheck(_ref, options) {
+	    var apiCheck = _ref.apiCheck;
+	    var apiCheckInstance = _ref.apiCheckInstance;
+	    var apiCheckFunction = _ref.apiCheckFunction;
+	    var apiCheckOptions = _ref.apiCheckOptions;
+
+	    if (!apiCheck) {
+	      return;
+	    }
+	    var instance = apiCheckInstance || formlyApiCheck;
+	    var fn = apiCheckFunction || "warn";
+	    var shape = instance.shape(apiCheck);
+	    instance[fn](shape, options, apiCheckOptions || {
+	      prefix: "formly-field " + name,
+	      url: formlyApiCheck.config.output.docsBaseUrl + "formly-field-type-apicheck-failed"
+	    });
+	  }
+	}
+	formlyField.$inject = ["$http", "$q", "$compile", "$templateCache", "$interpolate", "formlyConfig", "formlyValidationMessages", "formlyApiCheck", "formlyUtil", "formlyUsability", "formlyWarn"];
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	module.exports = formlyFocus;
+
+	// @ngInject
+	function formlyFocus($timeout, $document) {
+	  return {
+	    restrict: "A",
+	    link: function formlyFocusLink(scope, element, attrs) {
+	      var previousEl = null;
+	      var el = element[0];
+	      var doc = $document[0];
+	      attrs.$observe("formlyFocus", function respondToFocusExpressionChange(value) {
+	        if (value === "true") {
+	          $timeout(function setElementFocus() {
+	            previousEl = doc.activeElement;
+	            el.focus();
+	          }, ~ ~attrs.focusWait);
+	        } else if (value === "false") {
+	          if (doc.activeElement === el) {
+	            el.blur();
+	            if (attrs.hasOwnProperty("refocus") && previousEl) {
+	              previousEl.focus();
+	            }
+	          }
+	        }
+	      });
+	    }
+	  };
+	}
+	formlyFocus.$inject = ["$timeout", "$document"];
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
+
+	var _slice = Array.prototype.slice;
+
+	var angular = _interopRequire(__webpack_require__(3));
+
+	module.exports = formlyForm;
+
+	/**
+	 * @ngdoc directive
+	 * @name formlyForm
+	 * @restrict E
+	 */
+	// @ngInject
+	function formlyForm(formlyUsability, $parse, formlyConfig, $interpolate) {
+	  var currentFormId = 1;
+	  FormlyFormController.$inject = ["$scope", "formlyApiCheck", "formlyUtil"];
+	  return {
+	    restrict: "E",
+	    template: formlyFormGetTemplate,
+	    replace: true,
+	    transclude: true,
+	    scope: {
+	      fields: "=",
+	      model: "=",
+	      form: "=?",
+	      options: "=?"
+	    },
+	    controller: FormlyFormController,
+	    link: formlyFormLink
+	  };
+
+	  function formlyFormGetTemplate(el, attrs) {
+	    var rootEl = getRootEl();
+	    var fieldRootEl = getFieldRootEl();
+	    var formId = "formly_" + currentFormId++;
+	    var parentFormAttributes = "";
+	    if (attrs.hasOwnProperty("isFieldGroup") && el.parent().parent().hasClass("formly")) {
+	      parentFormAttributes = copyAttributes(el.parent().parent()[0].attributes);
+	    }
+	    return "\n        <" + rootEl + " class=\"formly\"\n                 name=\"" + getFormName() + "\"\n                 role=\"form\" " + parentFormAttributes + ">\n          <" + fieldRootEl + " formly-field\n               ng-repeat=\"field in fields " + getTrackBy() + "\"\n               " + getHideDirective() + "=\"!field.hide\"\n               class=\"formly-field\"\n               options=\"field\"\n               model=\"field.model || model\"\n               fields=\"fields\"\n               form=\"theFormlyForm\"\n               form-id=\"" + getFormName() + "\"\n               form-state=\"options.formState\"\n               form-options=\"options\"\n               index=\"$index\">\n          </" + fieldRootEl + ">\n          <div ng-transclude></div>\n        </" + rootEl + ">\n      ";
+
+	    function getRootEl() {
+	      return attrs.rootEl || "ng-form";
+	    }
+
+	    function getFieldRootEl() {
+	      return attrs.fieldRootEl || "div";
+	    }
+
+	    function getHideDirective() {
+	      return attrs.hideDirective || formlyConfig.extras.defaultHideDirective || "ng-if";
+	    }
+
+	    function getTrackBy() {
+	      if (!attrs.trackBy) {
+	        return "";
+	      } else {
+	        return "track by " + attrs.trackBy;
+	      }
+	    }
+
+	    function getFormName() {
+	      var formName = formId;
+	      var bindName = attrs.bindName;
+	      if (bindName) {
+	        if (angular.version.minor < 3) {
+	          throw formlyUsability.getFormlyError("bind-name attribute on formly-form not allowed in < angular 1.3");
+	        }
+	        // we can do a one-time binding here because we know we're in 1.3.x territory
+	        formName = "" + $interpolate.startSymbol() + "::'formly_' + " + bindName + "" + $interpolate.endSymbol();
+	      }
+	      return formName;
+	    }
+
+	    function copyAttributes(attributes) {
+	      var excluded = ["model", "form", "fields", "options", "name", "role", "class"];
+	      var arrayAttrs = [];
+	      angular.forEach(attributes, function (_ref) {
+	        var nodeName = _ref.nodeName;
+	        var nodeValue = _ref.nodeValue;
+
+	        if (nodeName !== "undefined" && excluded.indexOf(nodeName) === -1) {
+	          arrayAttrs.push("" + toKebabCase(nodeName) + "=\"" + nodeValue + "\"");
+	        }
+	      });
+	      return arrayAttrs.join(" ");
+	    }
+	  }
+
+	  // @ngInject
+	  function FormlyFormController($scope, formlyApiCheck, formlyUtil) {
+	    setupOptions();
+	    $scope.model = $scope.model || {};
+	    $scope.fields = $scope.fields || [];
+
+	    angular.forEach($scope.fields, initModel); // initializes the model property if set to 'formState'
+	    angular.forEach($scope.fields, attachKey); // attaches a key based on the index if a key isn't specified
+	    angular.forEach($scope.fields, setupWatchers); // setup watchers for all fields
+
+	    // watch the model and evaluate watch expressions that depend on it.
+	    $scope.$watch("model", onModelOrFormStateChange, true);
+	    if ($scope.options.formState) {
+	      $scope.$watch("options.formState", onModelOrFormStateChange, true);
+	    }
+
+	    function onModelOrFormStateChange() {
+	      angular.forEach($scope.fields, function runFieldExpressionProperties(field, index) {
+	        /*jshint -W030 */
+	        var model = field.model || $scope.model;
+	        field.runExpressions && field.runExpressions(model);
+	        if (field.hideExpression) {
+	          // can't use hide with expressionProperties reliably
+	          var val = model[field.key];
+	          field.hide = evalCloseToFormlyExpression(field.hideExpression, val, field, index);
+	        }
+	      });
+	    }
+
+	    function setupOptions() {
+	      formlyApiCheck["throw"]([formlyApiCheck.formOptionsApi.optional], [$scope.options], { prefix: "formly-form options check" });
+	      $scope.options = $scope.options || {};
+	      $scope.options.formState = $scope.options.formState || {};
+
+	      angular.extend($scope.options, {
+	        updateInitialValue: updateInitialValue,
+	        resetModel: resetModel
+	      });
+	    }
+
+	    function updateInitialValue() {
+	      angular.forEach($scope.fields, function (field) {
+	        if (isFieldGroup(field)) {
+	          field.options.updateInitialValue();
+	        } else {
+	          field.updateInitialValue();
+	        }
+	      });
+	    }
+
+	    function resetModel() {
+	      angular.forEach($scope.fields, function (field) {
+	        if (isFieldGroup(field)) {
+	          field.options.resetModel();
+	        } else {
+	          field.resetModel();
+	        }
+	      });
+	    }
+
+	    function initModel(field) {
+	      if (angular.isString(field.model)) {
+	        var expression = field.model;
+	        var index = $scope.fields.indexOf(field);
+	        field.model = evalCloseToFormlyExpression(expression, undefined, field, index);
+	        if (!field.model) {
+	          throw formlyUsability.getFieldError("field-model-must-be-initialized", "Field model must be initialized. When specifying a model as a string for a field, the result of the" + " expression must have been initialized ahead of time.", field);
+	        }
+	      }
+	    }
+
+	    function attachKey(field, index) {
+	      if (!isFieldGroup(field)) {
+	        field.key = field.key || index || 0;
+	      }
+	    }
+
+	    function setupWatchers(field, index) {
+	      if (isFieldGroup(field) || !angular.isDefined(field.watcher)) {
+	        return;
+	      }
+	      var watchers = field.watcher;
+	      if (!angular.isArray(watchers)) {
+	        watchers = [watchers];
+	      }
+	      angular.forEach(watchers, function setupWatcher(watcher) {
+	        if (!angular.isDefined(watcher.listener)) {
+	          throw formlyUsability.getFieldError("all-field-watchers-must-have-a-listener", "All field watchers must have a listener", field);
+	        }
+	        var watchExpression = getWatchExpression(watcher, field, index);
+	        var watchListener = getWatchListener(watcher, field, index);
+
+	        var type = watcher.type || "$watch";
+	        watcher.stopWatching = $scope[type](watchExpression, watchListener, watcher.watchDeep);
+	      });
+	    }
+
+	    function getWatchExpression(watcher, field, index) {
+	      var watchExpression = watcher.expression || "model['" + field.key + "']";
+	      if (angular.isFunction(watchExpression)) {
+	        // wrap the field's watch expression so we can call it with the field as the first arg
+	        // and the stop function as the last arg as a helper
+	        var originalExpression = watchExpression;
+	        watchExpression = function formlyWatchExpression() {
+	          var args = modifyArgs.apply(undefined, [watcher, index].concat(_slice.call(arguments)));
+	          return originalExpression.apply(undefined, _toConsumableArray(args));
+	        };
+	        watchExpression.displayName = "Formly Watch Expression for field for " + field.key;
+	      }
+	      return watchExpression;
+	    }
+
+	    function getWatchListener(watcher, field, index) {
+	      var watchListener = watcher.listener;
+	      if (angular.isFunction(watchListener)) {
+	        // wrap the field's watch listener so we can call it with the field as the first arg
+	        // and the stop function as the last arg as a helper
+	        var originalListener = watchListener;
+	        watchListener = function formlyWatchListener() {
+	          var args = modifyArgs.apply(undefined, [watcher, index].concat(_slice.call(arguments)));
+	          return originalListener.apply(undefined, _toConsumableArray(args));
+	        };
+	        watchListener.displayName = "Formly Watch Listener for field for " + field.key;
+	      }
+	      return watchListener;
+	    }
+
+	    function modifyArgs(watcher, index) {
+	      for (var _len = arguments.length, originalArgs = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+	        originalArgs[_key - 2] = arguments[_key];
+	      }
+
+	      return [$scope.fields[index]].concat(originalArgs, [watcher.stopWatching]);
+	    }
+
+	    function evalCloseToFormlyExpression(expression, val, field, index) {
+	      var extraLocals = getFormlyFieldLikeLocals(field, index);
+	      return formlyUtil.formlyEval($scope, expression, val, val, extraLocals);
+	    }
+
+	    function getFormlyFieldLikeLocals(field, index) {
+	      // this makes it closer to what a regular formlyExpression would be
+	      return {
+	        options: field,
+	        index: index,
+	        formState: $scope.options.formState,
+	        formId: $scope.formId
+	      };
+	    }
+	  }
+
+	  function formlyFormLink(scope, el, attrs) {
+	    setFormController();
+	    fixChromeAutocomplete();
+
+	    function setFormController() {
+	      var formId = attrs.name;
+	      scope.formId = formId;
+	      scope.theFormlyForm = scope[formId];
+	      if (attrs.form) {
+	        var getter = $parse(attrs.form);
+	        var setter = getter.assign;
+	        var parentForm = getter(scope.$parent);
+	        if (parentForm) {
+	          scope.theFormlyForm = parentForm;
+	          if (scope[formId]) {
+	            scope.theFormlyForm.$removeControl(scope[formId]);
+	          }
+
+	          // this next line is probably one of the more dangerous things that angular-formly does to improve the
+	          // API for angular-formly forms. It ensures that the NgModelControllers inside of formly-form will be
+	          // attached to the form that is passed to formly-form rather than the one that formly-form creates
+	          // this is necessary because it's confusing to have a step between the form you pass in
+	          // and the fields in that form. It also is because angular doesn't propagate properties like $submitted down
+	          // to children forms :-( This line was added to solve this issue:
+	          // https://github.com/formly-js/angular-formly/issues/287
+	          // luckily, this is how the formController has been accessed by the NgModelController since angular 1.0.0
+	          // so I expect it will remain this way for the life of angular 1.x
+	          el.removeData("$formController");
+	        } else {
+	          setter(scope.$parent, scope[formId]);
+	        }
+	      }
+	      if (!scope.theFormlyForm && !formlyConfig.disableWarnings) {
+	        /* eslint no-console:0 */
+	        console.warn(formlyUsability.getErrorMessage("formly-form-has-no-formcontroller", "A formly-form does not have a `form` property. Many functions of the form (like validation) may not work"));
+	      }
+	    }
+
+	    /**
+	     * chrome autocomplete lameness
+	     * see https://code.google.com/p/chromium/issues/detail?id=468153#c14
+	     * ლ(ಠ益ಠლ)   (╯°□°)╯︵ ┻━┻    (◞‸◟；)
+	     */
+	    function fixChromeAutocomplete() {
+	      var global = formlyConfig.extras.removeChromeAutoComplete === true;
+	      var offInstance = scope.options && scope.options.removeChromeAutoComplete === false;
+	      var onInstance = scope.options && scope.options.removeChromeAutoComplete === true;
+	      if (global && !offInstance || onInstance) {
+	        var input = document.createElement("input");
+	        input.setAttribute("autocomplete", "address-level4");
+	        input.setAttribute("hidden", "true");
+	        el[0].appendChild(input);
+	      }
+	    }
+	  }
+
+	  // stateless util functions
+	  function toKebabCase(string) {
+	    if (string) {
+	      return string.replace(/([A-Z])/g, function ($1) {
+	        return "-" + $1.toLowerCase();
+	      });
+	    } else {
+	      return "";
+	    }
+	  }
+
+	  function isFieldGroup(field) {
+	    return field && !!field.fieldGroup;
+	  }
+	}
+	formlyForm.$inject = ["formlyUsability", "$parse", "formlyConfig", "$interpolate"];
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var angular = _interopRequire(__webpack_require__(3));
+
+	module.exports = addFormlyNgModelAttrsManipulator;
+
+	// @ngInject
+	function addFormlyNgModelAttrsManipulator(formlyConfig, $interpolate) {
+	  if (formlyConfig.extras.disableNgModelAttrsManipulator) {
+	    return;
+	  }
+	  formlyConfig.templateManipulators.preWrapper.push(ngModelAttrsManipulator);
+
+	  function ngModelAttrsManipulator(template, options, scope) {
+	    /* jshint maxcomplexity:6 */
+	    var el = document.createElement("div");
+	    var data = options.data;
+	    if (data.skipNgModelAttrsManipulator === true) {
+	      return template;
+	    }
+	    el.innerHTML = template;
+	    var modelNodes = el.querySelectorAll("[ng-model], [data-ng-model]");
+	    if (!modelNodes || !modelNodes.length) {
+	      return template;
+	    }
+
+	    addIfNotPresent(modelNodes, "id", scope.id);
+	    addIfNotPresent(modelNodes, "name", scope.id);
+
+	    addValidation();
+	    addModelOptions();
+	    addTemplateOptionsAttrs();
+
+	    return el.innerHTML;
+
+	    function addValidation() {
+	      if (angular.isDefined(options.validators) || angular.isDefined(options.validation.messages)) {
+	        addIfNotPresent(modelNodes, "formly-custom-validation", "");
+	      }
+	    }
+
+	    function addModelOptions() {
+	      if (angular.isDefined(options.modelOptions)) {
+	        addIfNotPresent(modelNodes, "ng-model-options", "options.modelOptions");
+	        if (options.modelOptions.getterSetter) {
+	          angular.forEach(modelNodes, function (node) {
+	            node.setAttribute("ng-model", "options.value");
+	          });
+	        }
+	      }
+	    }
+
+	    function addTemplateOptionsAttrs() {
+	      if (!options.templateOptions && !options.expressionProperties) {
+	        // no need to run these if there are no templateOptions or expressionProperties
+	        return;
+	      }
+	      var to = options.templateOptions || {};
+	      var ep = options.expressionProperties || {};
+
+	      var ngModelAttributes = getBuiltInAttributes();
+
+	      // extend with the user's specifications winning
+	      angular.extend(ngModelAttributes, options.ngModelAttrs);
+
+	      // Feel free to make this more simple :-)
+	      angular.forEach(ngModelAttributes, function (val, name) {
+	        /* eslint complexity:[2, 14] */
+	        var attrVal = undefined;
+	        var attrName = undefined;
+	        var ref = "options.templateOptions['" + name + "']";
+	        var toVal = to[name];
+	        var epVal = getEpValue(ep, name);
+
+	        var inTo = angular.isDefined(toVal);
+	        var inEp = angular.isDefined(epVal);
+	        if (val.value) {
+	          // I realize this looks backwards, but it's right, trust me...
+	          attrName = val.value;
+	          attrVal = name;
+	        } else if (val.expression && inTo) {
+	          attrName = val.expression;
+	          if (angular.isString(to[name])) {
+	            attrVal = "$eval(" + ref + ")";
+	          } else if (angular.isFunction(to[name])) {
+	            attrVal = "" + ref + "(model[options.key], options, this, $event)";
+	          } else {
+	            throw new Error("options.templateOptions." + name + " must be a string or function: " + JSON.stringify(options));
+	          }
+	        } else if (val.bound && inEp) {
+	          attrName = val.bound;
+	          attrVal = ref;
+	        } else if ((val.attribute || val.boolean) && inEp) {
+	          attrName = val.attribute || val.boolean;
+	          attrVal = "" + $interpolate.startSymbol() + "" + ref + "" + $interpolate.endSymbol();
+	        } else if (val.attribute && inTo) {
+	          attrName = val.attribute;
+	          attrVal = toVal;
+	        } else if (val.boolean) {
+	          if (inTo && !inEp && toVal) {
+	            attrName = val.boolean;
+	            attrVal = true;
+	          } else {}
+	        } else if (val.bound && inTo) {
+	          attrName = val.bound;
+	          attrVal = ref;
+	        }
+
+	        if (angular.isDefined(attrName) && angular.isDefined(attrVal)) {
+	          addIfNotPresent(modelNodes, attrName, attrVal);
+	        }
+	      });
+	    }
+	  }
+
+	  // Utility functions
+	  function getBuiltInAttributes() {
+	    var ngModelAttributes = {
+	      focus: {
+	        attribute: "formly-focus"
+	      }
+	    };
+	    var boundOnly = [];
+	    var bothBooleanAndBound = ["required", "disabled"];
+	    var bothAttributeAndBound = ["pattern", "minlength"];
+	    var expressionOnly = ["change", "keydown", "keyup", "keypress", "click", "focus", "blur"];
+	    var attributeOnly = ["placeholder", "min", "max", "tabindex", "type"];
+	    if (formlyConfig.extras.ngModelAttrsManipulatorPreferUnbound) {
+	      bothAttributeAndBound.push("maxlength");
+	    } else {
+	      boundOnly.push("maxlength");
+	    }
+
+	    angular.forEach(boundOnly, function (item) {
+	      ngModelAttributes[item] = { bound: "ng-" + item };
+	    });
+
+	    angular.forEach(bothBooleanAndBound, function (item) {
+	      ngModelAttributes[item] = { boolean: item, bound: "ng-" + item };
+	    });
+
+	    angular.forEach(bothAttributeAndBound, function (item) {
+	      ngModelAttributes[item] = { attribute: item, bound: "ng-" + item };
+	    });
+
+	    angular.forEach(expressionOnly, function (item) {
+	      var propName = "on" + item.substr(0, 1).toUpperCase() + item.substr(1);
+	      ngModelAttributes[propName] = { expression: "ng-" + item };
+	    });
+
+	    angular.forEach(attributeOnly, function (item) {
+	      ngModelAttributes[item] = { attribute: item };
+	    });
+	    return ngModelAttributes;
+	  }
+
+	  function getEpValue(ep, name) {
+	    return ep["templateOptions." + name] || ep["templateOptions['" + name + "']"] || ep["templateOptions[\"" + name + "\"]"];
+	  }
+
+	  function addIfNotPresent(nodes, attr, val) {
+	    angular.forEach(nodes, function (node) {
+	      if (!node.getAttribute(attr)) {
+	        node.setAttribute(attr, val);
+	      }
+	    });
+	  }
+	}
+	addFormlyNgModelAttrsManipulator.$inject = ["formlyConfig", "$interpolate"];
+
+	/* eslint no-empty:0 */
+	// empty to illustrate that a boolean will not be added via val.bound
+	// if you want it added via val.bound, then put it in expressionProperties
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+	var angular = _interopRequire(__webpack_require__(3));
+
+	module.exports = addCustomTags;
+
+	// @ngInject
+	function addCustomTags($document) {
+	  if ($document && $document.get) {
+	    (function () {
+	      // IE8 check ->
+	      // http://stackoverflow.com/questions/10964966/detect-ie-version-prior-to-v9-in-javascript/10965203#10965203
+	      var document = $document.get(0);
+	      var div = document.createElement("div");
+	      div.innerHTML = "<!--[if lt IE 9]><i></i><![endif]-->";
+	      var isIeLessThan9 = div.getElementsByTagName("i").length === 1;
+
+	      if (isIeLessThan9) {
+	        // add the custom elements that we need for formly
+	        var customElements = ["formly-field", "formly-form", "formly-custom-validation", "formly-focus", "formly-transpose"];
+	        angular.forEach(customElements, function (el) {
+	          document.createElement(el);
+	        });
+	      }
+	    })();
+	  }
+	}
+	addCustomTags.$inject = ["$document"];
+
+/***/ }
+/******/ ])
+});
+;
+// angular-formly-templates-bootstrap version 4.3.1 built with ♥ by Astrism <astrisms@gmail.com>, Kent C. Dodds <kent@doddsfamily.us> (ó ì_í)=óò=(ì_í ò)
+
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory(require("angular-formly"), require("api-check"), require("angular"));
+	else if(typeof define === 'function' && define.amd)
+		define(["angular-formly", "api-check", "angular"], factory);
+	else if(typeof exports === 'object')
+		exports["ngFormlyTemplatesBootstrap"] = factory(require("angular-formly"), require("api-check"), require("angular"));
+	else
+		root["ngFormlyTemplatesBootstrap"] = factory(root["ngFormly"], root["apiCheck"], root["angular"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_8__) {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	module.exports = __webpack_require__(11);
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	
+	exports['default'] = function (ngModule) {
+	  ngModule.config(addRadioType);
+	
+	  function addRadioType(formlyConfigProvider, formlyBootstrapApiCheck) {
+	    var c = formlyBootstrapApiCheck;
+	    formlyConfigProvider.setType({
+	      name: 'radio',
+	      template: __webpack_require__(20),
+	      wrapper: ['bootstrapLabel', 'bootstrapHasError'],
+	      defaultOptions: {
+	        noFormControl: false
+	      },
+	      apiCheck: {
+	        templateOptions: c.shape({
+	          options: c.arrayOf(c.object),
+	          labelProp: c.string.optional,
+	          valueProp: c.string.optional
+	        })
+	      },
+	      apiCheckInstance: c
+	    });
+	  }
+	  addRadioType.$inject = ["formlyConfigProvider", "formlyBootstrapApiCheck"];
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// some versions of angular don't export the angular module properly,
+	// so we get it from window in this case.
+	'use strict';
+	
+	var angular = __webpack_require__(8);
+	if (!angular.version) {
+	  angular = window.angular;
+	}
+	module.exports = angular;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	
+	exports['default'] = function (ngModule) {
+	  ngModule.config(addWrappers);
+	
+	  function addWrappers(formlyConfigProvider, formlyBootstrapApiCheck) {
+	    var c = formlyBootstrapApiCheck;
+	    formlyConfigProvider.setWrapper([{
+	      name: 'bootstrapLabel',
+	      template: __webpack_require__(17),
+	      apiCheck: {
+	        templateOptions: c.shape({
+	          label: c.string,
+	          required: c.bool.optional
+	        })
+	      },
+	      apiCheckInstance: c
+	    }, { name: 'bootstrapHasError', template: __webpack_require__(18) }]);
+	  }
+	  addWrappers.$inject = ["formlyConfigProvider", "formlyBootstrapApiCheck"];
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	
+	exports['default'] = function (ngModule) {
+	  __webpack_require__(12)(ngModule);
+	  __webpack_require__(13)(ngModule);
+	  __webpack_require__(14)(ngModule);
+	  __webpack_require__(1)(ngModule);
+	  __webpack_require__(15)(ngModule);
+	  __webpack_require__(16)(ngModule);
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var _addons = __webpack_require__(9);
+	
+	var _addons2 = _interopRequireDefault(_addons);
+	
+	var _description = __webpack_require__(10);
+	
+	var _description2 = _interopRequireDefault(_description);
+	
+	exports['default'] = function (ngModule) {
+	  (0, _addons2['default'])(ngModule);
+	  (0, _description2['default'])(ngModule);
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	
+	exports['default'] = function (ngModule) {
+	  ngModule.run(addAddonsManipulator);
+	
+	  function addAddonsManipulator(formlyConfig, formlyBootstrapApiCheck) {
+	    var addonTemplate = __webpack_require__(19);
+	    var addonChecker = formlyBootstrapApiCheck.shape({
+	      'class': formlyBootstrapApiCheck.string.optional,
+	      text: formlyBootstrapApiCheck.string.optional,
+	      onClick: formlyBootstrapApiCheck.func.optional
+	    }).strict.optional;
+	    var api = formlyBootstrapApiCheck.shape({
+	      templateOptions: formlyBootstrapApiCheck.shape({
+	        addonLeft: addonChecker,
+	        addonRight: addonChecker
+	      })
+	    });
+	    formlyConfig.templateManipulators.preWrapper.push(function (template, options) {
+	      if (!options.templateOptions.addonLeft && !options.templateOptions.addonRight) {
+	        return template;
+	      }
+	      formlyBootstrapApiCheck.warn([api], [options]);
+	      return addonTemplate.replace('<formly-transclude></formly-transclude>', template);
+	    });
+	  }
+	  addAddonsManipulator.$inject = ["formlyConfig", "formlyBootstrapApiCheck"];
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	
+	exports['default'] = function (ngModule) {
+	  ngModule.run(addDescriptionManipulator);
+	
+	  function addDescriptionManipulator(formlyConfig) {
+	    formlyConfig.templateManipulators.preWrapper.push(function ariaDescribedBy(template, options, scope) {
+	      if (angular.isDefined(options.templateOptions.description)) {
+	        var el = document.createElement('div');
+	        el.appendChild(angular.element(template)[0]);
+	        el.appendChild(angular.element('<p id="' + scope.id + '_description"' + 'class="help-block"' + 'ng-if="to.description">' + '{{to.description}}' + '</p>')[0]);
+	        var modelEls = angular.element(el.querySelectorAll('[ng-model]'));
+	        if (modelEls) {
+	          modelEls.attr('aria-describedby', scope.id + '_description');
+	        }
+	        return el.innerHTML;
+	      } else {
+	        return template;
+	      }
+	    });
+	  }
+	  addDescriptionManipulator.$inject = ["formlyConfig"];
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	var ngModuleName = 'formlyBootstrap';
+	var angular = __webpack_require__(4);
+	var ngModule = angular.module(ngModuleName, [__webpack_require__(2)]);
+	ngModule.constant('formlyBootstrapApiCheck', __webpack_require__(3)({
+	  output: {
+	    prefix: 'angular-formly-bootstrap'
+	  }
+	}));
+	ngModule.constant('formlyBootstrapVersion', ("4.3.1"));
+	
+	__webpack_require__(5)(ngModule);
+	__webpack_require__(6)(ngModule);
+	__webpack_require__(7)(ngModule);
+	
+	exports['default'] = ngModuleName;
+	module.exports = exports['default'];
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	
+	exports['default'] = function (ngModule) {
+	  ngModule.config(addCheckboxType);
+	
+	  function addCheckboxType(formlyConfigProvider, formlyBootstrapApiCheck) {
+	    var c = formlyBootstrapApiCheck;
+	    formlyConfigProvider.setType({
+	      name: 'checkbox',
+	      template: __webpack_require__(21),
+	      wrapper: ['bootstrapHasError'],
+	      apiCheck: {
+	        templateOptions: c.shape({
+	          label: c.string
+	        })
+	      },
+	      apiCheckInstance: c
+	    });
+	  }
+	  addCheckboxType.$inject = ["formlyConfigProvider", "formlyBootstrapApiCheck"];
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	
+	exports['default'] = function (ngModule) {
+	  ngModule.config(addCheckboxType);
+	
+	  function addCheckboxType(formlyConfigProvider, formlyBootstrapApiCheck) {
+	    var c = formlyBootstrapApiCheck;
+	    formlyConfigProvider.setType({
+	      name: 'multiCheckbox',
+	      template: __webpack_require__(22),
+	      wrapper: ['bootstrapLabel', 'bootstrapHasError'],
+	      defaultOptions: {
+	        noFormControl: false
+	      },
+	      apiCheck: {
+	        templateOptions: c.shape({
+	          options: c.arrayOf(c.object),
+	          labelProp: c.string.optional,
+	          valueProp: c.string.optional
+	        })
+	      },
+	      apiCheckInstance: c,
+	      controller: /* @ngInject */["$scope", function controller($scope) {
+	        var to = $scope.to;
+	        var opts = $scope.options;
+	        $scope.multiCheckbox = {
+	          checked: [],
+	          change: setModel
+	        };
+	
+	        // initialize the checkboxes check property
+	        var modelValue = $scope.model[opts.key];
+	        if (angular.isArray(modelValue)) {
+	          (function () {
+	            var valueProp = to.valueProp || 'value';
+	            angular.forEach(to.options, function (v, index) {
+	              $scope.multiCheckbox.checked[index] = modelValue.indexOf(v[valueProp]) !== -1;
+	            });
+	          })();
+	        }
+	
+	        function setModel() {
+	          $scope.model[opts.key] = [];
+	          angular.forEach($scope.multiCheckbox.checked, function (checkbox, index) {
+	            if (checkbox) {
+	              $scope.model[opts.key].push(to.options[index][to.valueProp || 'value']);
+	            }
+	          });
+	        }
+	      }]
+	    });
+	  }
+	  addCheckboxType.$inject = ["formlyConfigProvider", "formlyBootstrapApiCheck"];
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	
+	exports['default'] = function (ngModule) {
+	  ngModule.config(addInputType);
+	
+	  function addInputType(formlyConfigProvider) {
+	    formlyConfigProvider.setType({
+	      name: 'input',
+	      template: '<input class="form-control" ng-model="model[options.key]">',
+	      wrapper: ['bootstrapLabel', 'bootstrapHasError']
+	    });
+	  }
+	  addInputType.$inject = ["formlyConfigProvider"];
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	
+	function _defineProperty(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); }
+	
+	exports['default'] = function (ngModule) {
+	  ngModule.config(addSelectType);
+	
+	  var template = '<select class="form-control" ng-model="model[options.key]"></select>';
+	
+	  function addSelectType(formlyConfigProvider, formlyBootstrapApiCheck) {
+	    var c = formlyBootstrapApiCheck;
+	    formlyConfigProvider.setType({
+	      name: 'select',
+	      template: template,
+	      wrapper: ['bootstrapLabel', 'bootstrapHasError'],
+	      defaultOptions: function defaultOptions(options) {
+	        /* jshint maxlen:195 */
+	        var ngOptions = options.templateOptions.ngOptions || 'option[to.valueProp || \'value\'] as option[to.labelProp || \'name\'] group by option[to.groupProp || \'group\'] for option in to.options';
+	        return {
+	          ngModelAttrs: _defineProperty({}, ngOptions, {
+	            value: 'ng-options'
+	          })
+	        };
+	      },
+	      apiCheck: {
+	        templateOptions: c.shape({
+	          options: c.arrayOf(c.object),
+	          labelProp: c.string.optional,
+	          valueProp: c.string.optional,
+	          groupProp: c.string.optional
+	        })
+	      },
+	      apiCheckInstance: c
+	    });
+	  }
+	  addSelectType.$inject = ["formlyConfigProvider", "formlyBootstrapApiCheck"];
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	
+	exports['default'] = function (ngModule) {
+	  ngModule.config(addTextareaType);
+	
+	  function addTextareaType(formlyConfigProvider, formlyBootstrapApiCheck) {
+	    var c = formlyBootstrapApiCheck;
+	    formlyConfigProvider.setType({
+	      name: 'textarea',
+	      template: '<textarea class="form-control" ng-model="model[options.key]"></textarea>',
+	      wrapper: ['bootstrapLabel', 'bootstrapHasError'],
+	      defaultOptions: {
+	        ngModelAttrs: {
+	          rows: { attribute: 'rows' },
+	          cols: { attribute: 'cols' }
+	        }
+	      },
+	      apiCheck: {
+	        templateOptions: c.shape({
+	          rows: c.number.optional,
+	          cols: c.number.optional
+	        })
+	      },
+	      apiCheckInstance: c
+	    });
+	  }
+	  addTextareaType.$inject = ["formlyConfigProvider", "formlyBootstrapApiCheck"];
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = "<div>\n  <label for=\"{{id}}\" class=\"control-label\">\n    {{to.label}}\n    {{to.required ? '*' : ''}}\n  </label>\n  <formly-transclude></formly-transclude>\n</div>\n"
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = "<div class=\"form-group\" ng-class=\"{'has-error': showError}\">\n  <formly-transclude></formly-transclude>\n</div>\n"
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = "<div ng-class=\"{'input-group': to.addonLeft || to.addonRight}\">\n    <div class=\"input-group-addon\"\n         ng-if=\"to.addonLeft\"\n         ng-style=\"{cursor: to.addonLeft.onClick ? 'pointer' : 'inherit'}\"\n         ng-click=\"to.addonLeft.onClick(options, this)\">\n        <i class=\"{{to.addonLeft.class}}\" ng-if=\"to.addonLeft.class\"></i>\n        <span ng-if=\"to.addonLeft.text\">{{to.addonLeft.text}}</span>\n    </div>\n    <formly-transclude></formly-transclude>\n    <div class=\"input-group-addon\"\n         ng-if=\"to.addonRight\"\n         ng-style=\"{cursor: to.addonRight.onClick ? 'pointer' : 'inherit'}\"\n         ng-click=\"to.addonRight.onClick(options, this)\">\n        <i class=\"{{to.addonRight.class}}\" ng-if=\"to.addonRight.class\"></i>\n        <span ng-if=\"to.addonRight.text\">{{to.addonRight.text}}</span>\n    </div>\n</div>\n"
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = "<div class=\"radio-group\">\n  <div ng-repeat=\"(key, option) in to.options\" class=\"radio\">\n    <label>\n      <input type=\"radio\"\n             id=\"{{id + '_'+ $index}}\"\n             tabindex=\"0\"\n             ng-value=\"option[to.valueProp || 'value']\"\n             ng-model=\"model[options.key]\">\n      {{option[to.labelProp || 'name']}}\n    </label>\n  </div>\n</div>\n"
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = "<div class=\"checkbox\">\n\t<label>\n\t\t<input type=\"checkbox\"\n           class=\"formly-field-checkbox\"\n\t\t       ng-model=\"model[options.key]\">\n\t\t{{to.label}}\n\t\t{{to.required ? '*' : ''}}\n\t</label>\n</div>\n"
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = "<div class=\"radio-group\">\n  <div ng-repeat=\"(key, option) in to.options\" class=\"checkbox\">\n    <label>\n      <input type=\"checkbox\"\n             id=\"{{id + '_'+ $index}}\"\n             ng-model=\"multiCheckbox.checked[$index]\"\n             ng-change=\"multiCheckbox.change()\">\n      {{option[to.labelProp || 'name']}}\n    </label>\n  </div>\n</div>\n"
+
+/***/ }
+/******/ ])
+});
+;
+//# sourceMappingURL=angular-formly-templates-bootstrap.js.map
+'use strict';
+
+;!function(undefined) {
+
+	var ObjectPath = {
+		parse: function(str){
+			if(typeof str !== 'string'){
+				throw new TypeError('ObjectPath.parse must be passed a string');
+			}
+
+			var i = 0;
+			var parts = [];
+			var d, b, q, c;
+			while (i < str.length){
+				d = str.indexOf('.', i);
+				b = str.indexOf('[', i);
+
+				// we've reached the end
+				if (d === -1 && b === -1){
+					parts.push(str.slice(i, str.length));
+					i = str.length;
+				}
+
+				// dots
+				else if (b === -1 || (d !== -1 && d < b)) {
+					parts.push(str.slice(i, d));
+					i = d + 1;
+				}
+
+				// brackets
+				else {
+					if (b > i){
+						parts.push(str.slice(i, b));
+						i = b;
+					}
+					q = str.slice(b+1, b+2);
+					if (q !== '"' && q !=='\'') {
+						c = str.indexOf(']', b);
+						if (c === -1) c = str.length;
+						parts.push(str.slice(i + 1, c));
+						i = (str.slice(c + 1, c + 2) === '.') ? c + 2 : c + 1;
+					} else {
+						c = str.indexOf(q+']', b);
+						if (c === -1) c = str.length;
+						while (str.slice(c - 1, c) === '\\' && b < str.length){
+							b++;
+							c = str.indexOf(q+']', b);
+						}
+						parts.push(str.slice(i + 2, c).replace(new RegExp('\\'+q,'g'), q));
+						i = (str.slice(c + 2, c + 3) === '.') ? c + 3 : c + 2;
+					}
+				}
+			}
+			return parts;
+		},
+
+		// root === true : auto calculate root; must be dot-notation friendly
+		// root String : the string to use as root
+		stringify: function(arr, quote){
+
+			if(!Array.isArray(arr))
+				arr = [arr.toString()];
+
+			quote = quote === '"' ? '"' : '\'';
+
+			return arr.map(function(n){ return '[' + quote + (n.toString()).replace(new RegExp(quote, 'g'), '\\' + quote) + quote + ']'; }).join('');
+		},
+
+		normalize: function(data, quote){
+			return ObjectPath.stringify(Array.isArray(data) ? data : ObjectPath.parse(data), quote);
+		},
+
+		// Angular
+		registerModule: function(angular) {
+			angular.module('ObjectPath', []).provider('ObjectPath', function(){
+				this.parse = ObjectPath.parse;
+				this.stringify = ObjectPath.stringify;
+				this.normalize = ObjectPath.normalize;
+				this.$get = function(){
+					return ObjectPath;
+				};
+			});
+		}
+	};
+
+	// AMD
+	if (typeof define === 'function' && define.amd) {
+		define(function() {
+			return ObjectPath;
+		});
+	}
+
+	// CommonJS
+	else if (typeof exports === 'object') {
+		exports.ObjectPath = ObjectPath;
+	}
+
+	// Browser global
+	else {
+		window.ObjectPath = ObjectPath;
+	}
+	
+}();
+(function(root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(['angular', 'ObjectPath', 'tv4'], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory(require('angular'), require('ObjectPath'), require('tv4'));
+  } else {
+    root.schemaForm = factory(root.angular, root.ObjectPath, root.tv4);
+  }
+}(this, function(angular, ObjectPath, tv4) {
+// Deps is sort of a problem for us, maybe in the future we will ask the user to depend
+// on modules for add-ons
+
+var deps = [];
+try {
+  //This throws an expection if module does not exist.
+  angular.module('ngSanitize');
+  deps.push('ngSanitize');
+} catch (e) {}
+
+try {
+  //This throws an expection if module does not exist.
+  angular.module('ui.sortable');
+  deps.push('ui.sortable');
+} catch (e) {}
+
+try {
+  //This throws an expection if module does not exist.
+  angular.module('angularSpectrumColorpicker');
+  deps.push('angularSpectrumColorpicker');
+} catch (e) {}
+
+var schemaForm = angular.module('schemaForm', deps);
+
+angular.module('schemaForm').provider('sfPath',
+[function() {
+  var sfPath = {parse: ObjectPath.parse};
+
+  // if we're on Angular 1.2.x, we need to continue using dot notation
+  if (angular.version.major === 1 && angular.version.minor < 3) {
+    sfPath.stringify = function(arr) {
+      return Array.isArray(arr) ? arr.join('.') : arr.toString();
+    };
+  } else {
+    sfPath.stringify = ObjectPath.stringify;
+  }
+
+  // We want this to use whichever stringify method is defined above,
+  // so we have to copy the code here.
+  sfPath.normalize = function(data, quote) {
+    return sfPath.stringify(Array.isArray(data) ? data : sfPath.parse(data), quote);
+  };
+
+  // expose the methods in sfPathProvider
+  this.parse = sfPath.parse;
+  this.stringify = sfPath.stringify;
+  this.normalize = sfPath.normalize;
+
+  this.$get = function() {
+    return sfPath;
+  };
+}]);
+
+/**
+ * @ngdoc service
+ * @name sfSelect
+ * @kind function
+ *
+ */
+angular.module('schemaForm').factory('sfSelect', ['sfPath', function(sfPath) {
+  var numRe = /^\d+$/;
+
+  /**
+    * @description
+    * Utility method to access deep properties without
+    * throwing errors when things are not defined.
+    * Can also set a value in a deep structure, creating objects when missing
+    * ex.
+    * var foo = Select('address.contact.name',obj)
+    * Select('address.contact.name',obj,'Leeroy')
+    *
+    * @param {string} projection A dot path to the property you want to get/set
+    * @param {object} obj   (optional) The object to project on, defaults to 'this'
+    * @param {Any}    valueToSet (opional)  The value to set, if parts of the path of
+    *                 the projection is missing empty objects will be created.
+    * @returns {Any|undefined} returns the value at the end of the projection path
+    *                          or undefined if there is none.
+    */
+  return function(projection, obj, valueToSet) {
+    if (!obj) {
+      obj = this;
+    }
+    //Support [] array syntax
+    var parts = typeof projection === 'string' ? sfPath.parse(projection) : projection;
+
+    if (typeof valueToSet !== 'undefined' && parts.length === 1) {
+      //special case, just setting one variable
+      obj[parts[0]] = valueToSet;
+      return obj;
+    }
+
+    if (typeof valueToSet !== 'undefined' &&
+        typeof obj[parts[0]] === 'undefined') {
+       // We need to look ahead to check if array is appropriate
+      obj[parts[0]] = parts.length > 2 && numRe.test(parts[1]) ? [] : {};
+    }
+
+    var value = obj[parts[0]];
+    for (var i = 1; i < parts.length; i++) {
+      // Special case: We allow JSON Form syntax for arrays using empty brackets
+      // These will of course not work here so we exit if they are found.
+      if (parts[i] === '') {
+        return undefined;
+      }
+      if (typeof valueToSet !== 'undefined') {
+        if (i === parts.length - 1) {
+          //last step. Let's set the value
+          value[parts[i]] = valueToSet;
+          return valueToSet;
+        } else {
+          // Make sure to create new objects on the way if they are not there.
+          // We need to look ahead to check if array is appropriate
+          var tmp = value[parts[i]];
+          if (typeof tmp === 'undefined' || tmp === null) {
+            tmp = numRe.test(parts[i + 1]) ? [] : {};
+            value[parts[i]] = tmp;
+          }
+          value = tmp;
+        }
+      } else if (value) {
+        //Just get nex value.
+        value = value[parts[i]];
+      }
+    }
+    return value;
+  };
+}]);
+
+angular.module('schemaForm').provider('schemaFormDecorators',
+['$compileProvider', 'sfPathProvider', function($compileProvider, sfPathProvider) {
+  var defaultDecorator = '';
+  var directives = {};
+
+  var templateUrl = function(name, form) {
+    //schemaDecorator is alias for whatever is set as default
+    if (name === 'sfDecorator') {
+      name = defaultDecorator;
+    }
+
+    var directive = directives[name];
+
+    //rules first
+    var rules = directive.rules;
+    for (var i = 0; i < rules.length; i++) {
+      var res = rules[i](form);
+      if (res) {
+        return res;
+      }
+    }
+
+    //then check mapping
+    if (directive.mappings[form.type]) {
+      return directive.mappings[form.type];
+    }
+
+    //try default
+    return directive.mappings['default'];
+  };
+
+  var createDirective = function(name) {
+    $compileProvider.directive(name,
+      ['$parse', '$compile', '$http', '$templateCache', '$interpolate', '$q', 'sfErrorMessage', 'sfPath',
+      function($parse,  $compile,  $http,  $templateCache, $interpolate, $q, sfErrorMessage, sfPath) {
+
+        return {
+          restrict: 'AE',
+          replace: false,
+          transclude: false,
+          scope: true,
+          require: '?^sfSchema',
+          link: function(scope, element, attrs, sfSchema) {
+
+            //The ngModelController is used in some templates and
+            //is needed for error messages,
+            scope.$on('schemaFormPropagateNgModelController', function(event, ngModel) {
+              event.stopPropagation();
+              event.preventDefault();
+              scope.ngModel = ngModel;
+            });
+
+            //Keep error prone logic from the template
+            scope.showTitle = function() {
+              return scope.form && scope.form.notitle !== true && scope.form.title;
+            };
+
+            scope.listToCheckboxValues = function(list) {
+              var values = {};
+              angular.forEach(list, function(v) {
+                values[v] = true;
+              });
+              return values;
+            };
+
+            scope.checkboxValuesToList = function(values) {
+              var lst = [];
+              angular.forEach(values, function(v, k) {
+                if (v) {
+                  lst.push(k);
+                }
+              });
+              return lst;
+            };
+
+            scope.buttonClick = function($event, form) {
+              if (angular.isFunction(form.onClick)) {
+                form.onClick($event, form);
+              } else if (angular.isString(form.onClick)) {
+                if (sfSchema) {
+                  //evaluating in scope outside of sfSchemas isolated scope
+                  sfSchema.evalInParentScope(form.onClick, {'$event': $event, form: form});
+                } else {
+                  scope.$eval(form.onClick, {'$event': $event, form: form});
+                }
+              }
+            };
+
+            /**
+             * Evaluate an expression, i.e. scope.$eval
+             * but do it in sfSchemas parent scope sf-schema directive is used
+             * @param {string} expression
+             * @param {Object} locals (optional)
+             * @return {Any} the result of the expression
+             */
+            scope.evalExpr = function(expression, locals) {
+              if (sfSchema) {
+                //evaluating in scope outside of sfSchemas isolated scope
+                return sfSchema.evalInParentScope(expression, locals);
+              }
+
+              return scope.$eval(expression, locals);
+            };
+
+            /**
+             * Evaluate an expression, i.e. scope.$eval
+             * in this decorators scope
+             * @param {string} expression
+             * @param {Object} locals (optional)
+             * @return {Any} the result of the expression
+             */
+            scope.evalInScope = function(expression, locals) {
+              if (expression) {
+                return scope.$eval(expression, locals);
+              }
+            };
+
+            /**
+             * Interpolate the expression.
+             * Similar to `evalExpr()` and `evalInScope()`
+             * but will not fail if the expression is
+             * text that contains spaces.
+             *
+             * Use the Angular `{{ interpolation }}`
+             * braces to access properties on `locals`.
+             *
+             * @param  {string} content The string to interpolate.
+             * @param  {Object} locals (optional) Properties that may be accessed in the
+             *                         `expression` string.
+             * @return {Any} The result of the expression or `undefined`.
+             */
+            scope.interp = function(expression, locals) {
+              return (expression && $interpolate(expression)(locals));
+            };
+
+            //This works since we ot the ngModel from the array or the schema-validate directive.
+            scope.hasSuccess = function() {
+              if (!scope.ngModel) {
+                return false;
+              }
+              return scope.ngModel.$valid &&
+                  (!scope.ngModel.$pristine || !scope.ngModel.$isEmpty(scope.ngModel.$modelValue));
+            };
+
+            scope.hasError = function() {
+              if (!scope.ngModel) {
+                return false;
+              }
+              return scope.ngModel.$invalid && !scope.ngModel.$pristine;
+            };
+
+            /**
+             * DEPRECATED: use sf-messages instead.
+             * Error message handler
+             * An error can either be a schema validation message or a angular js validtion
+             * error (i.e. required)
+             */
+            scope.errorMessage = function(schemaError) {
+              return sfErrorMessage.interpolate(
+                (schemaError && schemaError.code + '') || 'default',
+                (scope.ngModel && scope.ngModel.$modelValue) || '',
+                (scope.ngModel && scope.ngModel.$viewValue) || '',
+                scope.form,
+                scope.options && scope.options.validationMessage
+              );
+            };
+
+            // Rebind our part of the form to the scope.
+            var once = scope.$watch(attrs.form, function(form) {
+              if (form) {
+                // Workaround for 'updateOn' error from ngModelOptions
+                // see https://github.com/Textalk/angular-schema-form/issues/255
+                // and https://github.com/Textalk/angular-schema-form/issues/206
+                form.ngModelOptions = form.ngModelOptions || {};
+                scope.form  = form;
+
+                //ok let's replace that template!
+                //We do this manually since we need to bind ng-model properly and also
+                //for fieldsets to recurse properly.
+                var templatePromise;
+
+                // type: "template" is a special case. It can contain a template inline or an url.
+                // otherwise we find out the url to the template and load them.
+                if (form.type === 'template' && form.template) {
+                  templatePromise = $q.when(form.template);
+                } else {
+                  var url = form.type === 'template' ? form.templateUrl : templateUrl(name, form);
+                  templatePromise = $http.get(url, {cache: $templateCache}).then(function(res) {
+                                      return res.data;
+                                    });
+                }
+
+                templatePromise.then(function(template) {
+                  if (form.key) {
+                    var key = form.key ?
+                              sfPathProvider.stringify(form.key).replace(/"/g, '&quot;') : '';
+                    template = template.replace(
+                      /\$\$value\$\$/g,
+                      'model' + (key[0] !== '[' ? '.' : '') + key
+                    );
+                  }
+                  element.html(template);
+
+                  // Do we have a condition? Then we slap on an ng-if on all children,
+                  // but be nice to existing ng-if.
+                  if (form.condition) {
+
+                    var evalExpr = 'evalExpr(form.condition,{ model: model, "arrayIndex": arrayIndex})';
+                    if (form.key) {
+                      evalExpr = 'evalExpr(form.condition,{ model: model, "arrayIndex": arrayIndex, "modelValue": model' + sfPath.stringify(form.key) + '})';
+                    }
+
+                    angular.forEach(element.children(), function(child) {
+                      var ngIf = child.getAttribute('ng-if');
+                      child.setAttribute(
+                        'ng-if',
+                        ngIf ?
+                        '(' + ngIf +
+                        ') || (' + evalExpr +')'
+                        : evalExpr
+                      );
+                    });
+                  }
+                  $compile(element.contents())(scope);
+                });
+
+                // Where there is a key there is probably a ngModel
+                if (form.key) {
+                  // It looks better with dot notation.
+                  scope.$on(
+                    'schemaForm.error.' + form.key.join('.'),
+                    function(event, error, validationMessage, validity) {
+                      if (validationMessage === true || validationMessage === false) {
+                        validity = validationMessage;
+                        validationMessage = undefined;
+                      }
+
+                      if (scope.ngModel && error) {
+                        if (scope.ngModel.$setDirty()) {
+                          scope.ngModel.$setDirty();
+                        } else {
+                          // FIXME: Check that this actually works on 1.2
+                          scope.ngModel.$dirty = true;
+                          scope.ngModel.$pristine = false;
+                        }
+
+                        // Set the new validation message if one is supplied
+                        // Does not work when validationMessage is just a string.
+                        if (validationMessage) {
+                          if (!form.validationMessage) {
+                            form.validationMessage = {};
+                          }
+                          form.validationMessage[error] = validationMessage;
+                        }
+
+                        scope.ngModel.$setValidity(error, validity === true);
+
+                        if (validity === true) {
+                          // Setting or removing a validity can change the field to believe its valid
+                          // but its not. So lets trigger its validation as well.
+                          scope.$broadcast('schemaFormValidate');
+                        }
+                      }
+                  })
+                }
+
+                once();
+              }
+            });
+          }
+        };
+      }
+    ]);
+  };
+
+  var createManualDirective = function(type, templateUrl, transclude) {
+    transclude = angular.isDefined(transclude) ? transclude : false;
+    $compileProvider.directive('sf' + angular.uppercase(type[0]) + type.substr(1), function() {
+      return {
+        restrict: 'EAC',
+        scope: true,
+        replace: true,
+        transclude: transclude,
+        template: '<sf-decorator form="form"></sf-decorator>',
+        link: function(scope, element, attrs) {
+          var watchThis = {
+            'items': 'c',
+            'titleMap': 'c',
+            'schema': 'c'
+          };
+          var form = {type: type};
+          var once = true;
+          angular.forEach(attrs, function(value, name) {
+            if (name[0] !== '$' && name.indexOf('ng') !== 0 && name !== 'sfField') {
+
+              var updateForm = function(val) {
+                if (angular.isDefined(val) && val !== form[name]) {
+                  form[name] = val;
+
+                  //when we have type, and if specified key we apply it on scope.
+                  if (once && form.type && (form.key || angular.isUndefined(attrs.key))) {
+                    scope.form = form;
+                    once = false;
+                  }
+                }
+              };
+
+              if (name === 'model') {
+                //"model" is bound to scope under the name "model" since this is what the decorators
+                //know and love.
+                scope.$watch(value, function(val) {
+                  if (val && scope.model !== val) {
+                    scope.model = val;
+                  }
+                });
+              } else if (watchThis[name] === 'c') {
+                //watch collection
+                scope.$watchCollection(value, updateForm);
+              } else {
+                //$observe
+                attrs.$observe(name, updateForm);
+              }
+            }
+          });
+        }
+      };
+    });
+  };
+
+  /**
+   * Create a decorator directive and its sibling "manual" use directives.
+   * The directive can be used to create form fields or other form entities.
+   * It can be used in conjunction with <schema-form> directive in which case the decorator is
+   * given it's configuration via a the "form" attribute.
+   *
+   * ex. Basic usage
+   *   <sf-decorator form="myform"></sf-decorator>
+   **
+   * @param {string} name directive name (CamelCased)
+   * @param {Object} mappings, an object that maps "type" => "templateUrl"
+   * @param {Array}  rules (optional) a list of functions, function(form) {}, that are each tried in
+   *                 turn,
+   *                 if they return a string then that is used as the templateUrl. Rules come before
+   *                 mappings.
+   */
+  this.createDecorator = function(name, mappings, rules) {
+    directives[name] = {
+      mappings: mappings || {},
+      rules:    rules    || []
+    };
+
+    if (!directives[defaultDecorator]) {
+      defaultDecorator = name;
+    }
+    createDirective(name);
+  };
+
+  /**
+   * Creates a directive of a decorator
+   * Usable when you want to use the decorators without using <schema-form> directive.
+   * Specifically when you need to reuse styling.
+   *
+   * ex. createDirective('text','...')
+   *  <sf-text title="foobar" model="person" key="name" schema="schema"></sf-text>
+   *
+   * @param {string}  type The type of the directive, resulting directive will have sf- prefixed
+   * @param {string}  templateUrl
+   * @param {boolean} transclude (optional) sets transclude option of directive, defaults to false.
+   */
+  this.createDirective = createManualDirective;
+
+  /**
+   * Same as createDirective, but takes an object where key is 'type' and value is 'templateUrl'
+   * Useful for batching.
+   * @param {Object} mappings
+   */
+  this.createDirectives = function(mappings) {
+    angular.forEach(mappings, function(url, type) {
+      createManualDirective(type, url);
+    });
+  };
+
+  /**
+   * Getter for directive mappings
+   * Can be used to override a mapping or add a rule
+   * @param {string} name (optional) defaults to defaultDecorator
+   * @return {Object} rules and mappings { rules: [],mappings: {}}
+   */
+  this.directive = function(name) {
+    name = name || defaultDecorator;
+    return directives[name];
+  };
+
+  /**
+   * Adds a mapping to an existing decorator.
+   * @param {String} name Decorator name
+   * @param {String} type Form type for the mapping
+   * @param {String} url  The template url
+   */
+  this.addMapping = function(name, type, url) {
+    if (directives[name]) {
+      directives[name].mappings[type] = url;
+    }
+  };
+
+  //Service is just a getter for directive mappings and rules
+  this.$get = function() {
+    return {
+      directive: function(name) {
+        return directives[name];
+      },
+      defaultDecorator: defaultDecorator
+    };
+  };
+
+  //Create a default directive
+  createDirective('sfDecorator');
+
+}]);
+
+angular.module('schemaForm').provider('sfErrorMessage', function() {
+
+  // The codes are tv4 error codes.
+  // Not all of these can actually happen in a field, but for
+  // we never know when one might pop up so it's best to cover them all.
+
+  // TODO: Humanize these.
+  var defaultMessages = {
+    'default': 'Field does not validate',
+    0: 'Invalid type, expected {{schema.type}}',
+    1: 'No enum match for: {{value}}',
+    10: 'Data does not match any schemas from "anyOf"',
+    11: 'Data does not match any schemas from "oneOf"',
+    12: 'Data is valid against more than one schema from "oneOf"',
+    13: 'Data matches schema from "not"',
+    // Numeric errors
+    100: 'Value is not a multiple of {{schema.divisibleBy}}',
+    101: '{{viewValue}} is less than the allowed minimum of {{schema.minimum}}',
+    102: '{{viewValue}} is equal to the exclusive minimum {{schema.minimum}}',
+    103: '{{viewValue}} is greater than the allowed maximum of {{schema.maximum}}',
+    104: '{{viewValue}} is equal to the exclusive maximum {{schema.maximum}}',
+    105: 'Value is not a valid number',
+    // String errors
+    200: 'String is too short ({{viewValue.length}} chars), minimum {{schema.minLength}}',
+    201: 'String is too long ({{viewValue.length}} chars), maximum {{schema.maxLength}}',
+    202: 'String does not match pattern: {{schema.pattern}}',
+    // Object errors
+    300: 'Too few properties defined, minimum {{schema.minProperties}}',
+    301: 'Too many properties defined, maximum {{schema.maxProperties}}',
+    302: 'Required',
+    303: 'Additional properties not allowed',
+    304: 'Dependency failed - key must exist',
+    // Array errors
+    400: 'Array is too short ({{value.length}}), minimum {{schema.maxItems}}',
+    401: 'Array is too long ({{value.length}}), maximum {{schema.minItems}}',
+    402: 'Array items are not unique',
+    403: 'Additional items not allowed',
+    // Format errors
+    500: 'Format validation failed',
+    501: 'Keyword failed: "{{title}}"',
+    // Schema structure
+    600: 'Circular $refs',
+    // Non-standard validation options
+    1000: 'Unknown property (not in schema)'
+  };
+
+  // In some cases we get hit with an angular validation error
+  defaultMessages.number    = defaultMessages[105];
+  defaultMessages.required  = defaultMessages[302];
+  defaultMessages.min       = defaultMessages[101];
+  defaultMessages.max       = defaultMessages[103];
+  defaultMessages.maxlength = defaultMessages[201];
+  defaultMessages.minlength = defaultMessages[200];
+  defaultMessages.pattern   = defaultMessages[202];
+
+  this.setDefaultMessages = function(messages) {
+    defaultMessages = messages;
+  };
+
+  this.getDefaultMessages = function() {
+    return defaultMessages;
+  };
+
+  this.setDefaultMessage = function(error, msg) {
+    defaultMessages[error] = msg;
+  };
+
+  this.$get = ['$interpolate', function($interpolate) {
+
+    var service = {};
+    service.defaultMessages = defaultMessages;
+
+    /**
+     * Interpolate and return proper error for an eror code.
+     * Validation message on form trumps global error messages.
+     * and if the message is a function instead of a string that function will be called instead.
+     * @param {string} error the error code, i.e. tv4-xxx for tv4 errors, otherwise it's whats on
+     *                       ngModel.$error for custom errors.
+     * @param {Any} value the actual model value.
+     * @param {Any} viewValue the viewValue
+     * @param {Object} form a form definition object for this field
+     * @param  {Object} global the global validation messages object (even though its called global
+     *                         its actually just shared in one instance of sf-schema)
+     * @return {string} The error message.
+     */
+    service.interpolate = function(error, value, viewValue, form, global) {
+      global = global || {};
+      var validationMessage = form.validationMessage || {};
+
+      // Drop tv4 prefix so only the code is left.
+      if (error.indexOf('tv4-') === 0) {
+        error = error.substring(4);
+      }
+
+      // First find apropriate message or function
+      var message = validationMessage['default'] || global['default'] || '';
+
+      [validationMessage, global, defaultMessages].some(function(val) {
+        if (angular.isString(val) || angular.isFunction(val)) {
+          message = val;
+          return true;
+        }
+        if (val && val[error]) {
+          message = val[error];
+          return true;
+        }
+      });
+
+      var context = {
+        error: error,
+        value: value,
+        viewValue: viewValue,
+        form: form,
+        schema: form.schema,
+        title: form.title || (form.schema && form.schema.title)
+      };
+      if (angular.isFunction(message)) {
+        return message(context);
+      } else {
+        return $interpolate(message)(context);
+      }
+    };
+
+    return service;
+  }];
+
+});
+
+/**
+ * Schema form service.
+ * This service is not that useful outside of schema form directive
+ * but makes the code more testable.
+ */
+angular.module('schemaForm').provider('schemaForm',
+['sfPathProvider', function(sfPathProvider) {
+  var stripNullType = function(type) {
+    if (Array.isArray(type) && type.length == 2) {
+      if (type[0] === 'null')
+        return type[1];
+      if (type[1] === 'null')
+        return type[0];
+    }
+    return type;
+  }
+
+  //Creates an default titleMap list from an enum, i.e. a list of strings.
+  var enumToTitleMap = function(enm) {
+    var titleMap = []; //canonical titleMap format is a list.
+    enm.forEach(function(name) {
+      titleMap.push({name: name, value: name});
+    });
+    return titleMap;
+  };
+
+  // Takes a titleMap in either object or list format and returns one in
+  // in the list format.
+  var canonicalTitleMap = function(titleMap, originalEnum) {
+    if (!angular.isArray(titleMap)) {
+      var canonical = [];
+      if (originalEnum) {
+        angular.forEach(originalEnum, function(value, index) {
+          canonical.push({name: titleMap[value], value: value});
+        });
+      } else {
+        angular.forEach(titleMap, function(name, value) {
+          canonical.push({name: name, value: value});
+        });
+      }
+      return canonical;
+    }
+    return titleMap;
+  };
+
+  var defaultFormDefinition = function(name, schema, options) {
+    var rules = defaults[stripNullType(schema.type)];
+    if (rules) {
+      var def;
+      for (var i = 0; i < rules.length; i++) {
+        def = rules[i](name, schema, options);
+
+        //first handler in list that actually returns something is our handler!
+        if (def) {
+
+          // Do we have form defaults in the schema under the x-schema-form-attribute?
+          if (def.schema['x-schema-form'] && angular.isObject(def.schema['x-schema-form'])) {
+            def = angular.extend(def, def.schema['x-schema-form']);
+          }
+
+          return def;
+        }
+      }
+    }
+  };
+
+  //Creates a form object with all common properties
+  var stdFormObj = function(name, schema, options) {
+    options = options || {};
+    var f = options.global && options.global.formDefaults ?
+            angular.copy(options.global.formDefaults) : {};
+    if (options.global && options.global.supressPropertyTitles === true) {
+      f.title = schema.title;
+    } else {
+      f.title = schema.title || name;
+    }
+
+    if (schema.description) { f.description = schema.description; }
+    if (options.required === true || schema.required === true) { f.required = true; }
+    if (schema.maxLength) { f.maxlength = schema.maxLength; }
+    if (schema.minLength) { f.minlength = schema.maxLength; }
+    if (schema.readOnly || schema.readonly) { f.readonly  = true; }
+    if (schema.minimum) { f.minimum = schema.minimum + (schema.exclusiveMinimum ? 1 : 0); }
+    if (schema.maximum) { f.maximum = schema.maximum - (schema.exclusiveMaximum ? 1 : 0); }
+
+    // Non standard attributes (DONT USE DEPRECATED)
+    // If you must set stuff like this in the schema use the x-schema-form attribute
+    if (schema.validationMessage) { f.validationMessage = schema.validationMessage; }
+    if (schema.enumNames) { f.titleMap = canonicalTitleMap(schema.enumNames, schema['enum']); }
+    f.schema = schema;
+
+    // Ng model options doesn't play nice with undefined, might be defined
+    // globally though
+    f.ngModelOptions = f.ngModelOptions || {};
+
+    return f;
+  };
+
+  var text = function(name, schema, options) {
+    if (stripNullType(schema.type) === 'string' && !schema['enum']) {
+      var f = stdFormObj(name, schema, options);
+      f.key  = options.path;
+      f.type = 'text';
+      options.lookup[sfPathProvider.stringify(options.path)] = f;
+      return f;
+    }
+  };
+
+  //default in json form for number and integer is a text field
+  //input type="number" would be more suitable don't ya think?
+  var number = function(name, schema, options) {
+    if (stripNullType(schema.type) === 'number') {
+      var f = stdFormObj(name, schema, options);
+      f.key  = options.path;
+      f.type = 'number';
+      options.lookup[sfPathProvider.stringify(options.path)] = f;
+      return f;
+    }
+  };
+
+  var integer = function(name, schema, options) {
+    if (stripNullType(schema.type) === 'integer') {
+      var f = stdFormObj(name, schema, options);
+      f.key  = options.path;
+      f.type = 'number';
+      options.lookup[sfPathProvider.stringify(options.path)] = f;
+      return f;
+    }
+  };
+
+  var checkbox = function(name, schema, options) {
+    if (stripNullType(schema.type) === 'boolean') {
+      var f = stdFormObj(name, schema, options);
+      f.key  = options.path;
+      f.type = 'checkbox';
+      options.lookup[sfPathProvider.stringify(options.path)] = f;
+      return f;
+    }
+  };
+
+  var select = function(name, schema, options) {
+    if (stripNullType(schema.type) === 'string' && schema['enum']) {
+      var f = stdFormObj(name, schema, options);
+      f.key  = options.path;
+      f.type = 'select';
+      if (!f.titleMap) {
+        f.titleMap = enumToTitleMap(schema['enum']);
+      }
+      options.lookup[sfPathProvider.stringify(options.path)] = f;
+      return f;
+    }
+  };
+
+  var checkboxes = function(name, schema, options) {
+    if (stripNullType(schema.type) === 'array' && schema.items && schema.items['enum']) {
+      var f = stdFormObj(name, schema, options);
+      f.key  = options.path;
+      f.type = 'checkboxes';
+      if (!f.titleMap) {
+        f.titleMap = enumToTitleMap(schema.items['enum']);
+      }
+      options.lookup[sfPathProvider.stringify(options.path)] = f;
+      return f;
+    }
+  };
+
+  var fieldset = function(name, schema, options) {
+    if (stripNullType(schema.type) === 'object') {
+      var f   = stdFormObj(name, schema, options);
+      f.type  = 'fieldset';
+      f.items = [];
+      options.lookup[sfPathProvider.stringify(options.path)] = f;
+
+      //recurse down into properties
+      angular.forEach(schema.properties, function(v, k) {
+        var path = options.path.slice();
+        path.push(k);
+        if (options.ignore[sfPathProvider.stringify(path)] !== true) {
+          var required = schema.required && schema.required.indexOf(k) !== -1;
+
+          var def = defaultFormDefinition(k, v, {
+            path: path,
+            required: required || false,
+            lookup: options.lookup,
+            ignore: options.ignore
+          });
+          if (def) {
+            f.items.push(def);
+          }
+        }
+      });
+
+      return f;
+    }
+
+  };
+
+  var array = function(name, schema, options) {
+
+    if (stripNullType(schema.type) === 'array') {
+      var f   = stdFormObj(name, schema, options);
+      f.type  = 'array';
+      f.key   = options.path;
+      options.lookup[sfPathProvider.stringify(options.path)] = f;
+
+      var required = schema.required &&
+                     schema.required.indexOf(options.path[options.path.length - 1]) !== -1;
+
+      // The default is to always just create one child. This works since if the
+      // schemas items declaration is of type: "object" then we get a fieldset.
+      // We also follow json form notatation, adding empty brackets "[]" to
+      // signify arrays.
+
+      var arrPath = options.path.slice();
+      arrPath.push('');
+
+      f.items = [defaultFormDefinition(name, schema.items, {
+        path: arrPath,
+        required: required || false,
+        lookup: options.lookup,
+        ignore: options.ignore,
+        global: options.global
+      })];
+
+      return f;
+    }
+
+  };
+
+  //First sorted by schema type then a list.
+  //Order has importance. First handler returning an form snippet will be used.
+  var defaults = {
+    string:  [select, text],
+    object:  [fieldset],
+    number:  [number],
+    integer: [integer],
+    boolean: [checkbox],
+    array:   [checkboxes, array]
+  };
+
+  var postProcessFn = function(form) { return form; };
+
+  /**
+   * Provider API
+   */
+  this.defaults              = defaults;
+  this.stdFormObj            = stdFormObj;
+  this.defaultFormDefinition = defaultFormDefinition;
+
+  /**
+   * Register a post process function.
+   * This function is called with the fully merged
+   * form definition (i.e. after merging with schema)
+   * and whatever it returns is used as form.
+   */
+  this.postProcess = function(fn) {
+    postProcessFn = fn;
+  };
+
+  /**
+   * Append default form rule
+   * @param {string}   type json schema type
+   * @param {Function} rule a function(propertyName,propertySchema,options) that returns a form
+   *                        definition or undefined
+   */
+  this.appendRule = function(type, rule) {
+    if (!defaults[type]) {
+      defaults[type] = [];
+    }
+    defaults[type].push(rule);
+  };
+
+  /**
+   * Prepend default form rule
+   * @param {string}   type json schema type
+   * @param {Function} rule a function(propertyName,propertySchema,options) that returns a form
+   *                        definition or undefined
+   */
+  this.prependRule = function(type, rule) {
+    if (!defaults[type]) {
+      defaults[type] = [];
+    }
+    defaults[type].unshift(rule);
+  };
+
+  /**
+   * Utility function to create a standard form object.
+   * This does *not* set the type of the form but rather all shared attributes.
+   * You probably want to start your rule with creating the form with this method
+   * then setting type and any other values you need.
+   * @param {Object} schema
+   * @param {Object} options
+   * @return {Object} a form field defintion
+   */
+  this.createStandardForm = stdFormObj;
+  /* End Provider API */
+
+  this.$get = function() {
+
+    var service = {};
+
+    service.merge = function(schema, form, ignore, options, readonly) {
+      form  = form || ['*'];
+      options = options || {};
+
+      // Get readonly from root object
+      readonly = readonly || schema.readonly || schema.readOnly;
+
+      var stdForm = service.defaults(schema, ignore, options);
+
+      //simple case, we have a "*", just put the stdForm there
+      var idx = form.indexOf('*');
+      if (idx !== -1) {
+        form  = form.slice(0, idx)
+                    .concat(stdForm.form)
+                    .concat(form.slice(idx + 1));
+      }
+
+      //ok let's merge!
+      //We look at the supplied form and extend it with schema standards
+      var lookup = stdForm.lookup;
+
+      return postProcessFn(form.map(function(obj) {
+
+        //handle the shortcut with just a name
+        if (typeof obj === 'string') {
+          obj = {key: obj};
+        }
+
+        if (obj.key) {
+          if (typeof obj.key === 'string') {
+            obj.key = sfPathProvider.parse(obj.key);
+          }
+        }
+
+        //If it has a titleMap make sure it's a list
+        if (obj.titleMap) {
+          obj.titleMap = canonicalTitleMap(obj.titleMap);
+        }
+
+        //
+        if (obj.itemForm) {
+          obj.items = [];
+          var str = sfPathProvider.stringify(obj.key);
+          var stdForm = lookup[str];
+          angular.forEach(stdForm.items, function(item) {
+            var o = angular.copy(obj.itemForm);
+            o.key = item.key;
+            obj.items.push(o);
+          });
+        }
+
+        //extend with std form from schema.
+        if (obj.key) {
+          var strid = sfPathProvider.stringify(obj.key);
+          if (lookup[strid]) {
+            var schemaDefaults = lookup[strid];
+            angular.forEach(schemaDefaults, function(value, attr) {
+              if (obj[attr] === undefined) {
+                obj[attr] = schemaDefaults[attr];
+              }
+            });
+          }
+        }
+
+        // Are we inheriting readonly?
+        if (readonly === true) { // Inheriting false is not cool.
+          obj.readonly = true;
+        }
+
+        //if it's a type with items, merge 'em!
+        if (obj.items) {
+          obj.items = service.merge(schema, obj.items, ignore, options, obj.readonly);
+        }
+
+        //if its has tabs, merge them also!
+        if (obj.tabs) {
+          angular.forEach(obj.tabs, function(tab) {
+            tab.items = service.merge(schema, tab.items, ignore, options, obj.readonly);
+          });
+        }
+
+        // Special case: checkbox
+        // Since have to ternary state we need a default
+        if (obj.type === 'checkbox' && angular.isUndefined(obj.schema['default'])) {
+          obj.schema['default'] = false;
+        }
+
+        return obj;
+      }));
+    };
+
+    /**
+     * Create form defaults from schema
+     */
+    service.defaults = function(schema, ignore, globalOptions) {
+      var form   = [];
+      var lookup = {}; //Map path => form obj for fast lookup in merging
+      ignore = ignore || {};
+      globalOptions = globalOptions || {};
+
+      if (stripNullType(schema.type) === 'object') {
+        angular.forEach(schema.properties, function(v, k) {
+          if (ignore[k] !== true) {
+            var required = schema.required && schema.required.indexOf(k) !== -1;
+            var def = defaultFormDefinition(k, v, {
+              path: [k],         // Path to this property in bracket notation.
+              lookup: lookup,    // Extra map to register with. Optimization for merger.
+              ignore: ignore,    // The ignore list of paths (sans root level name)
+              required: required, // Is it required? (v4 json schema style)
+              global: globalOptions // Global options, including form defaults
+            });
+            if (def) {
+              form.push(def);
+            }
+          }
+        });
+
+      } else {
+        throw new Error('Not implemented. Only type "object" allowed at root level of schema.');
+      }
+      return {form: form, lookup: lookup};
+    };
+
+    //Utility functions
+    /**
+     * Traverse a schema, applying a function(schema,path) on every sub schema
+     * i.e. every property of an object.
+     */
+    service.traverseSchema = function(schema, fn, path, ignoreArrays) {
+      ignoreArrays = angular.isDefined(ignoreArrays) ? ignoreArrays : true;
+
+      path = path || [];
+
+      var traverse = function(schema, fn, path) {
+        fn(schema, path);
+        angular.forEach(schema.properties, function(prop, name) {
+          var currentPath = path.slice();
+          currentPath.push(name);
+          traverse(prop, fn, currentPath);
+        });
+
+        //Only support type "array" which have a schema as "items".
+        if (!ignoreArrays && schema.items) {
+          var arrPath = path.slice(); arrPath.push('');
+          traverse(schema.items, fn, arrPath);
+        }
+      };
+
+      traverse(schema, fn, path || []);
+    };
+
+    service.traverseForm = function(form, fn) {
+      fn(form);
+      angular.forEach(form.items, function(f) {
+        service.traverseForm(f, fn);
+      });
+
+      if (form.tabs) {
+        angular.forEach(form.tabs, function(tab) {
+          angular.forEach(tab.items, function(f) {
+            service.traverseForm(f, fn);
+          });
+        });
+      }
+    };
+
+    return service;
+  };
+
+}]);
+
+/*  Common code for validating a value against its form and schema definition */
+/* global tv4 */
+angular.module('schemaForm').factory('sfValidator', [function() {
+
+  var validator = {};
+
+  /**
+   * Validate a value against its form definition and schema.
+   * The value should either be of proper type or a string, some type
+   * coercion is applied.
+   *
+   * @param {Object} form A merged form definition, i.e. one with a schema.
+   * @param {Any} value the value to validate.
+   * @return a tv4js result object.
+   */
+  validator.validate = function(form, value) {
+    if (!form) {
+      return {valid: true};
+    }
+    var schema = form.schema;
+
+    if (!schema) {
+      return {valid: true};
+    }
+
+    // Input of type text and textareas will give us a viewValue of ''
+    // when empty, this is a valid value in a schema and does not count as something
+    // that breaks validation of 'required'. But for our own sanity an empty field should
+    // not validate if it's required.
+    if (value === '') {
+      value = undefined;
+    }
+
+    // Numbers fields will give a null value, which also means empty field
+    if (form.type === 'number' && value === null) {
+      value = undefined;
+    }
+
+    // Version 4 of JSON Schema has the required property not on the
+    // property itself but on the wrapping object. Since we like to test
+    // only this property we wrap it in a fake object.
+    var wrap = {type: 'object', 'properties': {}};
+    var propName = form.key[form.key.length - 1];
+    wrap.properties[propName] = schema;
+
+    if (form.required) {
+      wrap.required = [propName];
+    }
+    var valueWrap = {};
+    if (angular.isDefined(value)) {
+      valueWrap[propName] = value;
+    }
+    return tv4.validateResult(valueWrap, wrap);
+
+  };
+
+  return validator;
+}]);
+
+/**
+ * Directive that handles the model arrays
+ */
+angular.module('schemaForm').directive('sfArray', ['sfSelect', 'schemaForm', 'sfValidator', 'sfPath',
+  function(sfSelect, schemaForm, sfValidator, sfPath) {
+
+    var setIndex = function(index) {
+      return function(form) {
+        if (form.key) {
+          form.key[form.key.indexOf('')] = index;
+        }
+      };
+    };
+
+    return {
+      restrict: 'A',
+      scope: true,
+      require: '?ngModel',
+      link: function(scope, element, attrs, ngModel) {
+        var formDefCache = {};
+
+
+        if (ngModel) {
+          // We need the ngModelController on several places,
+          // most notably for errors.
+          // So we emit it up to the decorator directive so it can put it on scope.
+          scope.$emit('schemaFormPropagateNgModelController', ngModel);
+        }
+
+
+        // Watch for the form definition and then rewrite it.
+        // It's the (first) array part of the key, '[]' that needs a number
+        // corresponding to an index of the form.
+        var once = scope.$watch(attrs.sfArray, function(form) {
+
+          // An array model always needs a key so we know what part of the model
+          // to look at. This makes us a bit incompatible with JSON Form, on the
+          // other hand it enables two way binding.
+          var list = sfSelect(form.key, scope.model);
+
+          // We only modify the same array instance but someone might change the array from
+          // the outside so let's watch for that. We use an ordinary watch since the only case
+          // we're really interested in is if its a new instance.
+          scope.$watch('model' + sfPath.normalize(form.key), function() {
+            list = sfSelect(form.key, scope.model);
+            scope.modelArray = list;
+          });
+
+          // Since ng-model happily creates objects in a deep path when setting a
+          // a value but not arrays we need to create the array.
+          if (angular.isUndefined(list)) {
+            list = [];
+            sfSelect(form.key, scope.model, list);
+          }
+          scope.modelArray = list;
+
+          // Arrays with titleMaps, i.e. checkboxes doesn't have items.
+          if (form.items) {
+
+            // To be more compatible with JSON Form we support an array of items
+            // in the form definition of "array" (the schema just a value).
+            // for the subforms code to work this means we wrap everything in a
+            // section. Unless there is just one.
+            var subForm = form.items[0];
+            if (form.items.length > 1) {
+              subForm = {
+                type: 'section',
+                items: form.items.map(function(item) {
+                  item.ngModelOptions = form.ngModelOptions;
+                  if (angular.isUndefined(item.readonly)) {
+                    item.readonly = form.readonly;
+                  }
+                  return item;
+                })
+              };
+            }
+
+          }
+
+          // We ceate copies of the form on demand, caching them for
+          // later requests
+          scope.copyWithIndex = function(index) {
+            if (!formDefCache[index]) {
+              if (subForm) {
+                var copy = angular.copy(subForm);
+                copy.arrayIndex = index;
+                schemaForm.traverseForm(copy, setIndex(index));
+                formDefCache[index] = copy;
+              }
+            }
+            return formDefCache[index];
+          };
+
+          scope.appendToArray = function() {
+            var len = list.length;
+            var copy = scope.copyWithIndex(len);
+            schemaForm.traverseForm(copy, function(part) {
+
+              if (part.key) {
+                var def;
+                if (angular.isDefined(part['default'])) {
+                  def = part['default'];
+                }
+                if (angular.isDefined(part.schema) &&
+                    angular.isDefined(part.schema['default'])) {
+                  def = part.schema['default'];
+                }
+
+                if (angular.isDefined(def)) {
+                  sfSelect(part.key, scope.model, def);
+                }
+              }
+            });
+
+            // If there are no defaults nothing is added so we need to initialize
+            // the array. undefined for basic values, {} or [] for the others.
+            if (len === list.length) {
+              var type = sfSelect('schema.items.type', form);
+              var dflt;
+              if (type === 'object') {
+                dflt = {};
+              } else if (type === 'array') {
+                dflt = [];
+              }
+              list.push(dflt);
+            }
+
+            // Trigger validation.
+            if (scope.validateArray) {
+              scope.validateArray();
+            }
+            return list;
+          };
+
+          scope.deleteFromArray = function(index) {
+            list.splice(index, 1);
+
+            // Trigger validation.
+            if (scope.validateArray) {
+              scope.validateArray();
+            }
+
+            // Angular 1.2 lacks setDirty
+            if (ngModel && ngModel.$setDirty) {
+              ngModel.$setDirty();
+            }
+            return list;
+          };
+
+          // Always start with one empty form unless configured otherwise.
+          // Special case: don't do it if form has a titleMap
+          if (!form.titleMap && form.startEmpty !== true && list.length === 0) {
+            scope.appendToArray();
+          }
+
+          // Title Map handling
+          // If form has a titleMap configured we'd like to enable looping over
+          // titleMap instead of modelArray, this is used for intance in
+          // checkboxes. So instead of variable number of things we like to create
+          // a array value from a subset of values in the titleMap.
+          // The problem here is that ng-model on a checkbox doesn't really map to
+          // a list of values. This is here to fix that.
+          if (form.titleMap && form.titleMap.length > 0) {
+            scope.titleMapValues = [];
+
+            // We watch the model for changes and the titleMapValues to reflect
+            // the modelArray
+            var updateTitleMapValues = function(arr) {
+              scope.titleMapValues = [];
+              arr = arr || [];
+
+              form.titleMap.forEach(function(item) {
+                scope.titleMapValues.push(arr.indexOf(item.value) !== -1);
+              });
+
+            };
+            //Catch default values
+            updateTitleMapValues(scope.modelArray);
+            scope.$watchCollection('modelArray', updateTitleMapValues);
+
+            //To get two way binding we also watch our titleMapValues
+            scope.$watchCollection('titleMapValues', function(vals) {
+              if (vals) {
+                var arr = scope.modelArray;
+
+                // Apparently the fastest way to clear an array, readable too.
+                // http://jsperf.com/array-destroy/32
+                while (arr.length > 0) {
+                  arr.pop();
+                }
+
+                form.titleMap.forEach(function(item, index) {
+                  if (vals[index]) {
+                    arr.push(item.value);
+                  }
+                });
+
+              }
+            });
+          }
+
+          // If there is a ngModel present we need to validate when asked.
+          if (ngModel) {
+            var error;
+
+            scope.validateArray = function() {
+              // The actual content of the array is validated by each field
+              // so we settle for checking validations specific to arrays
+
+              // Since we prefill with empty arrays we can get the funny situation
+              // where the array is required but empty in the gui but still validates.
+              // Thats why we check the length.
+              var result = sfValidator.validate(
+                form,
+                scope.modelArray.length > 0 ? scope.modelArray : undefined
+              );
+
+              // TODO: DRY this up, it has a lot of similarities with schema-validate
+              // Since we might have different tv4 errors we must clear all
+              // errors that start with tv4-
+              Object.keys(ngModel.$error)
+                    .filter(function(k) { return k.indexOf('tv4-') === 0; })
+                    .forEach(function(k) { ngModel.$setValidity(k, true); });
+
+              if (result.valid === false &&
+                  result.error &&
+                  (result.error.dataPath === '' ||
+                  result.error.dataPath === '/' + form.key[form.key.length - 1])) {
+
+                // Set viewValue to trigger $dirty on field. If someone knows a
+                // a better way to do it please tell.
+                ngModel.$setViewValue(scope.modelArray);
+                error = result.error;
+                ngModel.$setValidity('tv4-' + result.error.code, false);
+              }
+            };
+
+            scope.$on('schemaFormValidate', scope.validateArray);
+
+            scope.hasSuccess = function() {
+              return ngModel.$valid && !ngModel.$pristine;
+            };
+
+            scope.hasError = function() {
+              return ngModel.$invalid;
+            };
+
+            scope.schemaError = function() {
+              return error;
+            };
+
+          }
+
+          once();
+        });
+      }
+    };
+  }
+]);
+
+/**
+ * A version of ng-changed that only listens if
+ * there is actually a onChange defined on the form
+ *
+ * Takes the form definition as argument.
+ * If the form definition has a "onChange" defined as either a function or
+ */
+angular.module('schemaForm').directive('sfChanged', function() {
+  return {
+    require: 'ngModel',
+    restrict: 'AC',
+    scope: false,
+    link: function(scope, element, attrs, ctrl) {
+      var form = scope.$eval(attrs.sfChanged);
+      //"form" is really guaranteed to be here since the decorator directive
+      //waits for it. But best be sure.
+      if (form && form.onChange) {
+        ctrl.$viewChangeListeners.push(function() {
+          if (angular.isFunction(form.onChange)) {
+            form.onChange(ctrl.$modelValue, form);
+          } else {
+            scope.evalExpr(form.onChange, {'modelValue': ctrl.$modelValue, form: form});
+          }
+        });
+      }
+    }
+  };
+});
+
+angular.module('schemaForm').directive('sfMessage',
+['$injector', 'sfErrorMessage', function($injector, sfErrorMessage) {
+  return {
+    scope: false,
+    restrict: 'EA',
+    link: function(scope, element, attrs) {
+
+      //Inject sanitizer if it exists
+      var $sanitize = $injector.has('$sanitize') ?
+                      $injector.get('$sanitize') : function(html) { return html; };
+
+      //Prepare and sanitize message, i.e. description in most cases.
+      var msg = '';
+      if (attrs.sfMessage) {
+        msg = scope.$eval(attrs.sfMessage) || '';
+        msg = $sanitize(msg);
+      }
+
+      var update = function(valid) {
+        if (valid && !scope.hasError()) {
+          element.html(msg);
+        } else {
+
+          var errors = Object.keys(
+            (scope.ngModel && scope.ngModel.$error) || {}
+          );
+
+          // We only show one error.
+          // TODO: Make that optional
+          var error = errors[0];
+
+          if (error) {
+            element.html(sfErrorMessage.interpolate(
+              error,
+              scope.ngModel.$modelValue,
+              scope.ngModel.$viewValue,
+              scope.form,
+              scope.options && scope.options.validationMessage
+            ));
+          } else {
+            element.html(msg);
+          }
+        }
+      };
+      update();
+
+      scope.$watchCollection('ngModel.$error', function() {
+        if (scope.ngModel) {
+          update(scope.ngModel.$valid);
+        }
+      });
+
+    }
+  };
+}]);
+
+/*
+FIXME: real documentation
+<form sf-form="form"  sf-schema="schema" sf-decorator="foobar"></form>
+*/
+
+angular.module('schemaForm')
+       .directive('sfSchema',
+['$compile', 'schemaForm', 'schemaFormDecorators', 'sfSelect', 'sfPath',
+  function($compile,  schemaForm,  schemaFormDecorators, sfSelect, sfPath) {
+
+    var SNAKE_CASE_REGEXP = /[A-Z]/g;
+    var snakeCase = function(name, separator) {
+      separator = separator || '_';
+      return name.replace(SNAKE_CASE_REGEXP, function(letter, pos) {
+        return (pos ? separator : '') + letter.toLowerCase();
+      });
+    };
+
+    return {
+      scope: {
+        schema: '=sfSchema',
+        initialForm: '=sfForm',
+        model: '=sfModel',
+        options: '=sfOptions'
+      },
+      controller: ['$scope', function($scope) {
+        this.evalInParentScope = function(expr, locals) {
+          return $scope.$parent.$eval(expr, locals);
+        };
+      }],
+      replace: false,
+      restrict: 'A',
+      transclude: true,
+      require: '?form',
+      link: function(scope, element, attrs, formCtrl, transclude) {
+
+        //expose form controller on scope so that we don't force authors to use name on form
+        scope.formCtrl = formCtrl;
+
+        //We'd like to handle existing markup,
+        //besides using it in our template we also
+        //check for ng-model and add that to an ignore list
+        //i.e. even if form has a definition for it or form is ["*"]
+        //we don't generate it.
+        var ignore = {};
+        transclude(scope, function(clone) {
+          clone.addClass('schema-form-ignore');
+          element.prepend(clone);
+
+          if (element[0].querySelectorAll) {
+            var models = element[0].querySelectorAll('[ng-model]');
+            if (models) {
+              for (var i = 0; i < models.length; i++) {
+                var key = models[i].getAttribute('ng-model');
+                //skip first part before .
+                ignore[key.substring(key.indexOf('.') + 1)] = true;
+              }
+            }
+          }
+        });
+
+        var lastDigest = {};
+        var childScope;
+
+        // Common renderer function, can either be triggered by a watch or by an event.
+        var render = function(schema, form) {
+          var merged = schemaForm.merge(schema, form, ignore, scope.options);
+          var frag = document.createDocumentFragment();
+
+          // Create a new form and destroy the old one.
+          // Not doing keeps old form elements hanging around after
+          // they have been removed from the DOM
+          // https://github.com/Textalk/angular-schema-form/issues/200
+          if (childScope) {
+            childScope.$destroy();
+          }
+          childScope = scope.$new();
+
+          //make the form available to decorators
+          childScope.schemaForm  = {form:  merged, schema: schema};
+
+          //clean all but pre existing html.
+          element.children(':not(.schema-form-ignore)').remove();
+
+          // Find all slots.
+          var slots = {};
+          var slotsFound = element[0].querySelectorAll('*[sf-insert-field]');
+
+          for (var i = 0; i < slotsFound.length; i++) {
+            slots[slotsFound[i].getAttribute('sf-insert-field')] = slotsFound[i];
+          }
+
+          //Create directives from the form definition
+          angular.forEach(merged, function(obj, i) {
+            var n = document.createElement(attrs.sfUseDecorator ||
+                                           snakeCase(schemaFormDecorators.defaultDecorator, '-'));
+            n.setAttribute('form', 'schemaForm.form[' + i + ']');
+
+            // Check if there is a slot to put this in...
+            if (obj.key) {
+              var slot = slots[sfPath.stringify(obj.key)];
+              if (slot) {
+                while (slot.firstChild) {
+                  slot.removeChild(slot.firstChild);
+                }
+                slot.appendChild(n);
+                return;
+              }
+            }
+
+            // ...otherwise add it to the frag
+            frag.appendChild(n);
+
+          });
+
+          element[0].appendChild(frag);
+
+          //compile only children
+          $compile(element.children())(childScope);
+
+          //ok, now that that is done let's set any defaults
+          schemaForm.traverseSchema(schema, function(prop, path) {
+            if (angular.isDefined(prop['default'])) {
+              var val = sfSelect(path, scope.model);
+              if (angular.isUndefined(val)) {
+                sfSelect(path, scope.model, prop['default']);
+              }
+            }
+          });
+
+          scope.$emit('sf-render-finished', element);
+        };
+
+        //Since we are dependant on up to three
+        //attributes we'll do a common watch
+        scope.$watch(function() {
+
+          var schema = scope.schema;
+          var form   = scope.initialForm || ['*'];
+
+          //The check for schema.type is to ensure that schema is not {}
+          if (form && schema && schema.type &&
+              (lastDigest.form !== form || lastDigest.schema !== schema) &&
+              Object.keys(schema.properties).length > 0) {
+            lastDigest.schema = schema;
+            lastDigest.form = form;
+
+            render(schema, form);
+          }
+        });
+
+        // We also listen to the event schemaFormRedraw so you can manually trigger a change if
+        // part of the form or schema is chnaged without it being a new instance.
+        scope.$on('schemaFormRedraw', function() {
+          var schema = scope.schema;
+          var form   = scope.initialForm || ['*'];
+          if (schema) {
+            render(schema, form);
+          }
+        });
+
+      }
+    };
+  }
+]);
+
+angular.module('schemaForm').directive('schemaValidate', ['sfValidator', 'sfSelect', function(sfValidator, sfSelect) {
+  return {
+    restrict: 'A',
+    scope: false,
+    // We want the link function to be *after* the input directives link function so we get access
+    // the parsed value, ex. a number instead of a string
+    priority: 500,
+    require: 'ngModel',
+    link: function(scope, element, attrs, ngModel) {
+
+
+      // We need the ngModelController on several places,
+      // most notably for errors.
+      // So we emit it up to the decorator directive so it can put it on scope.
+      scope.$emit('schemaFormPropagateNgModelController', ngModel);
+
+      var error = null;
+
+      var getForm = function() {
+        if (!form) {
+          form = scope.$eval(attrs.schemaValidate);
+        }
+        return form;
+      };
+      var form   = getForm();
+      if (form.copyValueTo) {
+        ngModel.$viewChangeListeners.push(function() {
+          var paths = form.copyValueTo;
+          angular.forEach(paths, function(path) {
+            sfSelect(path, scope.model, ngModel.$modelValue);
+          });
+        });
+      }
+
+      // Validate against the schema.
+
+      var validate = function(viewValue) {
+        form = getForm();
+        //Still might be undefined
+        if (!form) {
+          return viewValue;
+        }
+
+        // Omit TV4 validation
+        if (scope.options && scope.options.tv4Validation === false) {
+          return viewValue;
+        }
+
+        var result =  sfValidator.validate(form, viewValue);
+        // Since we might have different tv4 errors we must clear all
+        // errors that start with tv4-
+        Object.keys(ngModel.$error)
+              .filter(function(k) { return k.indexOf('tv4-') === 0; })
+              .forEach(function(k) { ngModel.$setValidity(k, true); });
+
+        if (!result.valid) {
+          // it is invalid, return undefined (no model update)
+          ngModel.$setValidity('tv4-' + result.error.code, false);
+          error = result.error;
+          return undefined;
+        }
+        return viewValue;
+      };
+
+      // Custom validators, parsers, formatters etc
+      if (typeof form.ngModel === 'function') {
+        form.ngModel(ngModel);
+      }
+
+      ['$parsers', '$viewChangeListeners', '$formatters'].forEach(function(attr) {
+        if (form[attr] && ngModel[attr]) {
+          form[attr].forEach(function(fn) {
+            ngModel[attr].push(fn);
+          });
+        }
+      });
+
+      ['$validators', '$asyncValidators'].forEach(function(attr) {
+        // Check if our version of angular has i, i.e. 1.3+
+        if (form[attr] && ngModel[attr]) {
+          angular.forEach(form[attr], function(fn, name) {
+            ngModel[attr][name] = fn;
+          });
+        }
+      });
+
+      // Get in last of the parses so the parsed value has the correct type.
+      // We don't use $validators since we like to set different errors depeding tv4 error codes
+      ngModel.$parsers.push(validate);
+
+      // Listen to an event so we can validate the input on request
+      scope.$on('schemaFormValidate', function() {
+        if (ngModel.$setDirty) {
+          // Angular 1.3+
+          ngModel.$setDirty();
+          validate(ngModel.$modelValue);
+        } else {
+          // Angular 1.2
+          ngModel.$setViewValue(ngModel.$viewValue);
+        }
+
+      });
+
+      scope.schemaError = function() {
+        return error;
+      };
+
+    }
+  };
+}]);
+
+return schemaForm;
+}));
+
+angular.module("schemaForm").run(["$templateCache",function(e){e.put("directives/decorators/bootstrap/actions-trcl.html",'<div class="btn-group schema-form-actions {{form.htmlClass}}" ng-transclude=""></div>'),e.put("directives/decorators/bootstrap/actions.html",'<div class="btn-group schema-form-actions {{form.htmlClass}}"><input ng-repeat-start="item in form.items" type="submit" class="btn {{ item.style || \'btn-default\' }} {{form.fieldHtmlClass}}" value="{{item.title}}" ng-if="item.type === \'submit\'"> <button ng-repeat-end="" class="btn {{ item.style || \'btn-default\' }} {{form.fieldHtmlClass}}" type="button" ng-disabled="form.readonly" ng-if="item.type !== \'submit\'" ng-click="buttonClick($event,item)"><span ng-if="item.icon" class="{{item.icon}}"></span>{{item.title}}</button></div>'),e.put("directives/decorators/bootstrap/array.html",'<div sf-array="form" class="schema-form-array {{form.htmlClass}}" ng-model="$$value$$" ng-model-options="form.ngModelOptions"><h3 ng-show="form.title && form.notitle !== true">{{ form.title }}</h3><ol class="list-group" ng-model="modelArray" ui-sortable=""><li class="list-group-item {{form.fieldHtmlClass}}" ng-repeat="item in modelArray track by $index"><button ng-hide="form.readonly || form.remove === null" ng-click="deleteFromArray($index)" style="position: relative; z-index: 20;" type="button" class="close pull-right"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><sf-decorator ng-init="arrayIndex = $index" form="copyWithIndex($index)"></sf-decorator></li></ol><div class="clearfix" style="padding: 15px;"><button ng-hide="form.readonly || form.add === null" ng-click="appendToArray()" type="button" class="btn {{ form.style.add || \'btn-default\' }} pull-right"><i class="glyphicon glyphicon-plus"></i> {{ form.add || \'Add\'}}</button></div><div class="help-block" ng-show="(hasError() && errorMessage(schemaError())) || form.description" ng-bind-html="(hasError() && errorMessage(schemaError())) || form.description"></div></div>'),e.put("directives/decorators/bootstrap/checkbox.html",'<div class="checkbox schema-form-checkbox {{form.htmlClass}}" ng-class="{\'has-error\': form.disableErrorState !== true && hasError(), \'has-success\': form.disableSuccessState !== true && hasSuccess()}"><label class="{{form.labelHtmlClass}}"><input type="checkbox" sf-changed="form" ng-disabled="form.readonly" ng-model="$$value$$" ng-model-options="form.ngModelOptions" schema-validate="form" class="{{form.fieldHtmlClass}}" name="{{form.key.slice(-1)[0]}}"> <span ng-bind-html="form.title"></span></label><div class="help-block" sf-message="form.description"></div></div>'),e.put("directives/decorators/bootstrap/checkboxes.html",'<div sf-array="form" ng-model="$$value$$" class="form-group schema-form-checkboxes {{form.htmlClass}}" ng-class="{\'has-error\': form.disableErrorState !== true && hasError(), \'has-success\': form.disableSuccessState !== true && hasSuccess()}"><label class="control-label {{form.labelHtmlClass}}" ng-show="showTitle()">{{form.title}}</label><div class="checkbox" ng-repeat="val in titleMapValues track by $index"><label><input type="checkbox" ng-disabled="form.readonly" sf-changed="form" class="{{form.fieldHtmlClass}}" ng-model="titleMapValues[$index]" schema-vaidate="form" name="{{form.key.slice(-1)[0]}}"> <span ng-bind-html="form.titleMap[$index].name"></span></label></div><div class="help-block" sf-message="form.description"></div></div>'),e.put("directives/decorators/bootstrap/default.html",'<div class="form-group schema-form-{{form.type}} {{form.htmlClass}}" ng-class="{\'has-error\': form.disableErrorState !== true && hasError(), \'has-success\': form.disableSuccessState !== true && hasSuccess(), \'has-feedback\': form.feedback !== false }"><label class="control-label {{form.labelHtmlClass}}" ng-class="{\'sr-only\': !showTitle()}" for="{{form.key.slice(-1)[0]}}">{{form.title}}</label> <input ng-if="!form.fieldAddonLeft && !form.fieldAddonRight" ng-show="form.key" type="{{form.type}}" step="any" sf-changed="form" placeholder="{{form.placeholder}}" class="form-control {{form.fieldHtmlClass}}" id="{{form.key.slice(-1)[0]}}" ng-model-options="form.ngModelOptions" ng-model="$$value$$" ng-disabled="form.readonly" schema-validate="form" name="{{form.key.slice(-1)[0]}}" aria-describedby="{{form.key.slice(-1)[0] + \'Status\'}}"><div ng-if="form.fieldAddonLeft || form.fieldAddonRight" ng-class="{\'input-group\': (form.fieldAddonLeft || form.fieldAddonRight)}"><span ng-if="form.fieldAddonLeft" class="input-group-addon" ng-bind-html="form.fieldAddonLeft"></span> <input ng-show="form.key" type="{{form.type}}" step="any" sf-changed="form" placeholder="{{form.placeholder}}" class="form-control {{form.fieldHtmlClass}}" id="{{form.key.slice(-1)[0]}}" ng-model-options="form.ngModelOptions" ng-model="$$value$$" ng-disabled="form.readonly" schema-validate="form" name="{{form.key.slice(-1)[0]}}" aria-describedby="{{form.key.slice(-1)[0] + \'Status\'}}"> <span ng-if="form.fieldAddonRight" class="input-group-addon" ng-bind-html="form.fieldAddonRight"></span></div><span ng-if="form.feedback !== false" class="form-control-feedback" ng-class="evalInScope(form.feedback) || {\'glyphicon\': true, \'glyphicon-ok\': hasSuccess(), \'glyphicon-remove\': hasError() }" aria-hidden="true"></span> <span ng-if="hasError() || hasSuccess()" id="{{form.key.slice(-1)[0] + \'Status\'}}" class="sr-only">{{ hasSuccess() ? \'(success)\' : \'(error)\' }}</span><div class="help-block" sf-message="form.description"></div></div>'),e.put("directives/decorators/bootstrap/fieldset-trcl.html",'<fieldset ng-disabled="form.readonly" class="schema-form-fieldset {{form.htmlClass}}"><legend ng-show="form.title">{{ form.title }}</legend><div class="help-block" ng-show="form.description" ng-bind-html="form.description"></div><div ng-transclude=""></div></fieldset>'),e.put("directives/decorators/bootstrap/fieldset.html",'<fieldset ng-disabled="form.readonly" class="schema-form-fieldset {{form.htmlClass}}"><legend ng-show="form.title">{{ form.title }}</legend><div class="help-block" ng-show="form.description" ng-bind-html="form.description"></div><sf-decorator ng-repeat="item in form.items" form="item"></sf-decorator></fieldset>'),e.put("directives/decorators/bootstrap/help.html",'<div class="helpvalue schema-form-helpvalue {{form.htmlClass}}" ng-bind-html="form.helpvalue"></div>'),e.put("directives/decorators/bootstrap/radio-buttons.html",'<div class="form-group schema-form-radiobuttons {{form.htmlClass}}" ng-class="{\'has-error\': form.disableErrorState !== true && hasError(), \'has-success\': form.disableSuccessState !== true && hasSuccess()}"><div><label class="control-label {{form.labelHtmlClass}}" ng-show="showTitle()">{{form.title}}</label></div><div class="btn-group"><label class="btn {{ (item.value === $$value$$) ? form.style.selected || \'btn-default\' : form.style.unselected || \'btn-default\'; }}" ng-class="{ active: item.value === $$value$$ }" ng-repeat="item in form.titleMap"><input type="radio" class="{{form.fieldHtmlClass}}" sf-changed="form" style="display: none;" ng-disabled="form.readonly" ng-model="$$value$$" ng-model-options="form.ngModelOptions" schema-validate="form" ng-value="item.value" name="{{form.key.join(\'.\')}}"> <span ng-bind-html="item.name"></span></label></div><div class="help-block" sf-message="form.description"></div></div>'),e.put("directives/decorators/bootstrap/radios-inline.html",'<div class="form-group schema-form-radios-inline {{form.htmlClass}}" ng-class="{\'has-error\': form.disableErrorState !== true && hasError(), \'has-success\': form.disableSuccessState !== true && hasSuccess()}"><label class="control-label {{form.labelHtmlClass}}" ng-show="showTitle()">{{form.title}}</label><div><label class="radio-inline" ng-repeat="item in form.titleMap"><input type="radio" class="{{form.fieldHtmlClass}}" sf-changed="form" ng-disabled="form.readonly" ng-model="$$value$$" schema-validate="form" ng-value="item.value" name="{{form.key.join(\'.\')}}"> <span ng-bind-html="item.name"></span></label></div><div class="help-block" sf-message="form.description"></div></div>'),e.put("directives/decorators/bootstrap/radios.html",'<div class="form-group schema-form-radios {{form.htmlClass}}" ng-class="{\'has-error\': form.disableErrorState !== true && hasError(), \'has-success\': form.disableSuccessState !== true && hasSuccess()}"><label class="control-label {{form.labelHtmlClass}}" ng-show="showTitle()">{{form.title}}</label><div class="radio" ng-repeat="item in form.titleMap"><label><input type="radio" class="{{form.fieldHtmlClass}}" sf-changed="form" ng-disabled="form.readonly" ng-model="$$value$$" ng-model-options="form.ngModelOptions" schema-validate="form" ng-value="item.value" name="{{form.key.join(\'.\')}}"> <span ng-bind-html="item.name"></span></label></div><div class="help-block" sf-message="form.description"></div></div>'),e.put("directives/decorators/bootstrap/section.html",'<div class="schema-form-section {{form.htmlClass}}"><sf-decorator ng-repeat="item in form.items" form="item"></sf-decorator></div>'),e.put("directives/decorators/bootstrap/select.html",'<div class="form-group {{form.htmlClass}} schema-form-select" ng-class="{\'has-error\': form.disableErrorState !== true && hasError(), \'has-success\': form.disableSuccessState !== true && hasSuccess(), \'has-feedback\': form.feedback !== false}"><label class="control-label {{form.labelHtmlClass}}" ng-show="showTitle()">{{form.title}}</label><select ng-model="$$value$$" ng-model-options="form.ngModelOptions" ng-disabled="form.readonly" sf-changed="form" class="form-control {{form.fieldHtmlClass}}" schema-validate="form" ng-options="item.value as item.name group by item.group for item in form.titleMap" name="{{form.key.slice(-1)[0]}}"></select><div class="help-block" sf-message="form.description"></div></div>'),e.put("directives/decorators/bootstrap/submit.html",'<div class="form-group schema-form-submit {{form.htmlClass}}"><input type="submit" class="btn {{ form.style || \'btn-primary\' }} {{form.fieldHtmlClass}}" value="{{form.title}}" ng-disabled="form.readonly" ng-if="form.type === \'submit\'"> <button class="btn {{ form.style || \'btn-default\' }}" type="button" ng-click="buttonClick($event,form)" ng-disabled="form.readonly" ng-if="form.type !== \'submit\'"><span ng-if="form.icon" class="{{form.icon}}"></span> {{form.title}}</button></div>'),e.put("directives/decorators/bootstrap/tabarray.html",'<div sf-array="form" ng-init="selected = { tab: 0 }" class="clearfix schema-form-tabarray schema-form-tabarray-{{form.tabType || \'left\'}} {{form.htmlClass}}"><div ng-if="!form.tabType || form.tabType !== \'right\'" ng-class="{\'col-xs-3\': !form.tabType || form.tabType === \'left\'}"><ul class="nav nav-tabs" ng-class="{ \'tabs-left\': !form.tabType || form.tabType === \'left\'}"><li ng-repeat="item in modelArray track by $index" ng-click="$event.preventDefault() || (selected.tab = $index)" ng-class="{active: selected.tab === $index}"><a href="#">{{interp(form.title,{\'$index\':$index, value: item}) || $index}}</a></li><li ng-hide="form.readonly" ng-click="$event.preventDefault() || (selected.tab = appendToArray().length - 1)"><a href="#"><i class="glyphicon glyphicon-plus"></i> {{ form.add || \'Add\'}}</a></li></ul></div><div ng-class="{\'col-xs-9\': !form.tabType || form.tabType === \'left\' || form.tabType === \'right\'}"><div class="tab-content {{form.fieldHtmlClass}}"><div class="tab-pane clearfix" ng-repeat="item in modelArray track by $index" ng-show="selected.tab === $index" ng-class="{active: selected.tab === $index}"><sf-decorator ng-init="arrayIndex = $index" form="copyWithIndex($index)"></sf-decorator><button ng-hide="form.readonly" ng-click="selected.tab = deleteFromArray($index).length - 1" type="button" class="btn {{ form.style.remove || \'btn-default\' }} pull-right"><i class="glyphicon glyphicon-trash"></i> {{ form.remove || \'Remove\'}}</button></div></div></div><div ng-if="form.tabType === \'right\'" class="col-xs-3"><ul class="nav nav-tabs tabs-right"><li ng-repeat="item in modelArray track by $index" ng-click="$event.preventDefault() || (selected.tab = $index)" ng-class="{active: selected.tab === $index}"><a href="#">{{interp(form.title,{\'$index\':$index, value: item}) || $index}}</a></li><li ng-hide="form.readonly" ng-click="$event.preventDefault() || appendToArray()"><a href="#"><i class="glyphicon glyphicon-plus"></i> {{ form.add || \'Add\'}}</a></li></ul></div></div>'),e.put("directives/decorators/bootstrap/tabs.html",'<div ng-init="selected = { tab: 0 }" class="schema-form-tabs {{form.htmlClass}}"><ul class="nav nav-tabs"><li ng-repeat="tab in form.tabs" ng-disabled="form.readonly" ng-click="$event.preventDefault() || (selected.tab = $index)" ng-class="{active: selected.tab === $index}"><a href="#">{{ tab.title }}</a></li></ul><div class="tab-content {{form.fieldHtmlClass}}"><div class="tab-pane" ng-disabled="form.readonly" ng-repeat="tab in form.tabs" ng-show="selected.tab === $index" ng-class="{active: selected.tab === $index}"><bootstrap-decorator ng-repeat="item in tab.items" form="item"></bootstrap-decorator></div></div></div>'),e.put("directives/decorators/bootstrap/textarea.html",'<div class="form-group has-feedback {{form.htmlClass}} schema-form-textarea" ng-class="{\'has-error\': form.disableErrorState !== true && hasError(), \'has-success\': form.disableSuccessState !== true && hasSuccess()}"><label class="{{form.labelHtmlClass}}" ng-class="{\'sr-only\': !showTitle()}" for="{{form.key.slice(-1)[0]}}">{{form.title}}</label> <textarea ng-if="!form.fieldAddonLeft && !form.fieldAddonRight" class="form-control {{form.fieldHtmlClass}}" id="{{form.key.slice(-1)[0]}}" sf-changed="form" placeholder="{{form.placeholder}}" ng-disabled="form.readonly" ng-model="$$value$$" ng-model-options="form.ngModelOptions" schema-validate="form" name="{{form.key.slice(-1)[0]}}"></textarea><div ng-if="form.fieldAddonLeft || form.fieldAddonRight" ng-class="{\'input-group\': (form.fieldAddonLeft || form.fieldAddonRight)}"><span ng-if="form.fieldAddonLeft" class="input-group-addon" ng-bind-html="form.fieldAddonLeft"></span> <textarea class="form-control {{form.fieldHtmlClass}}" id="{{form.key.slice(-1)[0]}}" sf-changed="form" placeholder="{{form.placeholder}}" ng-disabled="form.readonly" ng-model="$$value$$" ng-model-options="form.ngModelOptions" schema-validate="form" name="{{form.key.slice(-1)[0]}}"></textarea> <span ng-if="form.fieldAddonRight" class="input-group-addon" ng-bind-html="form.fieldAddonRight"></span></div><span class="help-block" sf-message="form.description"></span></div>')}]),angular.module("schemaForm").config(["schemaFormDecoratorsProvider",function(e){var t="directives/decorators/bootstrap/";e.createDecorator("bootstrapDecorator",{textarea:t+"textarea.html",fieldset:t+"fieldset.html",array:t+"array.html",tabarray:t+"tabarray.html",tabs:t+"tabs.html",section:t+"section.html",conditional:t+"section.html",actions:t+"actions.html",select:t+"select.html",checkbox:t+"checkbox.html",checkboxes:t+"checkboxes.html",number:t+"default.html",password:t+"default.html",submit:t+"submit.html",button:t+"submit.html",radios:t+"radios.html","radios-inline":t+"radios-inline.html",radiobuttons:t+"radio-buttons.html",help:t+"help.html","default":t+"default.html"},[]),e.createDirectives({textarea:t+"textarea.html",select:t+"select.html",checkbox:t+"checkbox.html",checkboxes:t+"checkboxes.html",number:t+"default.html",submit:t+"submit.html",button:t+"submit.html",text:t+"default.html",date:t+"default.html",password:t+"default.html",datepicker:t+"datepicker.html",input:t+"default.html",radios:t+"radios.html","radios-inline":t+"radios-inline.html",radiobuttons:t+"radio-buttons.html"})}]).directive("sfFieldset",function(){return{transclude:!0,scope:!0,templateUrl:"directives/decorators/bootstrap/fieldset-trcl.html",link:function(e,t,s){e.title=e.$eval(s.title)}}});
 /**
  * @license AngularJS v1.3.15
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -36625,11 +44006,14 @@ for(c.attr(a);this["zoneGraph"+b];)this["zoneGraph"+b].attr(a),b+=1}},setVisible
 a.visible)a.isDirty=!0});m(c.linkedSeries,function(b){b.setVisible(a,!1)});if(g)d.isDirtyBox=!0;b!==!1&&d.redraw();M(c,f)},show:function(){this.setVisible(!0)},hide:function(){this.setVisible(!1)},select:function(a){this.selected=a=a===u?!this.selected:a;if(this.checkbox)this.checkbox.checked=a;M(this,a?"select":"unselect")},drawTracker:T.drawTrackerGraph});r(w,{Color:na,Point:Ga,Tick:Ta,Renderer:$a,SVGElement:K,SVGRenderer:ta,arrayMin:Pa,arrayMax:Fa,charts:X,dateFormat:Oa,error:ka,format:Ja,pathAnim:zb,
 getOptions:function(){return P},hasBidiBug:Nb,isTouchDevice:Jb,setOptions:function(a){P=z(!0,P,a);Cb();return P},addEvent:N,removeEvent:Y,createElement:Z,discardElement:Ra,css:F,each:m,map:Ua,merge:z,splat:ra,extendClass:ja,pInt:B,svg:ba,canvas:ea,vml:!ba&&!ea,product:"Highcharts",version:"4.1.5"})})();
 
-var home = angular.module('app', ['filter-directives','location-list-item-directives','location-section-directives','ngRoute']);
+var home = angular.module('app', ['filter-directives','location-list-item-directives','location-section-directives','section-form-directive','ngRoute']);
 home.config(['$routeProvider', function($routeProvider) {
 	$routeProvider
 	.when('/home', {
 		templateUrl: 'views/home/home.tpl.html',
+	})
+	.when('/new-location', {
+		templateUrl: 'views/new_location/submitpage.tpl.html',
 	})
 	.when('/location/:slug', {
 		templateUrl: 'views/location/location.tpl.html',
@@ -36679,7 +44063,7 @@ home.controller('LocationsController',function($scope, $timeout,LocationsGetter)
 	var locations = this;
 	$scope.locationData = [];
 	$scope.LocationsGetter = LocationsGetter;
-	$scope.origin_airport = "SFO";
+	$scope.origin_airport = "BER";
 	$scope.slugArray = [];
 	
 
@@ -36727,6 +44111,7 @@ home.controller('MapFilterController',function($scope,LocationsGetter){
 		LocationsGetter.mapFilter['northeast']['latitude'] = $scope.filterMap.getBounds().getNorthEast().lat();
 		LocationsGetter.mapFilter['southwest']['longitude'] = $scope.filterMap.getBounds().getSouthWest().lng();
 		LocationsGetter.mapFilter['southwest']['latitude'] = $scope.filterMap.getBounds().getSouthWest().lat();
+		LocationsGetter.page_num = 1;
 		LocationsGetter.getLocations();
 	});
 	$scope.filterMap.addListener('zoom_changed', function() {
@@ -36734,6 +44119,7 @@ home.controller('MapFilterController',function($scope,LocationsGetter){
 		LocationsGetter.mapFilter['northeast']['latitude'] = $scope.filterMap.getBounds().getNorthEast().lat();
 		LocationsGetter.mapFilter['southwest']['longitude'] = $scope.filterMap.getBounds().getSouthWest().lng();
 		LocationsGetter.mapFilter['southwest']['latitude'] = $scope.filterMap.getBounds().getSouthWest().lat();
+		LocationsGetter.page_num = 1;
 		LocationsGetter.getLocations();
 	});
 	$scope.$watch('LocationsGetter.locationsPromise', function(){
@@ -36763,12 +44149,12 @@ home.factory("LocationsGetter",function($q,$http){
 	var filter = {};
 	LocationsGetter.mapFilter = {};
 	LocationsGetter.markerMap = {};
-
+	LocationsGetter.page_num = 1
 	filter['climbing_types'] = [];
 	filter['continents'] = [];
 	filter['price_max'] = [];
 	filter['sort'] = [];
-	filter['search']
+	filter['search'] = '';
 	LocationsGetter.mapFilter['northeast'] = {};
 	LocationsGetter.mapFilter['northeast']['longitude'] = null;
 	LocationsGetter.mapFilter['northeast']['latitude'] = null;
@@ -36781,7 +44167,7 @@ home.factory("LocationsGetter",function($q,$http){
 	sort['grade'] = [];
 	LocationsGetter.toggleFilterButton = function(eventItem,filterArray,filterValue){
 		toggleButtonActive(angular.element(eventItem.currentTarget));
-
+		angular.element(eventItem.currentTarget).blur();
 		if(filterValue != 'sort' && $.inArray(filterValue,filter[filterArray]) != -1){
 			//remove item from filter
 			filter[filterArray].splice($.inArray(filterValue,filter[filterArray]), 1);
@@ -36800,11 +44186,19 @@ home.factory("LocationsGetter",function($q,$http){
 				inactivateGroupAll(angular.element(eventItem.currentTarget).parent());
 			}
 		}
+		LocationsGetter.page_num = 1;
 		LocationsGetter.getLocations();
 	
 	};
+	LocationsGetter.pageChange = function(page){
+		LocationsGetter.page_num = page;
+		if(LocationsGetter.page_num < 1)
+			LocationsGetter.page_num = 1;
+		LocationsGetter.getLocations();
+	}
 	LocationsGetter.filterByQuery = function(eventItem){
 		filter['search'] = eventItem;
+		LocationsGetter.page_num = 1;
 		LocationsGetter.getLocations();
 	}
 	LocationsGetter.getFlightQuotes = function(slugs,originAirportCode){
@@ -36817,7 +44211,7 @@ home.factory("LocationsGetter",function($q,$http){
 	}
 	LocationsGetter.getLocations = function(){
 		var deferred = $q.defer();
-		$http.post('/api/filter_locations', {filter: filter, mapFilter: LocationsGetter.mapFilter}).success(function(data){
+		$http.post('/api/filter_locations', {filter: filter, mapFilter: LocationsGetter.mapFilter, page: LocationsGetter.page_num}).success(function(data){
 			deferred.resolve(data);
 		});
 		LocationsGetter.locationsPromise = deferred.promise;
@@ -37143,6 +44537,179 @@ locationListItemDir.controller('LocationListItemController',function($scope,$ele
 	});
 });
 
+var sectionForm = angular.module('section-form-directive', ['schemaForm','formly','formlyBootstrap']);
+
+sectionForm.directive('sectionform', function(){
+	return {
+		restrict: 'E',
+		templateUrl: 'common/directives/section_form/section_form.tpl.html',
+		controller: 'SectionFormController'
+	};
+});
+/*
+sectionForm.run(function(formlyConfig){
+	formlyConfig.setType({
+		name: 'inputter',
+		templateUrl: 'input.html'
+	});
+});*/
+
+sectionForm.controller('SectionFormController', function($scope,formlyVersion){
+	$scope.section = {}
+	$scope.section.title = "Section Title";
+	$scope.section.description = "Section Description";
+	$scope.subsectionDescs = ['test1','test2']
+
+	$scope.addSubsectionDesc = function(description){
+		$scope.subsectionDescs.push(description);
+
+	}
+
+
+/*
+    $scope.user = {};
+
+ $scope.userFields = [
+    {
+    	type: 'inputter'
+    	templateOptions: {
+    		label: "first name",
+    	}
+    }
+  ];
+  
+  $scope.onSubmit = onSubmit;
+  
+  
+  function onSubmit() {
+    console.log('form submitted:', $scope.user);
+  }
+
+
+
+
+
+	$scope.section.subsections = {}
+	$scope.subsection = {
+		"type":"object",
+		"properties": {
+			"sectionTitle": { "type": "string", "title": "Section Title", "description": "Section Title" },
+			"sectionBody": {
+				"type": "string", "title": "Section Description", "description": "ex. The rock here is limestone and wont tear up your skin"
+			},
+			"subsection" : {
+				"type": "array",
+				"items": {
+					"type":"object",
+					"properties": {
+						"subsectionTitle": { "title": "Subsection Title", "type": "string" },
+						"subsectionBullets" : {
+							"type": "array",
+							"items": {
+								"type":"object",
+								"properties": {
+									"subsectionBullet": {"type":"string"}
+								}
+							}
+						}
+					}
+				}
+			},
+		}
+	}
+	$scope.schema = {
+		"type": "object",
+		"title": "Location",
+		"properties": {
+			"locationName": { "type": "string", "title": "Location Name", "description": "ex. Bishop" },
+			"climbingTypes": { "type": "string", "title": "placeholder for climbing types", "description": "ex. Bishop" },
+			"months": { "type": "string", "title": "placeholder for months", "description": "ex. Bishop" },
+			"accommodations": { "type": "string", "title": "placeholder for accommodations", "description": "ex. Bishop" },
+			"locationSection" : {
+				"type":"array",
+				"items": {
+					"type":"object",
+					"properties": {
+						"sectionTitle": { "type": "string", "title": "Section Title", "description": "Section Title" },
+						"sectionBody": {
+							"type": "string", "title": "Section Description", "description": "ex. The rock here is limestone and wont tear up your skin"
+						},
+						"subsection" : {
+							"type": "array",
+							"items": {
+								"type":"object",
+								"properties": {
+									"subsectionTitle": { "title": "Subsection Title", "type": "string" },
+									"subsectionBullets" : {
+										"type": "array",
+										"items": {
+											"type":"object",
+											"properties": {
+												"subsectionBullet": {"type":"string"}
+											}
+										}
+									}
+								}
+							}
+						},
+					}
+				}
+			}
+		}
+	};
+  $scope.subsectionForm = [
+		{
+		}
+	];
+	$scope.form = [
+		{
+			"type": "help",
+			"helpvalue": "<div class='alert alert-info'>info for this location</div>"
+		},
+		{
+			"type":"section",
+			"htmlClass":"row",
+			"items":[
+				{
+					"type":"section",
+					"htmlClass":"col-md-11 col-md-offset-1",
+					"items":["locationName","climbingTypes","months","accommodations"],
+				}
+			]
+		},
+		{
+			"type":"tabarray",
+			"key":"locationSection",
+			"title": "{{ value.sectionTitle }}",
+			"htmlClass": 'panel panel-default panel-body',
+			"items":[{
+				"type":"section",
+				"htmlClass":"row col-md-12",
+				"items":["locationSection[].sectionTitle","locationSection[].sectionBody",
+					{
+						"type":"tabarray",
+						"key": "subsection",
+						"title": "{{ value }}",
+						"htmlClass": 'panel panel-default panel-body',
+						"items": [
+						{
+							"key":"locationSection[].subsection[].subsectionTitle",
+							"onChange" : function(modelValue,form){console.log(form);}
+						},{
+							"type": "array",
+							"htmlClass": 'panel panel-default panel-body',
+							"key":"locationSection[].subsection[].subsectionBullets",
+							"items": [{"key":"locationSection[].subsection[].subsectionBullets[].subsectionBullet","notitle":true}]
+						}]
+					}
+				]
+			}]
+		}
+	];
+
+	$scope.model = {};*/
+	});
+
 var locationSection = angular.module('location-section-directives', []);
 
 locationSection.directive('locationsection', function(){
@@ -37153,8 +44720,10 @@ locationSection.directive('locationsection', function(){
 });
 
 angular.module("app").run(["$templateCache", function($templateCache) {$templateCache.put("features/filter/filter.tpl.html","<section><div class=\"jumbotron homepage\"><div class=\"container\"><span class=\"h2\">Search: <input type=\"text\" ng-model=\"searchQuery\" ng-trim=\"true\" ng-change=\"LocationsGetter.filterByQuery(searchQuery)\" ng-model-options=\"{ debounce: 500 }\" placeholder=\"limestone\"></span><h2>Filter:<div class=\"btn-group btn-group-filter\" data=\"price\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\" data=\"all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'15\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"15\">$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'30\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"30\">$$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'45\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"45\">$$$</button></div><div class=\"btn-group btn-group-filter\" data=\"continent\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'continents\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'continents\',continent )\" ng-repeat=\"continent in filter.continents\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ continent }}\">{{ continent }}</button></div><div class=\"btn-group btn-group-filter\" data=\"climbing_types\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',name )\" ng-repeat=\"(name,climbType) in filter.climbTypes\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ name }}\"><img ng-src=\"{{ climbType }}\" class=\"icon button\"></button></div></h2><span class=\"h2\">Sort:<div class=\"btn-group btn-group-sort\" data=\"sort\" role=\"group\"><button type=\"button\" data=\"all\" class=\"sort-button btn btn-lg btn-default all\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'All\')\">All</button> <button type=\"button\" data=\"price\" class=\"sort-button btn btn-lg btn-default\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'price\')\">$</button> <button type=\"button\" data=\"grade\" class=\"sort-button btn btn-lg btn-default\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'grade\')\">Grade</button></div></span> <span class=\"h2\">Your Airport: <input type=\"text\" ng-model=\"origin_airport\" ng-trim=\"true\" ng-minlength=\"3\" ng-maxlength=\"3\"></span></div></div></section>");
-$templateCache.put("views/home/home.tpl.html","<section ng-controller=\"LocationsController\"><filter></filter><div class=\"row\"><div class=\"col-md-9 locations-window\" data-spy=\"scroll\"><location ng-repeat=\"locationData in locationData\"></location></div><div id=\"mapFilter\" ng-controller=\"MapFilterController\" class=\"col-md-3\"></div></div></section>");
-$templateCache.put("views/location/location.tpl.html","<section><div class=\"container-fluid\"><style type=\"text/css\">\n		html, body, #map-canvas { height: 25em; margin: 0; padding: 0;}\n	</style><script type=\"text/javascript\">\n		\n	</script><div class=\"jumbotron\"><div id=\"map-canvas\"></div></div></div><div class=\"container\"><div class=\"row\"><div class=\"col-md-8\"><div class=\"row\"><div class=\"col-md-4\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" width=\"192\" height=\"192\"></div><div class=\"col-md-8\"><h1>{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</h1><div class=\"row\"><div class=\"col-md-3\"><h5>When Should I go?</h5><img ng-repeat=\"season in locationData[\'seasons\']\" ng-src=\"{{ season[\'url\'] }}\" title=\"{{ season[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><h5>Where can I stay?</h5><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" title=\"{{ accommodation[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><h5>What should I climb?</h5><img ng-repeat=\"climbing_type in locationData[\'climbing_types\']\" ng-src=\"{{ climbing_type[\'url\'] }}\" title=\"{{ climbing_type[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><div class=\"\">I should climb around<mark><strong>{{ locationData[\'grade\'] }}</strong></mark>to get the most out of my trip</div></div></div></div></div></div></div></div><nav class=\"navbar navbar-default navbar-fixed-bottom\"><div class=\"collapse navbar-collapse\"><ul class=\"nav navbar-nav\"><li class=\"\" ng-repeat=\"section in sections\"><a ng-click=\"scrollTo(section.title)\" target=\"_self\">{{ section[\'title\'] }}</a></li><li class=\"\"><a ng-click=\'scrollTo(\"nearby\")\'>Nearby Destinations</a></li></ul></div></nav><div class=\"container\"><locationsection ng-repeat=\"section in sections\"></locationsection><div id=\"nearby\" class=\"container info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>Nearby Destinations</u></h3><p class=\"lead\">Don\'t end your trip in {{locationData.name}}. There\'s plenty to see nearby</p></div></div><div class=\"row\"><div class=\"row col-md-12\"><div class=\"col-md-12\"><h5>Destinations within 200 miles of {{ locationData[\'name\'] }}</h5><ul class=\"list-group\"><a ng-repeat=\"nearLocation in nearby\" ng-href=\"/#location/{{ nearLocation.slug }}\"><li class=\"list-group-item\">{{nearLocation.name}}, {{nearLocation.country}} ----------- {{nearLocation.distance}} miles</li></a></ul></div></div></div></div></div></section>");
-$templateCache.put("common/directives/location_list_item/location_list_item.tpl.html","<div class=\"row location-row\"><div class=\"col-md-2\"><a ng-href=\"/#location/{{ locationData[\'slug\'] }}\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" height=\"192\" width=\"192\"></a></div><div class=\"col-md-10\"><div class=\"row\"><h3 class=\"col-md-8 col-md-offset-1\"><a ng-href=\"/#location/{{ locationData[\'slug\'] }}\">{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</a> <small>${{ locationData[\'price_range_floor_cents\']}} - ${{ locationData[\'price_range_ceiling_cents\'] }} / day</small></h3></div><div class=\"icon-row row\"><h4 class=\"col-md-3 col-md-offset-1\">Why Should I go?</h4><div class=\"col-md-2\"><img ng-repeat=\"type in locationData[\'climbing_types\']\" ng-src=\"{{ type[\'url\'] }}\" class=\"icon\" title=\"{{ type[\'name\'] }}\"></div><h4 class=\"col-md-4\">Where am I going to sleep?</h4><div class=\"col-md-2\"><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" class=\"icon\" title=\"{{ accommodation[\'name\'] }}\"></div></div><div class=\"icon-row row\"><h4 class=\"col-md-3 col-md-offset-1\">When Should I go?</h4><div class=\"col-md-2\"><img ng-repeat=\"season in locationData[\'seasons\']\" ng-src=\"{{ season[\'url\'] }}\" class=\"icon\" title=\"{{ season[\'name\'] }}\"></div><h4 class=\"col-md-4\">How hard should I climb?</h4><div class=\"col-md-2\"><h4>{{ locationData[\'grade\'] }}</h4></div></div><div class=\"row\"><div id=\"highchart{{locationData[\'airport_code\']+\'-\'+locationData[\'slug\']}}\" style=\"margin: 0 auto\"></div></div></div></div>");
+$templateCache.put("views/home/home.tpl.html","<section ng-controller=\"LocationsController\"><filter></filter><div class=\"row\"><div class=\"col-md-9 locations-window\" data-spy=\"scroll\"><location ng-repeat=\"locationData in locationData\"></location><nav class=\"text-center\"><ul class=\"pagination\"><li><a ng-click=\"LocationsGetter.pageChange(LocationsGetter.page_num - 1)\" aria-label=\"Previous\"><span aria-hidden=\"true\">&laquo;</span></a></li><li ng-class=\"(1 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(1)\">1</a></li><li ng-class=\"(2 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(2)\">2</a></li><li ng-class=\"(3 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(3)\">3</a></li><li ng-class=\"(4 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(4)\">4</a></li><li ng-class=\"(5 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(5)\">5</a></li><li><a ng-click=\"LocationsGetter.pageChange(LocationsGetter.page_num + 1)\" aria-label=\"Next\"><span aria-hidden=\"true\">&raquo;</span></a></li></ul></nav></div><div id=\"mapFilter\" ng-controller=\"MapFilterController\" class=\"col-md-3\"></div></div></section>");
+$templateCache.put("views/location/location.tpl.html","<section><div class=\"container-fluid\"><style type=\"text/css\">\n		html, body, #map-canvas { height: 25em; margin: 0; padding: 0;}\n	</style><script type=\"text/javascript\">\n		\n	</script><div class=\"jumbotron\"><div id=\"map-canvas\"></div></div></div><div class=\"container\"><div class=\"row\"><div class=\"col-md-12\"><div class=\"row\"><div class=\"col-md-3\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" width=\"192\" height=\"192\"></div><div class=\"col-md-9\"><h1>{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</h1><div class=\"row\"><div class=\"col-md-3\"><h5>When Should I go?</h5>{{ locationData[\'date_range\'] }}</div><div class=\"col-md-3\"><h5>Where can I stay?</h5><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" title=\"{{ accommodation[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><h5>What should I climb?</h5><img ng-repeat=\"climbing_type in locationData[\'climbing_types\']\" ng-src=\"{{ climbing_type[\'url\'] }}\" title=\"{{ climbing_type[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><div class=\"\">I should climb around<mark><strong>{{ locationData[\'grade\'] }}</strong></mark>to get the most out of my trip</div></div></div></div></div></div></div></div><div class=\"container\"><locationsection ng-repeat=\"section in sections\"></locationsection><div id=\"nearby\" class=\"container info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>Nearby Destinations</u></h3><p class=\"lead\">Don\'t end your trip in {{locationData.name}}. There\'s plenty to see nearby</p></div></div><div class=\"row\"><div class=\"row col-md-12\"><div class=\"col-md-12\"><h5>Destinations within 200 miles of {{ locationData[\'name\'] }}</h5><ul class=\"list-group\"><a ng-repeat=\"nearLocation in nearby\" ng-href=\"/#location/{{ nearLocation.slug }}\"><li class=\"list-group-item\">{{nearLocation.name}}, {{nearLocation.country}} ----------- {{nearLocation.distance}} miles</li></a></ul></div></div></div></div></div></section><nav class=\"navbar navbar-default navbar-fixed-bottom\"><div class=\"collapse navbar-collapse\"><ul class=\"nav navbar-nav\"><li class=\"\" ng-repeat=\"section in sections\"><a ng-click=\"scrollTo(section.title)\" target=\"_self\">{{ section[\'title\'] }}</a></li><li class=\"\"><a ng-click=\'scrollTo(\"nearby\")\'>Nearby Destinations</a></li></ul></div></nav>");
+$templateCache.put("views/new_location/submitpage.tpl.html","<sectionform></sectionform>");
+$templateCache.put("common/directives/location_list_item/location_list_item.tpl.html","<div class=\"row location-row\"><div class=\"col-md-2\"><a ng-href=\"/#location/{{ locationData[\'slug\'] }}\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" height=\"192\" width=\"192\"></a></div><div class=\"col-md-10\"><div class=\"row\"><h3 class=\"col-md-8 col-md-offset-1\"><a ng-href=\"/#location/{{ locationData[\'slug\'] }}\">{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</a> <small>${{ locationData[\'price_range_floor_cents\']}} - ${{ locationData[\'price_range_ceiling_cents\'] }} / day</small></h3></div><div class=\"icon-row row\"><h4 class=\"col-md-3 col-md-offset-1\">Why Should I go?</h4><div class=\"col-md-2\"><img ng-repeat=\"type in locationData[\'climbing_types\']\" ng-src=\"{{ type[\'url\'] }}\" class=\"icon\" title=\"{{ type[\'name\'] }}\"></div><h4 class=\"col-md-4\">Where am I going to sleep?</h4><div class=\"col-md-2\"><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" class=\"icon\" title=\"{{ accommodation[\'name\'] }}\"></div></div><div class=\"icon-row row\"><h4 class=\"col-md-3 col-md-offset-1\">When Should I go?</h4><div class=\"col-md-2\">{{ locationData[\'date_range\']}}</div><h4 class=\"col-md-4\">How hard should I climb?</h4><div class=\"col-md-2\"><h4>{{ locationData[\'grade\'] }}</h4></div></div><div class=\"row\"><div id=\"highchart{{locationData[\'airport_code\']+\'-\'+locationData[\'slug\']}}\" style=\"margin: 0 auto\"></div></div></div></div>");
+$templateCache.put("common/directives/section_form/section_form.tpl.html","<div class=\"container\"><div class=\"row col-md-12\"><div class=\"input-group input-group-lg\"><input type=\"text\" placeholder=\"Section Title\" class=\"form-control\" ng-model=\"section.title\"></div></div><div class=\"row col-md-11 col-md-offset-1\"><div class=\"input-group\"><textarea placeholder=\"Section Description\" class=\"form-control\" rows=\"6\" ng-model=\"section.description\"></textarea></div></div><div class=\"row\"><div class=\"col-md-1\"><button>Save</button></div><div class=\"col-md-11\"><div class=\"input-group\"><input type=\"text\" placeholder=\"Sub-Section Title\" class=\"form-control\"><div class=\"row col-md-12\" ng-repeat=\"subsectionDesc in subsectionDescs\"><div class=\"input-group input-group-sm\"><span class=\"input-group-addon\" id=\"add-row\" ng-click=\"addSubsectionDesc(subsectionDesc)\">+</span><input type=\"text\" placeholder=\"Sub-Section Desc\" class=\"form-control\" aria-describedby=\"add-row\" ng-model=\"subsectionDesc\"></div></div></div></div></div></div>");
 $templateCache.put("common/directives/location_section/location_section.tpl.html","<div id=\"{{ section.title | removeSpaces }}\" class=\"container info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>{{ section.title }}</u></h3><p class=\"lead\">{{ section.body }}</p></div></div><div class=\"row\"><div ng-repeat=\"pair in section.data\" class=\"row col-md-12\"><div ng-repeat=\"(key,dataArray) in pair\" class=\"col-md-6\"><h5>{{key}}</h5><ul class=\"list-group\"><li ng-repeat=\"information in dataArray[0]\" class=\"list-group-item\">{{information}}</li></ul></div></div></div></div>");}]);
 //# sourceMappingURL=app.js.map

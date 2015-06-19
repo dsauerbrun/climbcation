@@ -60,9 +60,10 @@ Rails.application.routes.draw do
 	#   s
   #   end
 	post 'api/filter_locations', to: 'locations#filter_locations'
+	get 'api/filter_locations', to: 'locations#filter_locations'
 	get 'api/location/:slug', to: 'locations#show', as: 'location'
 	get 'api/filters', to: 'application#filters'
 	post 'api/collect_locations_quotes', to:'locations#collect_locations_quotes'
 	get 'api/collect_locations_quotes', to:'locations#collect_locations_quotes'
-	get 'api/collect_locations_quotes', to:'locations#collect_locations_quotes'
+	post 'api/collect_locations_quotes', to:'locations#collect_locations_quotes'
 end

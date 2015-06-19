@@ -58,6 +58,7 @@ class Location < ActiveRecord::Base
 				if month_array.has_key? 12 and numerical == 1
 					#get latest month
 					latest_month = 13
+					puts 'here start'
 					puts month_array
 					puts month_array.clone
 					puts month_array.clone.to_a

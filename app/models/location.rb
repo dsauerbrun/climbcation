@@ -58,13 +58,10 @@ class Location < ActiveRecord::Base
 				if month_array.has_key? 12 and numerical == 1
 					#get latest month
 					latest_month = 13
-					puts 'here start'
-					puts month_array
-					puts month_array.clone
-					puts month_array.clone.to_a
 					puts month_array.clone.to_a.reverse
-					puts month_array.clone.to_a.reverse.to_h
-					month_array.clone.to_a.reverse.to_h.each do |month_num, month_str|
+					month_array.clone.to_a.reverse.each do |month_num, month_str|
+						puts 'loop month array1'
+						puts month_num.to_s << ',' << month_str
 						if latest_month - 1 == month_num
 							latest_month = month_num
 						end

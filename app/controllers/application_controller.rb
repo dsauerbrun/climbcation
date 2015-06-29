@@ -51,6 +51,27 @@ class ApplicationController < ActionController::Base
 		render :json => filters 
 	end
 
+	def get_attribute_options
+		attributes = {}
+		attributes['climbing_types'] = []
+		attributes['accommodations'] = []
+		attributes['months'] = []
+		attributes['grades'] = []
+		Accommodation.all.each do |accommodation|
+			attributes['accommodations'].push(accommodation.html_attributes)
+		end
+		Season.all.each do |season|
+			attributes['months'].push(season.html_attributes)
+		end
+		ClimbingType.all.each do |type|
+			attributes['climbing_types'].push(type.html_attributes)
+		end
+		Grade.all.each do |grade|
+			attributes['grades'].push(grade.html_attributes)
+		end
+		render :json => attributes
+	end
+
 	def index
 		@climbtypes = ClimbingType.all
 		@locations = Location.order('name ASC').all

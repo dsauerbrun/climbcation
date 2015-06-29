@@ -66,4 +66,5 @@ Rails.application.routes.draw do
 	post 'api/collect_locations_quotes', to:'locations#collect_locations_quotes'
 	get 'api/collect_locations_quotes', to:'locations#collect_locations_quotes'
 	post 'api/collect_locations_quotes', to:'locations#collect_locations_quotes'
+	get 'api/get_attribute_options', to: 'application#get_attribute_options'
 end

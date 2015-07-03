@@ -37,7 +37,7 @@ class ApplicationController < ActionController::Base
 	
 	def filters
 		@climbtypes = ClimbingType.all
-		@locations = Location.order('name ASC').all
+		@locations = Location.where(active: true).order('name ASC').all
 		@continents = @locations.pluck(:continent).uniq
 		filters = {}
 		filters['climbTypes'] = {}
@@ -60,7 +60,7 @@ class ApplicationController < ActionController::Base
 		Accommodation.all.each do |accommodation|
 			attributes['accommodations'].push(accommodation.html_attributes)
 		end
-		Season.all.each do |season|
+		Season.order(:numerical_value).all.each do |season|
 			attributes['months'].push(season.html_attributes)
 		end
 		ClimbingType.all.each do |type|
@@ -74,7 +74,7 @@ class ApplicationController < ActionController::Base
 
 	def index
 		@climbtypes = ClimbingType.all
-		@locations = Location.order('name ASC').all
+		@locations = Location.where(active: true).order('name ASC').all
 		@continents = @locations.pluck(:continent).uniq
 	end
 	def home

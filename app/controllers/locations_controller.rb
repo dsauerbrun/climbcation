@@ -3,7 +3,7 @@ class LocationsController < ApplicationController
 		name_param= params[:slug]
 		return_map = {};
 		
-		@location = Location.where(slug: name_param).first
+		@location = Location.where(slug: name_param).where(active: true).first
 		return_map['nearby'] = @location.get_nearby_locations_json
 		return_map['location'] = @location.get_location_json 
 		return_map['sections'] = @location.get_sections
@@ -37,7 +37,7 @@ class LocationsController < ApplicationController
 		if(!params[:filter][:continents].nil?)
 			continent_filter = params[:filter][:continents]
 		else	
-			continent_filter = Location.all.pluck(:continent).uniq 
+			continent_filter = Location.where(active: true).all.pluck(:continent).uniq 
 		end
 		if(!params[:filter][:climbing_types].nil?)
 			climbing_filter = params[:filter][:climbing_types]
@@ -61,7 +61,7 @@ class LocationsController < ApplicationController
 			end
 		end
 
-		location_filter = Location.order(sort_filter).in_bounds([@swBounds, @neBounds]).joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter).joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"').where('lower("info_sections"."body") LIKE lower(?) OR lower(array_dims(array["info_sections"."metadata"])) LIKE lower(?) OR lower("locations"."name") LIKE lower(?)',string_filter,string_filter,string_filter).where(continent: continent_filter).where('price_range_floor_cents < ?',price_filter).includes(:grade,:seasons).paginate(:page => page_num, :per_page => 5).uniq 
+		location_filter = Location.where(active: true).order(sort_filter).in_bounds([@swBounds, @neBounds]).joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter).joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"').where('lower("info_sections"."body") LIKE lower(?) OR lower(array_dims(array["info_sections"."metadata"])) LIKE lower(?) OR lower("locations"."name") LIKE lower(?)',string_filter,string_filter,string_filter).where(continent: continent_filter).where('price_range_floor_cents < ?',price_filter).includes(:grade,:seasons).paginate(:page => page_num, :per_page => 5).uniq 
 		#location_filter = Location.all.joins(:climbing_types).includes(:grade,:seasons).uniq 
 		location_filter.each do |location|
 			location_json = location.get_location_json
@@ -90,13 +90,15 @@ class LocationsController < ApplicationController
 			request_list = {}
 			Typhoeus::Config.cache = SkyscannerCache.new
 			hydra = Typhoeus::Hydra.hydra
-			@locations = Location.where('slug IN (?)',slugs)
+			@locations = Location.where(active: true).where('slug IN (?)',slugs)
 			@locations.each do |location| 
 				key_val = "#{location.airport_code}-#{location.slug}"
 				if !location.airport_code.eql?(origin)
 					quotes[key_val] = {}
 					#request multithreads
-					curr_request = build_request(origin,location.airport_code,curr_year,curr_month)
+					#curr_request = build_request(origin,location.airport_code,curr_year,curr_month)
+					queue_request(origin,location.airport_code,hydra,quotes,key_val,curr_year,curr_month,'')
+=begin
 					curr_request.on_complete do |response|
 						if response.success?
 							quotes[key_val][curr_month] = process_quote_response(quotes[key_val],response,curr_year,curr_month)
@@ -110,7 +112,10 @@ class LocationsController < ApplicationController
 						end
 					end
 					hydra.queue(curr_request)
-					next_request = build_request(origin,location.airport_code,next_year,next_month)
+=end
+					#next_request = build_request(origin,location.airport_code,next_year,next_month)
+					queue_request(origin,location.airport_code,hydra,quotes,key_val,next_year,next_month,'')
+=begin
 					next_request.on_complete do |response|
 						if response.success?
 							quotes[key_val][next_month] = process_quote_response(quotes[key_val],response,curr_year,curr_month)
@@ -124,12 +129,68 @@ class LocationsController < ApplicationController
 						end
 					end
 					hydra.queue(next_request)
+=end
 					#end request multithreading
 					hydra.run
 				end
 			end
 		end
 		render :json => quotes
+	end
+
+	def new_location
+		puts params[:location]
+		puts 'that was location param'
+		puts params[:file]
+		params[:location] = JSON.parse(params[:location])
+		puts params[:location]["name"]
+		puts params[:location]['price_floor'].to_i
+		puts params[:location]['price_ceiling'].to_i
+		puts params[:location]['country']
+		puts params[:location]['airport']
+		new_loc = Location.create!(name: params[:location]['name'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
+		new_loc.grade = Grade.find(params[:location]['grade'])
+		params[:location]['climbingTypes'].each do |id,selected|
+			if selected == true
+				new_loc.climbing_types << ClimbingType.find(id)
+			end
+		end
+		params[:location]['accommodations'].each do |id,selected|
+			if selected == true
+				new_loc.accommodations << Accommodation.find(id)
+			end
+		end
+		params[:location]['months'].each do |id,selected|
+			if selected == true
+				new_loc.seasons << Season.find(id)
+			end
+
+		end
+		puts 'sections'
+		params[:location]['sections'].each do |section|
+			if section['title'] != ''
+				#puts 'here in section'
+				#puts section
+				metadata = {}
+				section['subsections'].each do |subsection|
+					puts subsection
+					if subsection['title'] != ''
+						metadata[subsection['title']] = []
+						subsection['descriptions'].each do |description|
+							if description['text'] != ''
+								metadata[subsection['title']].push(description['text'])
+							end
+						end
+					end
+				end
+				puts metadata
+				infosect = InfoSection.create!(title: section['title'], body: section['description'], metadata: metadata)
+				new_loc.info_sections << infosect
+			end
+		end
+		new_loc.save
+		returnit = {'name' => 'hello'}
+		render :json => returnit
 	end
 
 	def process_quote_response(map_to_count, response, year, month)
@@ -161,11 +222,56 @@ class LocationsController < ApplicationController
 		return dates
 	end
 
-	def build_request(origin_airport,destination_airport,year,month)
+	def build_request(origin_airport,destination_airport,year,month,ip_blacklist)
 		user_agent_string = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36'
-		options = {proxy: 'http://us-il.proxymesh.com:31280', proxyuserpwd: 'dsauerbrun:nafmay11', :headers => { 'User-Agent' => user_agent_string }}
+		options = {proxy: 'http://us.proxymesh.com:31280', proxyuserpwd: 'dsauerbrun:nafmay11', :headers => { 'User-Agent' => user_agent_string, 'X-ProxyMesh-Not_IP' => ip_blacklist, timeout: 4 }}
 		#Typhoeus::Config.verbose = true
 		return Typhoeus::Request.new("http://www.skyscanner.com/dataservices/browse/v2/mvweb/US/USD/en-US/calendar/#{origin_airport}/#{destination_airport}/#{year}-#{month}/?includequotedate=true&includemetadata=true", options)
+	end
+
+	def queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
+		next_request = build_request(origin_airport,destination_airport,year,month,ip_blacklist)
+		next_request.on_complete do |response|
+			if response.success?
+				if valid_json?(response.body)
+					puts 'success'
+					quotes[key_val][month] = process_quote_response(quotes[key_val],response,year,month)
+				else
+					puts 'bad json'
+					if ip_blacklist == ''
+						ip_blacklist = response.headers['X-ProxyMesh-IP']
+					else
+						ip_blacklist = ip_blacklist<< ',' << response.headers['X-ProxyMesh-IP']	
+					end
+					queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
+					puts response.headers['X-ProxyMesh-IP']
+				end
+			elsif response.timed_out?
+				puts("got a timeout for #{location.airport_code} #{month} month")
+				#queue_request(request,hydra,quotes,key_val,year,month)
+				if ip_blacklist == ''
+					ip_blacklist = response.headers['X-ProxyMesh-IP']
+				else
+					ip_blacklist = ip_blacklist<< ',' << response.headers['X-ProxyMesh-IP']	
+				end
+				queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
+			elsif response.code == 0
+				puts 'hello'
+				puts(response.return_message)
+				#queue_request(request,hydra,quotes,key_val,year,month)
+			else
+				puts("HTTP request failed for #{origin_airport} #{month} month: " + response.code.to_s)
+				puts response.body
+				if ip_blacklist == ''
+					ip_blacklist = response.headers['X-ProxyMesh-IP']
+				else
+					ip_blacklist = ip_blacklist<< ',' << response.headers['X-ProxyMesh-IP']	
+				end
+				queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
+			end
+		end
+		hydra.queue(next_request)
+
 	end
 
 	class SkyscannerCache
@@ -176,6 +282,13 @@ class LocationsController < ApplicationController
 		def set(request,response)
 			Rails.cache.write(request,response)
 		end
+	end
+
+	def valid_json?(json)
+		    JSON.parse(json)
+				return true
+	rescue
+		    return false
 	end
 end
 

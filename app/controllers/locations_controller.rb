@@ -96,40 +96,9 @@ class LocationsController < ApplicationController
 				if !location.airport_code.eql?(origin)
 					quotes[key_val] = {}
 					#request multithreads
-					#curr_request = build_request(origin,location.airport_code,curr_year,curr_month)
 					queue_request(origin,location.airport_code,hydra,quotes,key_val,curr_year,curr_month,'')
-=begin
-					curr_request.on_complete do |response|
-						if response.success?
-							quotes[key_val][curr_month] = process_quote_response(quotes[key_val],response,curr_year,curr_month)
-						elsif response.timed_out?
-							puts("got a timeout for #{location.airport_code} #{curr_month} month")
-						elsif response.code == 0
-							puts(response.return_message)
-						else
-							puts("HTTP request failed for #{location.airport_code} #{curr_month} month: " + response.code.to_s)
-							puts response.body
-						end
-					end
-					hydra.queue(curr_request)
-=end
-					#next_request = build_request(origin,location.airport_code,next_year,next_month)
+					#request for next month
 					queue_request(origin,location.airport_code,hydra,quotes,key_val,next_year,next_month,'')
-=begin
-					next_request.on_complete do |response|
-						if response.success?
-							quotes[key_val][next_month] = process_quote_response(quotes[key_val],response,curr_year,curr_month)
-						elsif response.timed_out?
-							puts("got a timeout for #{location.airport_code} #{curr_month} month")
-						elsif response.code == 0
-							puts(response.return_message)
-						else
-							puts("HTTP request failed for #{location.airport_code} #{curr_month} month: " + response.code.to_s)
-							puts response.body
-						end
-					end
-					hydra.queue(next_request)
-=end
 					#end request multithreading
 					hydra.run
 				end
@@ -148,7 +117,7 @@ class LocationsController < ApplicationController
 		puts params[:location]['price_ceiling'].to_i
 		puts params[:location]['country']
 		puts params[:location]['airport']
-		new_loc = Location.create!(name: params[:location]['name'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
+		new_loc = Location.create!(submitter_email: params[:location]['submitter_email'], name: params[:location]['name'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
 		new_loc.grade = Grade.find(params[:location]['grade'])
 		params[:location]['climbingTypes'].each do |id,selected|
 			if selected == true
@@ -176,15 +145,15 @@ class LocationsController < ApplicationController
 					puts subsection
 					if subsection['title'] != ''
 						metadata[subsection['title']] = []
-						subsection['descriptions'].each do |description|
-							if description['text'] != ''
-								metadata[subsection['title']].push(description['text'])
+						subsection['subsectionDescriptions'].each do |subsectionDescription|
+							if subsectionDescription['desc'] != ''
+								metadata[subsection['title']].push({'desc' => subsectionDescription['desc']})
 							end
 						end
 					end
 				end
 				puts metadata
-				infosect = InfoSection.create!(title: section['title'], body: section['description'], metadata: metadata)
+				infosect = InfoSection.create!(title: section['title'], body: section['body'], metadata: metadata)
 				new_loc.info_sections << infosect
 			end
 		end

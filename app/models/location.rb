@@ -144,13 +144,13 @@ class Location < ActiveRecord::Base
 			sections[section.id] = {}
 			sections[section.id][:title] = section.title
 			sections[section.id][:body] = section.body
-			sections[section.id][:data] = {} 
+			sections[section.id][:subsections] = {} 
 			if section.metadata.present?
 				section.metadata.each do |key,metadata|
-					if(!sections[section.id][:data].has_key?(key))
-						sections[section.id][:data][key] = [] 
+					if(!sections[section.id][:subsections].has_key?(key))
+						sections[section.id][:subsections][key] = {} 
 					end
-					sections[section.id][:data][key] <<  metadata
+					sections[section.id][:subsections][key] =  {title: key, subsectionDescriptions:metadata}
 				end
 			end
 		end
@@ -175,6 +175,7 @@ class Location < ActiveRecord::Base
 		json_return[:grade] = self.grade.us 
 		json_return[:airport_code] = self.airport_code
 		json_return[:date_range] = self.date_range
+		json_return[:submitter_email] = self.submitter_email
 		return json_return
 	end
 	

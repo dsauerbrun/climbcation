@@ -58,10 +58,7 @@ class Location < ActiveRecord::Base
 				if month_array.has_key? 12 and numerical == 1
 					#get latest month
 					latest_month = 13
-					puts month_array.clone.to_a.reverse
 					month_array.clone.to_a.reverse.each do |month_num, month_str|
-						puts 'loop month array1'
-						puts month_num.to_s << ',' << month_str
 						if latest_month - 1 == month_num
 							latest_month = month_num
 						end
@@ -75,8 +72,14 @@ class Location < ActiveRecord::Base
 				end
 			end
 			if counter == month_array.length and previous_month != 0
-				ranges.push(month)
-				range_string << ' - ' <<month[0...3]
+				if wrapper_break_month == numerical
+					ranges.push(month_array[previous_month])
+					range_string << ' - ' << month_array[previous_month][0...3]
+					break
+				else
+					ranges.push(month)
+					range_string << ' - ' <<month[0...3]
+				end
 			elsif (previous_month !=0 and previous_month+1 != numerical) 
 				#if the previous month already exists in the array dont push it again(will happen if there is a one month window for a location)
 				if !ranges.include?(month_array[previous_month])

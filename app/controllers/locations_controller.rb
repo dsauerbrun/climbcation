@@ -10,6 +10,11 @@ class LocationsController < ApplicationController
 		render :json => return_map 
 	end
 
+	def location_names
+		@locations = Location.all.pluck(:name)
+		render :json => @locations
+	end
+
 	def filter_locations
 		location_list = [] 
 		#mappicked filters

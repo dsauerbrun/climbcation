@@ -68,4 +68,5 @@ Rails.application.routes.draw do
 	post 'api/collect_locations_quotes', to:'locations#collect_locations_quotes'
 	get 'api/get_attribute_options', to: 'application#get_attribute_options'
 	post 'api/submit_new_location', to: 'locations#new_location'
+	get 'api/location/name/all', to: 'locations#location_names'
 end

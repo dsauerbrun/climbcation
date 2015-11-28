@@ -45398,7 +45398,7 @@ getOptions:function(){return P},hasBidiBug:Nb,isTouchDevice:Jb,setOptions:functi
 
 })(angular.module('ezfb', []));
 
-var home = angular.module('app', ['filter-directives','location-list-item-directives','location-section-directives','section-form-directive','ngRoute','facebookComments']);
+var home = angular.module('app', ['filter-directives','location-list-item-directives','location-section-directives','section-form-directive','ngRoute','facebookComments','ezfb']);
 home.config(['$routeProvider', function($routeProvider) {
 	$routeProvider
 	.when('/home', {
@@ -45417,6 +45417,12 @@ home.config(['$routeProvider', function($routeProvider) {
 
 }]);
 
+home.config(function(ezfbProvider){
+	ezfbProvider.setInitParams({
+		appId: '604556333018328',
+		version: 'v2.5'
+	})
+})
 
 home.filter('removeSpaces', function () {
 	return function (text) {
@@ -45424,7 +45430,7 @@ home.filter('removeSpaces', function () {
 		return str;
 	};
 });
-home.controller('LocationPageController',function($scope,$q,$http,$routeParams,$location,$anchorScroll,$timeout){
+home.controller('LocationPageController',function($scope,$rootScope,$q,$http,$routeParams,$location,$anchorScroll,$timeout){
 	slug = $routeParams.slug;
 	$scope.name = 'hello';
 	$scope.gmap;
@@ -45463,9 +45469,8 @@ home.controller('LocationPageController',function($scope,$q,$http,$routeParams,$
 			$('#saveSuccessModal').modal()
 		})
 	};
-	FB.XFBML.parse();
-
 });
+
 home.controller('LocationsController',function($scope, $timeout,LocationsGetter){
 	var locations = this;
 	$scope.locationData = [];
@@ -45797,6 +45802,32 @@ function setHighcharts(locationQuoteData, origin_airport){
 	});
 }
 
+var facebookComments = angular.module('facebookComments', []);
+
+facebookComments.directive('dynFbCommentBox', function () {
+    function createHTML(href, numposts, progwidth) {
+        return '<div class="fb-comments" ' +
+                       'data-href="' + href + '" ' +
+                       'data-numposts="' + numposts + '" ' +
+                       'data-width="' + progwidth + '">' +
+               '</div>';
+    }
+
+    return {
+        restrict: 'A',
+        scope: {},
+        link: function postLink(scope, elem, attrs) {
+            attrs.$observe('pageHref', function (newValue) {
+                var href        = newValue;
+                var numposts    = attrs.numposts    || 5;
+                var progwidth = attrs.progwidth;
+
+                elem.html(createHTML(href, numposts, progwidth));
+                FB.XFBML.parse(elem[0]);
+            });
+        }
+    };
+});
 var filterDir = angular.module('filter-directives', []);
 
 filterDir.directive('filter', function(){
@@ -45928,32 +45959,6 @@ function numberOfButtonGroupActive(buttonGroup){
 	return count;
 }
 
-var facebookComments = angular.module('facebookComments', []);
-
-facebookComments.directive('dynFbCommentBox', function () {
-    function createHTML(href, numposts, progwidth) {
-        return '<div class="fb-comments" ' +
-                       'data-href="' + href + '" ' +
-                       'data-numposts="' + numposts + '" ' +
-                       'data-width="' + progwidth + '">' +
-               '</div>';
-    }
-
-    return {
-        restrict: 'A',
-        scope: {},
-        link: function postLink(scope, elem, attrs) {
-            attrs.$observe('pageHref', function (newValue) {
-                var href        = newValue;
-                var numposts    = attrs.numposts    || 5;
-                var progwidth = attrs.progwidth;
-
-                elem.html(createHTML(href, numposts, progwidth));
-                FB.XFBML.parse(elem[0]);
-            });
-        }
-    };
-});
 var locationListItemDir = angular.module('location-list-item-directives', []);
 
 locationListItemDir.directive('location', function(){
@@ -46265,7 +46270,7 @@ sectionForm.directive('integer', function() {
 });
 angular.module("app").run(["$templateCache", function($templateCache) {$templateCache.put("features/filter/filter.tpl.html","<section><div class=\"jumbotron homepage\"><div class=\"container\"><span class=\"h2\">Search: <input type=\"text\" ng-model=\"searchQuery\" ng-trim=\"true\" ng-change=\"LocationsGetter.filterByQuery(searchQuery)\" ng-model-options=\"{ debounce: 500 }\" placeholder=\"limestone\"></span><h2>Filter:<div class=\"btn-group btn-group-filter\" data=\"price\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\" data=\"all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'15\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"15\">$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'30\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"30\">$$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'45\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"45\">$$$</button></div><div class=\"btn-group btn-group-filter\" data=\"continent\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'continents\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'continents\',continent )\" ng-repeat=\"continent in filter.continents\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ continent }}\">{{ continent }}</button></div><div class=\"btn-group btn-group-filter\" data=\"climbing_types\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',name )\" ng-repeat=\"(name,climbType) in filter.climbTypes\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ name }}\"><img ng-src=\"{{ climbType }}\" class=\"icon button\"></button></div></h2><span class=\"h2\">Sort:<div class=\"btn-group btn-group-sort\" data=\"sort\" role=\"group\"><button type=\"button\" data=\"all\" class=\"sort-button btn btn-lg btn-default all\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'All\')\">All</button> <button type=\"button\" data=\"price\" class=\"sort-button btn btn-lg btn-default\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'price\')\">$</button> <button type=\"button\" data=\"grade\" class=\"sort-button btn btn-lg btn-default\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'grade\')\">Grade</button></div></span> <span class=\"h2\">Your Airport: <input type=\"text\" ng-model=\"origin_airport\" ng-trim=\"true\" ng-minlength=\"3\" ng-maxlength=\"3\"></span></div></div></section>");
 $templateCache.put("views/home/home.tpl.html","<section ng-controller=\"LocationsController\"><filter></filter><div class=\"row\"><div class=\"col-md-9 locations-window\" data-spy=\"scroll\"><location ng-repeat=\"locationData in locationData\"></location><nav class=\"text-center\"><ul class=\"pagination\"><li><a ng-click=\"LocationsGetter.pageChange(LocationsGetter.page_num - 1)\" aria-label=\"Previous\"><span aria-hidden=\"true\">&laquo;</span></a></li><li ng-class=\"(1 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(1)\">1</a></li><li ng-class=\"(2 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(2)\">2</a></li><li ng-class=\"(3 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(3)\">3</a></li><li ng-class=\"(4 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(4)\">4</a></li><li ng-class=\"(5 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(5)\">5</a></li><li><a ng-click=\"LocationsGetter.pageChange(LocationsGetter.page_num + 1)\" aria-label=\"Next\"><span aria-hidden=\"true\">&raquo;</span></a></li></ul></nav></div><div id=\"mapFilter\" ng-controller=\"MapFilterController\" class=\"col-md-3\"></div></div></section>");
-$templateCache.put("views/location/location.tpl.html","<div id=\"saveSuccessModal\" class=\"modal\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button><h4 class=\"modal-title\">Thank you!</h4></div><div class=\"modal-body\"><p>Your change has been submitted!</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button></div></div></div></div><section class=\"location-info-container\"><div class=\"container-fluid\"><style type=\"text/css\">\n			html, body, #map-canvas { height: 25em; margin: 0; padding: 0;}\n		</style><script type=\"text/javascript\">\n			\n		</script><div class=\"jumbotron\"><div id=\"map-canvas\"></div></div></div><div class=\"container\"><div class=\"row\"><div class=\"col-md-12\"><div class=\"row\"><div class=\"col-md-3\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" width=\"192\" height=\"192\"></div><div class=\"col-md-9\"><h1>{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</h1><div class=\"row\"><div class=\"col-md-3\"><h5>When Should I go?</h5>{{ locationData[\'date_range\'] }}</div><div class=\"col-md-3\"><h5>Where can I stay?</h5><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" title=\"{{ accommodation[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><h5>What should I climb?</h5><img ng-repeat=\"climbing_type in locationData[\'climbing_types\']\" ng-src=\"{{ climbing_type[\'url\'] }}\" title=\"{{ climbing_type[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><div class=\"\">I should climb around<mark><strong>{{ locationData[\'grade\'] }}</strong></mark>to get the most out of my trip</div></div></div></div></div></div></div></div><div class=\"container\"><locationsection section=\"section\" sections-length=\"-2\" ng-repeat=\"(sectionId, section) in sections\" save-section=\"updateSection(sectionId, section)\"></locationsection><div id=\"nearby\" class=\"info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>Nearby Destinations</u></h3><p class=\"lead\">Don\'t end your trip in {{locationData.name}}. There\'s plenty to see nearby</p></div></div><div class=\"row\"><div class=\"row col-md-12\"><div class=\"col-md-12\"><h5>Destinations within 200 miles of {{ locationData[\'name\'] }}</h5><ul class=\"list-group\"><a ng-repeat=\"nearLocation in nearby\" ng-href=\"/#location/{{ nearLocation.slug }}\"><li class=\"list-group-item\">{{nearLocation.name}}, {{nearLocation.country}} ----------- {{nearLocation.distance}} miles</li></a></ul></div></div></div></div><div id=\"comments\" class=\"fb-comments info-section\" data-width=\"100%\" data-href=\"http://www.climbcation.com/{{ locationData[\'name\'] }}\" data-numposts=\"5\"></div></div></section><nav class=\"navbar navbar-default navbar-fixed-bottom\"><div class=\"collapse navbar-collapse\"><ul class=\"nav navbar-nav\"><li class=\"footer-link\" ng-repeat=\"section in sections\"><a ng-click=\"scrollTo(section.title)\" target=\"_self\">{{ section[\'title\'] }}</a></li><li class=\"footer-link\"><a ng-click=\'scrollTo(\"nearby\")\'>Nearby Destinations</a></li><li class=\"footer-link\"><a ng-click=\'scrollTo(\"comments\")\'>Comments</a></li></ul></div></nav>");
+$templateCache.put("views/location/location.tpl.html","<div id=\"saveSuccessModal\" class=\"modal\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button><h4 class=\"modal-title\">Thank you!</h4></div><div class=\"modal-body\"><p>Your change has been submitted!</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button></div></div></div></div><section class=\"location-info-container\"><div class=\"container-fluid\"><style type=\"text/css\">\n			html, body, #map-canvas { height: 25em; margin: 0; padding: 0;}\n		</style><script type=\"text/javascript\">\n			\n		</script><div class=\"jumbotron\"><div id=\"map-canvas\"></div></div></div><div class=\"container\"><div class=\"row\"><div class=\"col-md-12\"><div class=\"row\"><div class=\"col-md-3\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" width=\"192\" height=\"192\"></div><div class=\"col-md-9\"><h1>{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</h1><div class=\"row\"><div class=\"col-md-3\"><h5>When Should I go?</h5>{{ locationData[\'date_range\'] }}</div><div class=\"col-md-3\"><h5>Where can I stay?</h5><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" title=\"{{ accommodation[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><h5>What should I climb?</h5><img ng-repeat=\"climbing_type in locationData[\'climbing_types\']\" ng-src=\"{{ climbing_type[\'url\'] }}\" title=\"{{ climbing_type[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><div class=\"\">I should climb around<mark><strong>{{ locationData[\'grade\'] }}</strong></mark>to get the most out of my trip</div></div></div></div></div></div></div></div><div class=\"container\"><locationsection section=\"section\" sections-length=\"-2\" ng-repeat=\"(sectionId, section) in sections\" save-section=\"updateSection(sectionId, section)\"></locationsection><div id=\"nearby\" class=\"info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>Nearby Destinations</u></h3><p class=\"lead\">Don\'t end your trip in {{locationData.name}}. There\'s plenty to see nearby</p></div></div><div class=\"row\"><div class=\"row col-md-12\"><div class=\"col-md-12\"><h5>Destinations within 200 miles of {{ locationData[\'name\'] }}</h5><ul class=\"list-group\"><a ng-repeat=\"nearLocation in nearby\" ng-href=\"/#location/{{ nearLocation.slug }}\"><li class=\"list-group-item\">{{nearLocation.name}}, {{nearLocation.country}} ----------- {{nearLocation.distance}} miles</li></a></ul></div></div></div></div><div id=\"comments\" onrender=\"rendered()\" class=\"fb-comments info-section\" data-width=\"100%\" ng-attr-data-href=\"http://www.climbcation.com/{{ locationData[\'name\'] }}\" data-numposts=\"5\"></div></div></section><nav class=\"navbar navbar-default navbar-fixed-bottom\"><div class=\"collapse navbar-collapse\"><ul class=\"nav navbar-nav\"><li class=\"footer-link\" ng-repeat=\"section in sections\"><a ng-click=\"scrollTo(section.title)\" target=\"_self\">{{ section[\'title\'] }}</a></li><li class=\"footer-link\"><a ng-click=\'scrollTo(\"nearby\")\'>Nearby Destinations</a></li><li class=\"footer-link\"><a ng-click=\'scrollTo(\"comments\")\'>Comments</a></li></ul></div></nav>");
 $templateCache.put("views/new_location/submitpage.tpl.html","<sectionform></sectionform>");
 $templateCache.put("common/directives/location_list_item/location_list_item.tpl.html","<div class=\"row location-row\"><div class=\"col-md-2\"><a ng-href=\"/#location/{{ locationData[\'slug\'] }}\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" height=\"192\" width=\"192\"></a></div><div class=\"col-md-10\"><div class=\"row\"><h3 class=\"col-md-8 col-md-offset-1\"><a ng-href=\"/#location/{{ locationData[\'slug\'] }}\">{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</a> <small>${{ locationData[\'price_range_floor_cents\']}} - ${{ locationData[\'price_range_ceiling_cents\'] }} / day</small></h3></div><div class=\"icon-row row\"><h4 class=\"col-md-3 col-md-offset-1\">Why Should I go?</h4><div class=\"col-md-2\"><img ng-repeat=\"type in locationData[\'climbing_types\']\" ng-src=\"{{ type[\'url\'] }}\" class=\"icon\" title=\"{{ type[\'name\'] }}\"></div><h4 class=\"col-md-4\">Where am I going to sleep?</h4><div class=\"col-md-2\"><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" class=\"icon\" title=\"{{ accommodation[\'name\'] }}\"></div></div><div class=\"icon-row row\"><h4 class=\"col-md-3 col-md-offset-1\">When Should I go?</h4><div class=\"col-md-2\">{{ locationData[\'date_range\']}}</div><h4 class=\"col-md-4\">How hard should I climb?</h4><div class=\"col-md-2\"><h4>{{ locationData[\'grade\'] }}</h4></div></div><div class=\"row\"><div id=\"highchart{{locationData[\'airport_code\']+\'-\'+locationData[\'slug\']}}\" style=\"margin: 0 auto\"></div></div></div></div>");
 $templateCache.put("common/directives/location_section/location_section.tpl.html","<div id=\"{{ section.title | removeSpaces }}\" ng-if=\"!section.previewOff\" class=\"info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>{{ section.title }}</u><a class=\"pull-right\" ng-click=\"previewSection(section)\">Edit section</a></h3><p class=\"lead\">{{ section.body }}</p></div></div><div class=\"row\"><div ng-repeat=\"(subsectionName,subsectionData) in section.subsections track by $index\"><div class=\"clearfix\" ng-if=\"$index % 2 == 0\"></div><div class=\"col-md-6\"><h5>{{subsectionData.title}}</h5><ul class=\"list-group\"><li ng-repeat=\"information in subsectionData.subsectionDescriptions\" class=\"list-group-item\" ng-if=\"information.desc != \'\' && information.desc != null\">{{information.desc}}</li></ul></div></div></div></div><div class=\"panel panel-default\" ng-if=\"section.previewOff\"><div class=\"panel-heading\"><div class=\"btn btn-success\" ng-class=\"{\'disabled\': section.isSaving }\" ng-if=\"indexIterator == sectionsLength - 1 || sectionsLength == -2\" ng-click=\"saveSection()\">Save section</div><div class=\"btn btn-danger\" ng-if=\"sectionsLength != -2 && (indexIterator != sectionsLength-1 && notDefaultSection(section))\" ng-click=\"removeSection(section)\">remove section</div><div class=\"btn btn-default\" ng-click=\"previewSection(section)\">{{ section.previewOff?\'Preview\':\'Edit\' }} section</div></div><span class=\"panel-body\"><div class=\"row\"><div class=\"col-md-offset-1 col-md-10\"><div class=\"form-group input-group-lg\"><input type=\"text\" placeholder=\"Section Title\" class=\"form-control\" ng-model=\"section.title\"></div></div></div><div class=\"row\"><div class=\"row col-md-9 col-md-offset-1\"><div class=\"form-group\"><textarea placeholder=\"{{sectionDescriptionPlaceholder(section)}}\" class=\"form-control\" rows=\"6\" ng-model=\"section.body\"></textarea></div></div></div><div class=\"row\"><div ng-repeat=\"subsection in section.subsections track by $index\"><div class=\"clearfix\" ng-if=\"$index % 2 == 0\"></div><div class=\"col-md-5\" ng-class=\"$index%2 ==0? \'col-md-offset-1\': \'\'\"><div class=\"row\"><div class=\"col-md-2\"><div class=\"btn btn-xs btn-success\" ng-if=\"$index == 0\" ng-click=\"addSubsection(subsection,section)\">Add subsection</div><div class=\"btn btn-xs btn-danger\" ng-if=\"$index != 0\" ng-click=\"removeSubsection(subsection,section.subsections)\">remove subsection</div></div><div class=\"col-md-offset-1 col-md-9 form-group\"><input type=\"text\" placeholder=\"{{subsectionTitlePlaceholder(section)}}\" class=\"form-control\" ng-model=\"subsection.title\"></div></div><div class=\"form-group row\"><div class=\"row col-md-9 col-md-offset-3\" ng-repeat=\"subsectionDesc in subsection.subsectionDescriptions track by $index\"><div class=\"input-group input-group-sm\"><span ng-if=\"$index == 0\" class=\"input-group-addon\" id=\"add-row\" ng-click=\"addSubsectionDesc(subsectionDesc,subsection.subsectionDescriptions)\">+</span> <span ng-if=\"$index != 0\" class=\"input-group-addon\" id=\"add-row\" ng-click=\"removeSubsectionDesc(subsectionDesc,subsection.subsectionDescriptions)\">-</span> <input type=\"text\" placeholder=\"{{subsectionDescriptionPlaceholder(section)}}\" class=\"form-control\" aria-describedby=\"add-row\" ng-model=\"subsectionDesc.desc\"></div></div></div></div></div></div></span></div>");

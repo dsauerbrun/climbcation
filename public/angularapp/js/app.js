@@ -44736,7 +44736,669 @@ for(c.attr(a);this["zoneGraph"+b];)this["zoneGraph"+b].attr(a),b+=1}},setVisible
 a.visible)a.isDirty=!0});m(c.linkedSeries,function(b){b.setVisible(a,!1)});if(g)d.isDirtyBox=!0;b!==!1&&d.redraw();M(c,f)},show:function(){this.setVisible(!0)},hide:function(){this.setVisible(!1)},select:function(a){this.selected=a=a===u?!this.selected:a;if(this.checkbox)this.checkbox.checked=a;M(this,a?"select":"unselect")},drawTracker:T.drawTrackerGraph});r(w,{Color:na,Point:Ga,Tick:Ta,Renderer:$a,SVGElement:K,SVGRenderer:ta,arrayMin:Pa,arrayMax:Fa,charts:X,dateFormat:Oa,error:ka,format:Ja,pathAnim:zb,
 getOptions:function(){return P},hasBidiBug:Nb,isTouchDevice:Jb,setOptions:function(a){P=z(!0,P,a);Cb();return P},addEvent:N,removeEvent:Y,createElement:Z,discardElement:Ra,css:F,each:m,map:Ua,merge:z,splat:ra,extendClass:ja,pInt:B,svg:ba,canvas:ea,vml:!ba&&!ea,product:"Highcharts",version:"4.1.5"})})();
 
-var home = angular.module('app', ['filter-directives','location-list-item-directives','location-section-directives','section-form-directive','ngRoute']);
+/*global angular*/
+(function (module) {
+
+  module
+  .provider('ezfb', function () {
+
+    // Borrow this from sdk/debug.js
+    var APP_EVENTS_EVENT_NAMES = {
+          COMPLETED_REGISTRATION: 'fb_mobile_complete_registration',
+          VIEWED_CONTENT: 'fb_mobile_content_view',
+          SEARCHED: 'fb_mobile_search',
+          RATED: 'fb_mobile_rate',
+          COMPLETED_TUTORIAL: 'fb_mobile_tutorial_completion',
+          ADDED_TO_CART: 'fb_mobile_add_to_cart',
+          ADDED_TO_WISHLIST: 'fb_mobile_add_to_wishlist',
+          INITIATED_CHECKOUT: 'fb_mobile_initiated_checkout',
+          ADDED_PAYMENT_INFO: 'fb_mobile_add_payment_info',
+          ACHIEVED_LEVEL: 'fb_mobile_level_achieved',
+          UNLOCKED_ACHIEVEMENT: 'fb_mobile_achievement_unlocked',
+          SPENT_CREDITS: 'fb_mobile_spent_credits'
+        },
+        APP_EVENTS_PARAMETER_NAMES = {
+          CURRENCY: 'fb_currency',
+          REGISTRATION_METHOD: 'fb_registration_method',
+          CONTENT_TYPE: 'fb_content_type',
+          CONTENT_ID: 'fb_content_id',
+          SEARCH_STRING: 'fb_search_string',
+          SUCCESS: 'fb_success',
+          MAX_RATING_VALUE: 'fb_max_rating_value',
+          PAYMENT_INFO_AVAILABLE: 'fb_payment_info_available',
+          NUM_ITEMS: 'fb_num_items',
+          LEVEL: 'fb_level',
+          DESCRIPTION: 'fb_description'
+        };
+
+    var NO_CALLBACK = -1;
+
+    /**
+     * Specify published apis and executable callback argument index
+     *
+     * ref: https://developers.facebook.com/docs/reference/javascript/
+     */
+    var _publishedApis = {
+      // core
+      'api': [1, 2, 3],
+      'ui': 1,
+
+      // auth
+      'getAuthResponse': NO_CALLBACK,
+      'getLoginStatus': 0,
+      'login': 0,
+      'logout': 0,
+
+      // event
+      'Event.subscribe': 1,
+      'Event.unsubscribe': 1,  // not quite a callback though
+
+      // xfbml
+      'XFBML.parse': 1,
+
+      // canvas
+      'Canvas.Prefetcher.addStaticResource': NO_CALLBACK,
+      'Canvas.Prefetcher.setCollectionMode': NO_CALLBACK,
+      'Canvas.getPageInfo': 0,
+      'Canvas.hideFlashElement': NO_CALLBACK,
+      'Canvas.scrollTo': NO_CALLBACK,
+      'Canvas.setAutoGrow': NO_CALLBACK,
+      'Canvas.setDoneLoading': 0,
+      'Canvas.setSize': NO_CALLBACK,
+      'Canvas.setUrlHandler': 0,
+      'Canvas.showFlashElement': NO_CALLBACK,
+      'Canvas.startTimer': NO_CALLBACK,
+      'Canvas.stopTimer': 0,
+
+      // app events for canvas apps
+      // https://developers.facebook.com/docs/canvas/appevents
+      'AppEvents.logEvent': NO_CALLBACK,
+      'AppEvents.logPurchase': NO_CALLBACK,
+      'AppEvents.activateApp': NO_CALLBACK
+    };
+
+    // Default locale
+    var _locale = 'en_US';
+
+    // Default init parameters
+    var _initParams = {
+      // appId      : '{your-app-id}', // App ID from the App Dashboard
+      status     : true, // check the login status upon init?
+      cookie     : true, // set sessions cookies to allow your server to access the session?
+      xfbml      : true,  // parse XFBML tags on this page?
+
+      // version information: https://developers.facebook.com/docs/apps/changelog/
+      version    : 'v2.4'
+    };
+    
+    /**
+     * Default load SDK function
+     *
+     * Injectable local: 
+     *   ezfbAsyncInit - module's private trigger of FB.init, should always be called to complete the ezfb init process
+     *   ezfbLocale    - configured SDK locale
+     */
+    var _defaultLoadSDKFunction = [
+                   '$window', '$document', 'ezfbAsyncInit', 'ezfbLocale',
+          function ($window,   $document,   ezfbAsyncInit,   ezfbLocale) {
+            // Load the SDK's source Asynchronously
+            (function(d){
+              var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+              if (d.getElementById(id)) {return;}
+              js = d.createElement('script'); js.id = id; js.async = true;
+              js.src = "//connect.facebook.net/" + ezfbLocale + "/sdk.js";
+              // js.src = "//connect.facebook.net/" + ezfbLocale + "/sdk/debug.js";  // debug
+              ref.parentNode.insertBefore(js, ref);
+            }($document[0]));
+
+            $window.fbAsyncInit = ezfbAsyncInit;
+          }],
+        _loadSDKFunction = _defaultLoadSDKFunction;
+
+    /**
+     * Default init function
+     *
+     * Injectable locals: 
+     *   ezfbInitParams - parameters provided by ezfbProvider.setInitParams() or ezfb.init()
+     */
+    var _defaultInitFunction = [
+                   '$window', 'ezfbInitParams', 
+          function ($window,   ezfbInitParams) {
+            // Initialize the FB JS SDK
+            $window.FB.init(ezfbInitParams);
+          }],
+        _initFunction = _defaultInitFunction;
+
+    /**
+     * Getter/setter of a config
+     *
+     * @param  {object} target to be configured object
+     * @param  {object} config configuration(optional)
+     * @return {*}             copied target if "config" is not given
+     */
+    function _config(target, config) {
+      if (angular.isObject(config)) {
+        angular.extend(target, config);
+      }
+      else {
+        return angular.copy(target);
+      }
+    }
+
+    /**
+     * Context and arguments proxy function
+     *
+     * @param  {function} func    the function
+     * @param  {object}   context the context
+     * @param  {array}    args    arguments
+     * @return {function}         proxied function
+     */
+    function _proxy(func, context, args) {
+      return function () {
+        return func.apply(context, args);
+      };
+    }
+
+    return {
+      ////////////////////////////
+      // provider configuration //
+      ////////////////////////////
+      setInitParams: function (params) {
+        _config(_initParams, params);
+      },
+      getInitParams: function () {
+        return _config(_initParams);
+      },
+
+      setLocale: function(locale) {
+        _locale = locale;
+      },
+      getLocale: function() {
+        return _locale;
+      },
+      
+      setLoadSDKFunction: function (func) {
+        if (angular.isArray(func) || angular.isFunction(func)) {
+          _loadSDKFunction = func;
+        }
+        else {
+          throw new Error('Init function type error.');
+        }
+      },
+      getLoadSDKFunction: function () {
+        return _loadSDKFunction;
+      },
+
+      setInitFunction: function (func) {
+        if (angular.isArray(func) || angular.isFunction(func)) {
+          _initFunction = func;
+        }
+        else {
+          throw new Error('Init function type error.');
+        }
+      },
+      getInitFunction: function () {
+        return _initFunction;
+      },
+
+      //////////
+      // $get //
+      //////////
+      $get: [
+               '$window', '$q', '$document', '$parse', '$rootScope', '$injector', '$timeout',
+      function ($window,   $q,   $document,   $parse,   $rootScope,   $injector,   $timeout) {
+        var _initReady, _initRenderReady, _ezfb, _savedListeners, 
+            _paramsReady, ezfbAsyncInit;
+
+        _savedListeners = {};
+
+        _paramsReady = $q.defer();
+
+        if (_initParams.appId || _initFunction !== _defaultInitFunction) {
+          _paramsReady.resolve();
+        }
+
+        _initReady = $q.defer();
+        _initRenderReady = $q.defer();
+        
+        /**
+         * #fb-root check & create
+         */
+        if (!$document[0].getElementById('fb-root')) {
+          $document.find('body').append('<div id="fb-root"></div>');
+        }
+
+        // Run load SDK function
+        ezfbAsyncInit = function () {
+          _paramsReady.promise.then(function() {
+            // console.log('params ready');
+
+            var onRender = function () {
+              // console.log('on render');
+              _ezfb.$$rendered = true;
+              $timeout(function () {
+                _initRenderReady.resolve();
+              });
+              _ezfb.Event.unsubscribe('xfbml.render', onRender);
+            };
+            _ezfb.Event.subscribe('xfbml.render', onRender);
+
+            // Run init function
+            $injector.invoke(_initFunction, null, {'ezfbInitParams': _initParams});
+
+            _ezfb.$$ready = true;
+
+            _initReady.resolve();
+          });
+        };
+        $injector.invoke(_loadSDKFunction, null, {
+          'ezfbAsyncInit': ezfbAsyncInit,
+          'ezfbLocale': _locale
+        });
+
+        _ezfb = {
+          $$ready: false,
+          $$rendered: false,
+          $ready: function (fn) {
+            if (angular.isFunction(fn)) {
+              _initReady.promise.then(fn);
+            }
+            return _initReady.promise;
+          },
+          $rendered: function (fn) {
+            if (angular.isFunction(fn)) {
+              _initRenderReady.promise.then(fn);
+            }
+            return _initRenderReady.promise;
+          },
+          init: function (params) {
+            _config(_initParams, params);
+            _paramsReady.resolve();
+          },
+          AppEvents: {
+            EventNames: APP_EVENTS_EVENT_NAMES,
+            ParameterNames: APP_EVENTS_PARAMETER_NAMES
+          }
+        };
+
+        /**
+         * _ezfb initialization
+         *
+         * Publish FB APIs with auto-check ready state
+         */
+        angular.forEach(_publishedApis, function (cbArgIndex, apiPath) {
+          var getter = $parse(apiPath),
+              setter = getter.assign;
+          setter(_ezfb, function () {
+            var apiCall = _proxy(function (args) {
+              var dfd, replaceCallbackAt;
+
+              dfd = $q.defer();
+
+              /**
+               * Add or replce original callback function with deferred resolve
+               * 
+               * @param  {number} index expected api callback index
+               */
+              replaceCallbackAt = function (index) {
+                var func, newFunc;
+
+                func = angular.isFunction(args[index]) ? args[index] : angular.noop;
+                newFunc = function () {
+                  var funcArgs = Array.prototype.slice.call(arguments);
+
+                  if ($rootScope.$$phase) {
+                    // already in angularjs context
+                    func.apply(null, funcArgs);
+                    dfd.resolve.apply(dfd, funcArgs);
+                  }
+                  else {
+                    // not in angularjs context
+                    $rootScope.$apply(function () {
+                      func.apply(null, funcArgs);
+                      dfd.resolve.apply(dfd, funcArgs);
+                    });
+                  }
+                };
+
+                while (args.length <= index) {
+                  args.push(null);
+                }
+
+                /**
+                 * `FB.Event.unsubscribe` requires the original listener function.
+                 * Save the mapping of original->wrapped on `FB.Event.subscribe` for unsubscribing.
+                 */
+                var eventName;
+                if (apiPath === 'Event.subscribe') {
+                  eventName = args[0];
+                  if (angular.isUndefined(_savedListeners[eventName])) {
+                    _savedListeners[eventName] = [];
+                  }
+                  _savedListeners[eventName].push({
+                    original: func,
+                    wrapped: newFunc
+                  });
+                }
+                else if (apiPath === 'Event.unsubscribe') {
+                  eventName = args[0];
+                  if (angular.isArray(_savedListeners[eventName])) {
+                    var i, subscribed, l = _savedListeners[eventName].length;
+                    for (i = 0; i < l; i++) {
+                      subscribed = _savedListeners[eventName][i];
+                      if (subscribed.original === func) {
+                        newFunc = subscribed.wrapped;
+                        _savedListeners[eventName].splice(i, 1);
+                        break;
+                      }
+                    }
+                  }
+                }
+
+                // Replace the original one (or null) with newFunc
+                args[index] = newFunc;
+              };
+
+              if (cbArgIndex !== NO_CALLBACK) {
+                if (angular.isNumber(cbArgIndex)) {
+                  /**
+                   * Constant callback argument index
+                   */
+                  replaceCallbackAt(cbArgIndex);
+                }
+                else if (angular.isArray(cbArgIndex)) {
+                  /**
+                   * Multiple possible callback argument index
+                   */
+                  var i, c;
+                  for (i = 0; i < cbArgIndex.length; i++) {
+                    c = cbArgIndex[i];
+
+                    if (args.length == c ||
+                        args.length == (c + 1) && angular.isFunction(args[c])) {
+
+                      replaceCallbackAt(c);
+
+                      break;
+                    }
+                  }
+                }
+              }
+
+              /**
+               * Apply back to original FB SDK
+               */
+              var origFBFunc = getter($window.FB);
+              if (!origFBFunc) {
+                throw new Error("Facebook API `FB." + apiPath + "` doesn't exist.");
+              }
+              origFBFunc.apply($window.FB, args);
+
+              return dfd.promise;
+            }, null, [Array.prototype.slice.call(arguments)]);
+
+            /**
+             * Wrap the api function with our ready promise
+             *
+             * The only exception is `getAuthResponse`, which doesn't rely on a callback function to get the response
+             */
+            if (apiPath === 'getAuthResponse') {
+              if (angular.isUndefined($window.FB)) {
+                throw new Error('`FB` is not ready.');
+              }
+              return $window.FB.getAuthResponse();
+            }
+            else if (cbArgIndex === NO_CALLBACK) {
+              // Do not return promise for no-callback apis
+              _initReady.promise.then(apiCall); 
+            }
+            else {
+              return _initReady.promise.then(apiCall);
+            }
+          });
+        });
+
+        return _ezfb;
+      }]
+    };
+  })
+
+  /**
+   * @ngdoc directive
+   * @name ng.directive:ezfbXfbml
+   * @restrict EAC
+   *
+   * @description
+   * Parse XFBML inside the directive
+   *
+   * @param {boolean} ezfb-xfbml Reload trigger for inside XFBML,
+   *                             should keep only XFBML content inside the directive.
+   * @param {expr}    onrender   Evaluated every time content xfbml gets rendered.
+   */
+  .directive('ezfbXfbml', [
+           'ezfb', '$parse', '$compile', '$timeout',
+  function (ezfb,   $parse,   $compile,   $timeout) {
+    return {
+      restrict: 'EAC',
+      controller: function () {
+        // do nothing
+      },
+      compile: function (tElm, tAttrs) {
+        var _savedHtml = tElm.html();
+
+        return function postLink(scope, iElm, iAttrs) {
+          var _rendering = true,
+              onrenderExp = iAttrs.onrender,
+              onrenderHandler = function () {
+                if (_rendering) {
+                  if (onrenderExp) {
+                    scope.$eval(onrenderExp);
+                  }
+                  
+                  _rendering = false;
+                }
+              };
+
+          ezfb.XFBML.parse(iElm[0], onrenderHandler);
+
+          /**
+           * The trigger
+           */
+          var setter = $parse(iAttrs.ezfbXfbml).assign;
+          scope.$watch(iAttrs.ezfbXfbml, function (val) {
+            if (val) {
+              _rendering = true;
+              iElm.html(_savedHtml);
+
+              $compile(iElm.contents())(scope);
+              $timeout(function () {
+                ezfb.XFBML.parse(iElm[0], onrenderHandler);
+              });
+
+              // Reset the trigger if it's settable
+              (setter || angular.noop)(scope, false);
+            }
+          }, true);
+
+        };
+      }
+    };
+  }]);
+
+
+  // ref: https://developers.facebook.com/docs/plugins
+  var _socialPluginDirectiveConfig = {
+    'fbLike': [
+      'action', 'colorscheme', 'href', 'kidDirectedSite',
+      'layout', 'ref', 'share', 'showFaces', 'width'
+    ],
+    'fbShareButton': [
+      'href', 'layout', 'width'
+    ],
+    'fbSend': [
+      'colorscheme', 'href', 'kidDirectedSite', 'ref'
+    ],
+    'fbPost': [
+      'href', 'width'
+    ],
+    'fbFollow': [
+      'colorscheme', 'href', 'kidDirectedSite', 'layout',
+      'showFaces', 'width'
+    ],
+    'fbComments': [
+      'colorscheme', 'href', 'mobile', 'numPosts',
+      'orderBy', 'width'
+    ],
+    'fbCommentsCount': [
+      'href'
+    ],
+    'fbActivity': [
+      'action', 'appId', 'colorscheme', 'filter', 'header',
+      'height', 'linktarget', 'maxAge', 'recommendations',
+      'ref', 'site', 'width'
+    ],
+    'fbRecommendations': [
+      'action', 'appId', 'colorscheme', 'header', 'height',
+      'linktarget', 'maxAge', 'ref', 'site', 'width'
+    ],
+    'fbRecommendationsBar': [
+      'action', 'href', 'maxAge', 'numRecommendations',
+      'readTime', 'ref', 'side', 'site', 'trigger'
+    ],
+    'fbLikeBox': [
+      'colorscheme', 'forceWall', 'header', 'height',
+      'href', 'showBorder', 'showFaces', 'stream', 'width'
+    ],
+    'fbFacepile': [
+      'action', 'appId', 'colorscheme', 'href', 'maxRows',
+      'size', 'width'
+    ],
+    'fbPage': [
+      'href', 'width', 'height', 'hideCover', 'showFacepile', 'showPosts'
+    ],
+    'fbVideo': [
+      'href', 'width', 'allowfullscreen'
+    ],
+    'fbAdPreview': [
+      'adAccountId', 'adgroupId', 'creative', 'creativeId', 'adFormat', 'pageType', 'targeting', 'post'
+    ]
+  };
+
+  angular.forEach(_socialPluginDirectiveConfig, creatSocialPluginDirective);
+
+  function creatSocialPluginDirective(availableAttrs, dirName) {
+    var CLASS_WRAP = 'ezfb-social-plugin-wrap',
+        STYLE_WRAP_SPAN = 'display: inline-block; width: 0; height: 0; overflow: hidden;';
+
+    // Adpative width plugins
+    // e.g. https://developers.facebook.com/docs/plugins/page-plugin#adaptive-width
+    var PLUGINS_WITH_ADAPTIVE_WIDTH = ['fbPage', 'fbComments'];
+    
+    /**
+     * Wrap-related functions
+     */
+    var _wrap = function ($elm) {
+          var tmpl = '<span class="'+CLASS_WRAP+'" style="'+STYLE_WRAP_SPAN+'">';
+          return $elm.wrap(tmpl).parent();
+        },
+        _wrapAdaptive = function ($elm) {
+          // Plugin with adaptive width prefers the "blocky" wrapping element
+          var tmpl = '<div class="'+CLASS_WRAP+'">';
+          return $elm.wrap(tmpl).parent();
+        },
+        _isWrapped = function ($elm) {
+          return $elm.parent().hasClass(CLASS_WRAP);
+        },
+        _unwrap = function ($elm) {
+          var $parent = $elm.parent();
+          $parent.after($elm).remove();
+          return $elm;
+        };
+    
+    module.directive(dirName, [
+             'ezfb', '$q', '$document',
+    function (ezfb,   $q,   $document) {
+      var _withAdaptiveWidth = PLUGINS_WITH_ADAPTIVE_WIDTH.indexOf(dirName) >= 0;
+
+      var _dirClassName = dirName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
+      return {
+        restrict: 'EC',
+        require: '?^ezfbXfbml',
+        compile: function (tElm, tAttrs) {
+          tElm.removeClass(_dirClassName);
+
+          return function postLink(scope, iElm, iAttrs, xfbmlCtrl) {
+            /**
+             * For backward compatibility, skip self rendering if contained by easyfb-xfbml directive
+             */
+            if (xfbmlCtrl) {
+              return;
+            }
+
+            var rendering = false,
+                renderId = 0;
+
+            ezfb.$rendered()
+            .then(function () {
+              iElm.addClass(_dirClassName);
+
+              scope.$watch(function () {
+                var watchList = [];
+                angular.forEach(availableAttrs, function (attrName) {
+                  watchList.push(iAttrs[attrName]);
+                });
+                return watchList;
+              }, function (v) {
+                var wrapFn;
+
+                renderId++;
+                if (!rendering) {
+                  rendering = true;
+
+                  wrapFn = _withAdaptiveWidth ? _wrapAdaptive : _wrap;
+                  // Wrap the social plugin code for FB.XFBML.parse
+                  ezfb.XFBML.parse(wrapFn(iElm)[0], genOnRenderHandler(renderId));
+                }
+                else {
+                  // Already rendering, do not wrap
+                  ezfb.XFBML.parse(iElm.parent()[0], genOnRenderHandler(renderId));
+                }
+              }, true);
+            });
+
+
+            // Unwrap on $destroy
+            iElm.bind('$destroy', function () {
+              if (_isWrapped(iElm)) {
+                _unwrap(iElm);
+              }
+            });
+
+            function genOnRenderHandler(id) {
+              return function () {
+                var onrenderExp;
+
+                if (rendering && id === renderId) {
+                  onrenderExp = iAttrs.onrender;
+                  if (onrenderExp) {
+                    scope.$eval(onrenderExp);
+                  }
+
+                  rendering = false;
+                  _unwrap(iElm);
+                }
+              };
+            }
+          };
+        }
+      };
+    }]);
+  }
+
+})(angular.module('ezfb', []));
+
+var home = angular.module('app', ['filter-directives','location-list-item-directives','location-section-directives','section-form-directive','ngRoute','facebookComments']);
 home.config(['$routeProvider', function($routeProvider) {
 	$routeProvider
 	.when('/home', {
@@ -44754,6 +45416,7 @@ home.config(['$routeProvider', function($routeProvider) {
 	});
 
 }]);
+
 
 home.filter('removeSpaces', function () {
 	return function (text) {
@@ -44800,6 +45463,7 @@ home.controller('LocationPageController',function($scope,$q,$http,$routeParams,$
 			$('#saveSuccessModal').modal()
 		})
 	};
+	FB.XFBML.parse();
 
 });
 home.controller('LocationsController',function($scope, $timeout,LocationsGetter){
@@ -44844,6 +45508,8 @@ home.controller('LocationsController',function($scope, $timeout,LocationsGetter)
 		);
 
 	});
+
+
 });
 
 home.controller('MapFilterController',function($scope,LocationsGetter){
@@ -45262,6 +45928,32 @@ function numberOfButtonGroupActive(buttonGroup){
 	return count;
 }
 
+var facebookComments = angular.module('facebookComments', []);
+
+facebookComments.directive('dynFbCommentBox', function () {
+    function createHTML(href, numposts, progwidth) {
+        return '<div class="fb-comments" ' +
+                       'data-href="' + href + '" ' +
+                       'data-numposts="' + numposts + '" ' +
+                       'data-width="' + progwidth + '">' +
+               '</div>';
+    }
+
+    return {
+        restrict: 'A',
+        scope: {},
+        link: function postLink(scope, elem, attrs) {
+            attrs.$observe('pageHref', function (newValue) {
+                var href        = newValue;
+                var numposts    = attrs.numposts    || 5;
+                var progwidth = attrs.progwidth;
+
+                elem.html(createHTML(href, numposts, progwidth));
+                FB.XFBML.parse(elem[0]);
+            });
+        }
+    };
+});
 var locationListItemDir = angular.module('location-list-item-directives', []);
 
 locationListItemDir.directive('location', function(){
@@ -45573,7 +46265,7 @@ sectionForm.directive('integer', function() {
 });
 angular.module("app").run(["$templateCache", function($templateCache) {$templateCache.put("features/filter/filter.tpl.html","<section><div class=\"jumbotron homepage\"><div class=\"container\"><span class=\"h2\">Search: <input type=\"text\" ng-model=\"searchQuery\" ng-trim=\"true\" ng-change=\"LocationsGetter.filterByQuery(searchQuery)\" ng-model-options=\"{ debounce: 500 }\" placeholder=\"limestone\"></span><h2>Filter:<div class=\"btn-group btn-group-filter\" data=\"price\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\" data=\"all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'15\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"15\">$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'30\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"30\">$$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'45\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"45\">$$$</button></div><div class=\"btn-group btn-group-filter\" data=\"continent\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'continents\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'continents\',continent )\" ng-repeat=\"continent in filter.continents\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ continent }}\">{{ continent }}</button></div><div class=\"btn-group btn-group-filter\" data=\"climbing_types\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',name )\" ng-repeat=\"(name,climbType) in filter.climbTypes\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ name }}\"><img ng-src=\"{{ climbType }}\" class=\"icon button\"></button></div></h2><span class=\"h2\">Sort:<div class=\"btn-group btn-group-sort\" data=\"sort\" role=\"group\"><button type=\"button\" data=\"all\" class=\"sort-button btn btn-lg btn-default all\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'All\')\">All</button> <button type=\"button\" data=\"price\" class=\"sort-button btn btn-lg btn-default\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'price\')\">$</button> <button type=\"button\" data=\"grade\" class=\"sort-button btn btn-lg btn-default\" ng-click=\"LocationsGetter.toggleFilterButton($event,\'sort\',\'grade\')\">Grade</button></div></span> <span class=\"h2\">Your Airport: <input type=\"text\" ng-model=\"origin_airport\" ng-trim=\"true\" ng-minlength=\"3\" ng-maxlength=\"3\"></span></div></div></section>");
 $templateCache.put("views/home/home.tpl.html","<section ng-controller=\"LocationsController\"><filter></filter><div class=\"row\"><div class=\"col-md-9 locations-window\" data-spy=\"scroll\"><location ng-repeat=\"locationData in locationData\"></location><nav class=\"text-center\"><ul class=\"pagination\"><li><a ng-click=\"LocationsGetter.pageChange(LocationsGetter.page_num - 1)\" aria-label=\"Previous\"><span aria-hidden=\"true\">&laquo;</span></a></li><li ng-class=\"(1 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(1)\">1</a></li><li ng-class=\"(2 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(2)\">2</a></li><li ng-class=\"(3 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(3)\">3</a></li><li ng-class=\"(4 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(4)\">4</a></li><li ng-class=\"(5 === LocationsGetter.page_num)?\'active\':\'\'\"><a ng-click=\"LocationsGetter.pageChange(5)\">5</a></li><li><a ng-click=\"LocationsGetter.pageChange(LocationsGetter.page_num + 1)\" aria-label=\"Next\"><span aria-hidden=\"true\">&raquo;</span></a></li></ul></nav></div><div id=\"mapFilter\" ng-controller=\"MapFilterController\" class=\"col-md-3\"></div></div></section>");
-$templateCache.put("views/location/location.tpl.html","<div id=\"saveSuccessModal\" class=\"modal\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button><h4 class=\"modal-title\">Thank you!</h4></div><div class=\"modal-body\"><p>Your change has been submitted!</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button></div></div></div></div><section><div class=\"container-fluid\"><style type=\"text/css\">\n		html, body, #map-canvas { height: 25em; margin: 0; padding: 0;}\n	</style><script type=\"text/javascript\">\n		\n	</script><div class=\"jumbotron\"><div id=\"map-canvas\"></div></div></div><div class=\"container\"><div class=\"row\"><div class=\"col-md-12\"><div class=\"row\"><div class=\"col-md-3\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" width=\"192\" height=\"192\"></div><div class=\"col-md-9\"><h1>{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</h1><div class=\"row\"><div class=\"col-md-3\"><h5>When Should I go?</h5>{{ locationData[\'date_range\'] }}</div><div class=\"col-md-3\"><h5>Where can I stay?</h5><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" title=\"{{ accommodation[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><h5>What should I climb?</h5><img ng-repeat=\"climbing_type in locationData[\'climbing_types\']\" ng-src=\"{{ climbing_type[\'url\'] }}\" title=\"{{ climbing_type[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><div class=\"\">I should climb around<mark><strong>{{ locationData[\'grade\'] }}</strong></mark>to get the most out of my trip</div></div></div></div></div></div></div></div><div class=\"container\"><locationsection section=\"section\" sections-length=\"-2\" ng-repeat=\"(sectionId, section) in sections\" save-section=\"updateSection(sectionId, section)\"></locationsection><div id=\"nearby\" class=\"info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>Nearby Destinations</u></h3><p class=\"lead\">Don\'t end your trip in {{locationData.name}}. There\'s plenty to see nearby</p></div></div><div class=\"row\"><div class=\"row col-md-12\"><div class=\"col-md-12\"><h5>Destinations within 200 miles of {{ locationData[\'name\'] }}</h5><ul class=\"list-group\"><a ng-repeat=\"nearLocation in nearby\" ng-href=\"/#location/{{ nearLocation.slug }}\"><li class=\"list-group-item\">{{nearLocation.name}}, {{nearLocation.country}} ----------- {{nearLocation.distance}} miles</li></a></ul></div></div></div></div></div></section><nav class=\"navbar navbar-default navbar-fixed-bottom\"><div class=\"collapse navbar-collapse\"><ul class=\"nav navbar-nav\"><li class=\"\" ng-repeat=\"section in sections\"><a ng-click=\"scrollTo(section.title)\" target=\"_self\">{{ section[\'title\'] }}</a></li><li class=\"\"><a ng-click=\'scrollTo(\"nearby\")\'>Nearby Destinations</a></li></ul></div></nav>");
+$templateCache.put("views/location/location.tpl.html","<div id=\"saveSuccessModal\" class=\"modal\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button><h4 class=\"modal-title\">Thank you!</h4></div><div class=\"modal-body\"><p>Your change has been submitted!</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button></div></div></div></div><section class=\"location-info-container\"><div class=\"container-fluid\"><style type=\"text/css\">\n			html, body, #map-canvas { height: 25em; margin: 0; padding: 0;}\n		</style><script type=\"text/javascript\">\n			\n		</script><div class=\"jumbotron\"><div id=\"map-canvas\"></div></div></div><div class=\"container\"><div class=\"row\"><div class=\"col-md-12\"><div class=\"row\"><div class=\"col-md-3\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" width=\"192\" height=\"192\"></div><div class=\"col-md-9\"><h1>{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</h1><div class=\"row\"><div class=\"col-md-3\"><h5>When Should I go?</h5>{{ locationData[\'date_range\'] }}</div><div class=\"col-md-3\"><h5>Where can I stay?</h5><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" title=\"{{ accommodation[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><h5>What should I climb?</h5><img ng-repeat=\"climbing_type in locationData[\'climbing_types\']\" ng-src=\"{{ climbing_type[\'url\'] }}\" title=\"{{ climbing_type[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-3\"><div class=\"\">I should climb around<mark><strong>{{ locationData[\'grade\'] }}</strong></mark>to get the most out of my trip</div></div></div></div></div></div></div></div><div class=\"container\"><locationsection section=\"section\" sections-length=\"-2\" ng-repeat=\"(sectionId, section) in sections\" save-section=\"updateSection(sectionId, section)\"></locationsection><div id=\"nearby\" class=\"info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>Nearby Destinations</u></h3><p class=\"lead\">Don\'t end your trip in {{locationData.name}}. There\'s plenty to see nearby</p></div></div><div class=\"row\"><div class=\"row col-md-12\"><div class=\"col-md-12\"><h5>Destinations within 200 miles of {{ locationData[\'name\'] }}</h5><ul class=\"list-group\"><a ng-repeat=\"nearLocation in nearby\" ng-href=\"/#location/{{ nearLocation.slug }}\"><li class=\"list-group-item\">{{nearLocation.name}}, {{nearLocation.country}} ----------- {{nearLocation.distance}} miles</li></a></ul></div></div></div></div><div id=\"comments\" class=\"fb-comments info-section\" data-width=\"100%\" data-href=\"http://www.climbcation.com/{{ locationData[\'name\'] }}\" data-numposts=\"5\"></div></div></section><nav class=\"navbar navbar-default navbar-fixed-bottom\"><div class=\"collapse navbar-collapse\"><ul class=\"nav navbar-nav\"><li class=\"footer-link\" ng-repeat=\"section in sections\"><a ng-click=\"scrollTo(section.title)\" target=\"_self\">{{ section[\'title\'] }}</a></li><li class=\"footer-link\"><a ng-click=\'scrollTo(\"nearby\")\'>Nearby Destinations</a></li><li class=\"footer-link\"><a ng-click=\'scrollTo(\"comments\")\'>Comments</a></li></ul></div></nav>");
 $templateCache.put("views/new_location/submitpage.tpl.html","<sectionform></sectionform>");
 $templateCache.put("common/directives/location_list_item/location_list_item.tpl.html","<div class=\"row location-row\"><div class=\"col-md-2\"><a ng-href=\"/#location/{{ locationData[\'slug\'] }}\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\" class=\"img-circle\" height=\"192\" width=\"192\"></a></div><div class=\"col-md-10\"><div class=\"row\"><h3 class=\"col-md-8 col-md-offset-1\"><a ng-href=\"/#location/{{ locationData[\'slug\'] }}\">{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</a> <small>${{ locationData[\'price_range_floor_cents\']}} - ${{ locationData[\'price_range_ceiling_cents\'] }} / day</small></h3></div><div class=\"icon-row row\"><h4 class=\"col-md-3 col-md-offset-1\">Why Should I go?</h4><div class=\"col-md-2\"><img ng-repeat=\"type in locationData[\'climbing_types\']\" ng-src=\"{{ type[\'url\'] }}\" class=\"icon\" title=\"{{ type[\'name\'] }}\"></div><h4 class=\"col-md-4\">Where am I going to sleep?</h4><div class=\"col-md-2\"><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" class=\"icon\" title=\"{{ accommodation[\'name\'] }}\"></div></div><div class=\"icon-row row\"><h4 class=\"col-md-3 col-md-offset-1\">When Should I go?</h4><div class=\"col-md-2\">{{ locationData[\'date_range\']}}</div><h4 class=\"col-md-4\">How hard should I climb?</h4><div class=\"col-md-2\"><h4>{{ locationData[\'grade\'] }}</h4></div></div><div class=\"row\"><div id=\"highchart{{locationData[\'airport_code\']+\'-\'+locationData[\'slug\']}}\" style=\"margin: 0 auto\"></div></div></div></div>");
 $templateCache.put("common/directives/location_section/location_section.tpl.html","<div id=\"{{ section.title | removeSpaces }}\" ng-if=\"!section.previewOff\" class=\"info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>{{ section.title }}</u><a class=\"pull-right\" ng-click=\"previewSection(section)\">Edit section</a></h3><p class=\"lead\">{{ section.body }}</p></div></div><div class=\"row\"><div ng-repeat=\"(subsectionName,subsectionData) in section.subsections track by $index\"><div class=\"clearfix\" ng-if=\"$index % 2 == 0\"></div><div class=\"col-md-6\"><h5>{{subsectionData.title}}</h5><ul class=\"list-group\"><li ng-repeat=\"information in subsectionData.subsectionDescriptions\" class=\"list-group-item\" ng-if=\"information.desc != \'\' && information.desc != null\">{{information.desc}}</li></ul></div></div></div></div><div class=\"panel panel-default\" ng-if=\"section.previewOff\"><div class=\"panel-heading\"><div class=\"btn btn-success\" ng-class=\"{\'disabled\': section.isSaving }\" ng-if=\"indexIterator == sectionsLength - 1 || sectionsLength == -2\" ng-click=\"saveSection()\">Save section</div><div class=\"btn btn-danger\" ng-if=\"sectionsLength != -2 && (indexIterator != sectionsLength-1 && notDefaultSection(section))\" ng-click=\"removeSection(section)\">remove section</div><div class=\"btn btn-default\" ng-click=\"previewSection(section)\">{{ section.previewOff?\'Preview\':\'Edit\' }} section</div></div><span class=\"panel-body\"><div class=\"row\"><div class=\"col-md-offset-1 col-md-10\"><div class=\"form-group input-group-lg\"><input type=\"text\" placeholder=\"Section Title\" class=\"form-control\" ng-model=\"section.title\"></div></div></div><div class=\"row\"><div class=\"row col-md-9 col-md-offset-1\"><div class=\"form-group\"><textarea placeholder=\"{{sectionDescriptionPlaceholder(section)}}\" class=\"form-control\" rows=\"6\" ng-model=\"section.body\"></textarea></div></div></div><div class=\"row\"><div ng-repeat=\"subsection in section.subsections track by $index\"><div class=\"clearfix\" ng-if=\"$index % 2 == 0\"></div><div class=\"col-md-5\" ng-class=\"$index%2 ==0? \'col-md-offset-1\': \'\'\"><div class=\"row\"><div class=\"col-md-2\"><div class=\"btn btn-xs btn-success\" ng-if=\"$index == 0\" ng-click=\"addSubsection(subsection,section)\">Add subsection</div><div class=\"btn btn-xs btn-danger\" ng-if=\"$index != 0\" ng-click=\"removeSubsection(subsection,section.subsections)\">remove subsection</div></div><div class=\"col-md-offset-1 col-md-9 form-group\"><input type=\"text\" placeholder=\"{{subsectionTitlePlaceholder(section)}}\" class=\"form-control\" ng-model=\"subsection.title\"></div></div><div class=\"form-group row\"><div class=\"row col-md-9 col-md-offset-3\" ng-repeat=\"subsectionDesc in subsection.subsectionDescriptions track by $index\"><div class=\"input-group input-group-sm\"><span ng-if=\"$index == 0\" class=\"input-group-addon\" id=\"add-row\" ng-click=\"addSubsectionDesc(subsectionDesc,subsection.subsectionDescriptions)\">+</span> <span ng-if=\"$index != 0\" class=\"input-group-addon\" id=\"add-row\" ng-click=\"removeSubsectionDesc(subsectionDesc,subsection.subsectionDescriptions)\">-</span> <input type=\"text\" placeholder=\"{{subsectionDescriptionPlaceholder(section)}}\" class=\"form-control\" aria-describedby=\"add-row\" ng-model=\"subsectionDesc.desc\"></div></div></div></div></div></div></span></div>");

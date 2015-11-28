@@ -113,15 +113,7 @@ class LocationsController < ApplicationController
 	end
 
 	def new_location
-		puts params[:location]
-		puts 'that was location param'
-		puts params[:file]
 		params[:location] = JSON.parse(params[:location])
-		puts params[:location]["name"]
-		puts params[:location]['price_floor'].to_i
-		puts params[:location]['price_ceiling'].to_i
-		puts params[:location]['country']
-		puts params[:location]['airport']
 		new_loc = Location.create!(submitter_email: params[:location]['submitter_email'], name: params[:location]['name'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
 		new_loc.grade = Grade.find(params[:location]['grade'])
 		params[:location]['climbingTypes'].each do |id,selected|

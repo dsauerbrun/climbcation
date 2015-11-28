@@ -51,3 +51,4 @@ gem 'angularjs-rails'
 gem 'angular-rails-templates'
 gem "typhoeus"
 gem 'will_paginate'
+gem 'paper_trail', '~> 4.0.0'

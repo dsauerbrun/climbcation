@@ -70,4 +70,5 @@ Rails.application.routes.draw do
 	post 'api/submit_new_location', to: 'locations#new_location'
 	get 'api/location/name/all', to: 'locations#location_names'
 	post 'api/infosection/:id', to: 'info_sections#update_info_section'
+	post 'api/infosection/', to: 'info_sections#update_info_section'
 end

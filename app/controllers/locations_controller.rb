@@ -134,25 +134,7 @@ class LocationsController < ApplicationController
 		end
 		puts 'sections'
 		params[:location]['sections'].each do |section|
-			if section['title'] != ''
-				#puts 'here in section'
-				#puts section
-				metadata = {}
-				section['subsections'].each do |subsection|
-					puts subsection
-					if subsection['title'] != ''
-						metadata[subsection['title']] = []
-						subsection['subsectionDescriptions'].each do |subsectionDescription|
-							if subsectionDescription['desc'] != ''
-								metadata[subsection['title']].push({'desc' => subsectionDescription['desc']})
-							end
-						end
-					end
-				end
-				puts metadata
-				infosect = InfoSection.create!(title: section['title'], body: section['body'], metadata: metadata)
-				new_loc.info_sections << infosect
-			end
+			InfoSection.create_new_info_section(new_loc.id, section)
 		end
 		new_loc.save
 		returnit = {'name' => 'hello'}

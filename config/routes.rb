@@ -6,8 +6,8 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   #root 'application#index'
   root 'application#home'
-	get 'js/app.js', :to => redirect('/angularapp/js/app.js')
-	get 'css/app.css', :to => redirect('/angularapp/css/app.css')
+	get 'css/:app', :to => redirect('/angularapp/css/%{app}.css')
+	get 'js/:app', :to => redirect('/angularapp/js/%{app}.js')
 
 	match '*any' => 'application#options', :via => [:options]
   # Example of regular route:

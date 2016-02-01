@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   root 'application#home'
 	get 'css/:app', :to => redirect('/angularapp/css/%{app}.css')
 	get 'js/:app', :to => redirect('/angularapp/js/%{app}.js')
-	get 'images/:image_name', :to => redirect('/angularapp/images/%{image_name}')
+	get 'images/:image_name', :to => redirect('/angularapp/images/%{image_name}.png')
 
 	match '*any' => 'application#options', :via => [:options]
   # Example of regular route:

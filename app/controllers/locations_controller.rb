@@ -97,7 +97,7 @@ class LocationsController < ApplicationController
 			hydra = Typhoeus::Hydra.hydra
 			@locations = Location.where(active: true).where('slug IN (?)',slugs)
 			@locations.each do |location| 
-				key_val = "#{location.airport_code}-#{location.slug}"
+				key_val = "#{location.airport_code}-#{location.slug}-#{location.id}"
 				if !location.airport_code.eql?(origin)
 					quotes[key_val] = {}
 					#request multithreads

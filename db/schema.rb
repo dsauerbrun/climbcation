@@ -11,10 +11,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151128061907) do
+ActiveRecord::Schema.define(version: 20160305154454) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "accommodation_location_details", force: true do |t|
+    t.integer  "location_id"
+    t.integer  "accommodation_id"
+    t.string   "cost"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "accommodation_location_details", ["accommodation_id"], name: "index_accommodation_location_details_on_accommodation_id", using: :btree
+  add_index "accommodation_location_details", ["location_id"], name: "index_accommodation_location_details_on_location_id", using: :btree
 
   create_table "accommodations", force: true do |t|
     t.string   "name"
@@ -24,6 +35,7 @@ ActiveRecord::Schema.define(version: 20151128061907) do
     t.string   "icon_content_type"
     t.integer  "icon_file_size"
     t.datetime "icon_updated_at"
+    t.string   "cost_ranges",       default: [], array: true
   end
 
   create_table "accommodations_locations", id: false, force: true do |t|
@@ -51,6 +63,24 @@ ActiveRecord::Schema.define(version: 20151128061907) do
 
   add_index "climbing_types_locations", ["climbing_type_id"], name: "index_climbing_types_locations_on_climbing_type_id", using: :btree
   add_index "climbing_types_locations", ["location_id"], name: "index_climbing_types_locations_on_location_id", using: :btree
+
+  create_table "food_option_location_details", force: true do |t|
+    t.integer  "location_id"
+    t.integer  "food_option_id"
+    t.string   "cost"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "food_option_location_details", ["food_option_id"], name: "index_food_option_location_details_on_food_option_id", using: :btree
+  add_index "food_option_location_details", ["location_id"], name: "index_food_option_location_details_on_location_id", using: :btree
+
+  create_table "food_options", force: true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "cost_ranges", default: [], array: true
+  end
 
   create_table "grades", force: true do |t|
     t.string   "us"
@@ -93,6 +123,12 @@ ActiveRecord::Schema.define(version: 20151128061907) do
     t.string   "airport_code"
     t.boolean  "active",                       default: false
     t.string   "submitter_email"
+    t.string   "closest_accommodation"
+    t.boolean  "walking_distance"
+    t.text     "getting_in_notes"
+    t.text     "accommodation_notes"
+    t.text     "common_expenses_notes"
+    t.text     "saving_money_tips"
   end
 
   add_index "locations", ["grade_id"], name: "index_locations_on_grade_id", using: :btree
@@ -105,6 +141,25 @@ ActiveRecord::Schema.define(version: 20151128061907) do
   add_index "locations_seasons", ["location_id"], name: "index_locations_seasons_on_location_id", using: :btree
   add_index "locations_seasons", ["season_id"], name: "index_locations_seasons_on_season_id", using: :btree
 
+  create_table "locations_transportations", id: false, force: true do |t|
+    t.integer "location_id"
+    t.integer "transportation_id"
+  end
+
+  add_index "locations_transportations", ["location_id"], name: "index_locations_transportations_on_location_id", using: :btree
+  add_index "locations_transportations", ["transportation_id"], name: "index_locations_transportations_on_transportation_id", using: :btree
+
+  create_table "primary_transportations", force: true do |t|
+    t.integer  "transportation_id"
+    t.integer  "location_id"
+    t.string   "cost"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "primary_transportations", ["location_id"], name: "index_primary_transportations_on_location_id", using: :btree
+  add_index "primary_transportations", ["transportation_id"], name: "index_primary_transportations_on_transportation_id", using: :btree
+
   create_table "seasons", force: true do |t|
     t.string   "name"
     t.datetime "created_at"
@@ -114,6 +169,13 @@ ActiveRecord::Schema.define(version: 20151128061907) do
     t.integer  "icon_file_size"
     t.datetime "icon_updated_at"
     t.integer  "numerical_value"
+  end
+
+  create_table "transportations", force: true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "cost_ranges", default: [], array: true
   end
 
   create_table "version_associations", force: true do |t|

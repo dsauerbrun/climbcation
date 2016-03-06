@@ -72,4 +72,7 @@ Rails.application.routes.draw do
 	get 'api/location/name/all', to: 'locations#location_names'
 	post 'api/infosection/:id', to: 'info_sections#update_info_section'
 	post 'api/infosection/', to: 'info_sections#update_info_section'
+	get 'api/accommodations/all', to: 'constant_data#get_all_accommodations'
+	get 'api/foodoptions/all', to: 'constant_data#get_all_food_options'
+	get 'api/transportations/all', to: 'constant_data#get_all_transportations'
 end

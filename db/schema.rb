@@ -35,7 +35,7 @@ ActiveRecord::Schema.define(version: 20160305154454) do
     t.string   "icon_content_type"
     t.integer  "icon_file_size"
     t.datetime "icon_updated_at"
-    t.string   "cost_ranges",       default: [], array: true
+    t.string   "cost_ranges",       array: true
   end
 
   create_table "accommodations_locations", id: false, force: true do |t|
@@ -79,7 +79,7 @@ ActiveRecord::Schema.define(version: 20160305154454) do
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "cost_ranges", default: [], array: true
+    t.string   "cost_ranges", array: true
   end
 
   create_table "grades", force: true do |t|
@@ -175,7 +175,7 @@ ActiveRecord::Schema.define(version: 20160305154454) do
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "cost_ranges", default: [], array: true
+    t.string   "cost_ranges", array: true
   end
 
   create_table "version_associations", force: true do |t|

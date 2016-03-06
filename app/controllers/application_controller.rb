@@ -57,8 +57,16 @@ class ApplicationController < ActionController::Base
 		attributes['accommodations'] = []
 		attributes['months'] = []
 		attributes['grades'] = []
+		attributes['food_options'] = []
+		attributes['transportations'] = []
 		Accommodation.all.each do |accommodation|
 			attributes['accommodations'].push(accommodation.html_attributes)
+		end
+		FoodOption.all.each do |food|
+			attributes['food_options'].push(food.html_attributes)
+		end
+		Transportation.all.each do |transport|
+			attributes['transportations'].push(transport.html_attributes)
 		end
 		Season.order(:numerical_value).all.each do |season|
 			attributes['months'].push(season.html_attributes)

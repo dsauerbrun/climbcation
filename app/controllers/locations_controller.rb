@@ -114,16 +114,11 @@ class LocationsController < ApplicationController
 
 	def new_location
 		params[:location] = JSON.parse(params[:location])
-		new_loc = Location.create!(submitter_email: params[:location]['submitter_email'], name: params[:location]['name'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
+		new_loc = Location.create!(name: params[:location]['name'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
 		new_loc.grade = Grade.find(params[:location]['grade'])
 		params[:location]['climbingTypes'].each do |id,selected|
 			if selected == true
 				new_loc.climbing_types << ClimbingType.find(id)
-			end
-		end
-		params[:location]['accommodations'].each do |id,selected|
-			if selected == true
-				new_loc.accommodations << Accommodation.find(id)
 			end
 		end
 		params[:location]['months'].each do |id,selected|
@@ -132,13 +127,138 @@ class LocationsController < ApplicationController
 			end
 
 		end
-		puts 'sections'
+		
+		change_getting_in(params[:location], new_loc.id)
+		change_food_options(params[:location], new_loc.id)
+		change_accommodations(params[:location], new_loc.id)
+
 		params[:location]['sections'].each do |section|
 			InfoSection.create_new_info_section(new_loc.id, section)
 		end
 		new_loc.save
 		returnit = {'name' => 'hello'}
 		render :json => returnit
+	end
+
+	def change_food_options(details, location_id)
+		@location = Location.find(location_id)
+		new_food_options = details[:foodOptionDetails]
+		existing_food_options = []
+		#remove null food_options
+		new_food_options.delete_if { |k, v| v.nil? }
+		#go through each existing food, remove if not in new and change if cost is different
+		@location.food_option_location_details do |food_option|
+			if new_food_options.key?(food_option.food_option.id)
+				#food exists already
+				if new_food_options[food_option.food_option.id].cost != food_option.cost
+					food_option.cost = new_food_options[food_option.food_option.id].cost
+					food_option.save
+				end
+			else
+				#food option isnt in the new list so remove
+				@location.food_option_location_details.delete(food_option)
+			end
+			existing_food_options << food_option.food_option.id
+		end
+		#add new food options if they dont exist already
+		new_food_options.each do |key,new_food_option|
+			if !existing_food_options.include? new_food_option[:id]
+				new_food_option_obj = FoodOptionLocationDetail.create!(cost: new_food_option[:cost], food_option: FoodOption.find(new_food_option[:id]))
+				@location.food_option_location_details << new_food_option_obj
+			end
+		end
+		#change common expenses
+		@location.common_expenses_notes = details[:commonExpensesNotes]
+		#change saving money tips
+		@location.saving_money_tips = details[:savingMoneyTips]
+	
+		@location.save
+	end
+
+	def change_accommodations(details, location_id)
+		@location = Location.find(location_id)
+		new_accommodations = details[:accommodations]
+		existing_accommodations = []
+		#remove null accommodations
+		new_accommodations.delete_if { |k, v| v.nil? }
+		#go through each existing accommodation, remove if not in new and change if cost is different
+		@location.accommodation_location_details do |accommodation|
+			if new_accommodations.key?(accommodation.accommodation.id)
+				#accommodation exists already
+				if new_accommodations[accommodation.accommodation.id].cost != accommodation.cost
+					accommodation.cost = new_accommodations[accommodation.accommodation.id].cost
+					accommodation.save
+				end
+			else
+				#accommodation isnt in the new list so remove
+				@location.accommodation_location_details.delete(accommodation)
+			end
+			existing_accommodations << accommodation.accommodation.id
+		end
+		#add new accommodations if they dont exist already
+		new_accommodations.each do |key,new_accommodation|
+			if !existing_accommodations.include? new_accommodation[:id]
+				new_accommodation_obj = AccommodationLocationDetail.create!(cost: new_accommodation[:cost], accommodation: Accommodation.find(new_accommodation[:id]))
+				@location.accommodation_location_details << new_accommodation_obj
+			end
+		end
+		#change additional tips on staying
+		@location.accommodation_notes = details[:accommodationNotes]
+		#change closest accommodation to crags
+		@location.closest_accommodation = details[:closestAccommodation]
+	
+		@location.save
+	end
+
+	def change_getting_in(details, location_id)
+		@location = Location.find(location_id)
+		transportations = details[:transportations]
+		newTransportationIds = []
+		existingTransportationIds = []
+		#clean up transportations array(IE. convert to array of transportationIDs)
+		transportations.each do |key, transportation|
+			if transportation == true
+				newTransportationIds << key	
+			end
+		end
+		#cycle through transportations on location and remove the ones that arent in passed transportations
+		@location.transportations.each do |transportation|
+			if !newTransportationIds.include? transportation.id	
+				@location.transportations.delete(transportation.id)
+			else
+				existingTransportationIds << transportation.id
+			end
+		end
+		#cyclel through passed transportations and add the ones that arent in location
+		newTransportationIds.each do |newTransportation|
+			if !existingTransportationIds.include? newTransportation
+				@location.transportations << Transportation.find(newTransportation)
+			end
+		end
+		best_transportation = @location.primary_transportation
+		#check if best option is different or non-existent
+		if best_transportation.nil?
+			new_best_transportation = PrimaryTransportation.create!(cost: details[:bestTransportationCost], transportation: Transportation.find(details[:bestTransportationId]))
+			@location.primary_transportation = new_best_transportation
+		else
+			if best_transportation.transportation.id != details[:bestTransportationId]
+				best_transportation.transportation.id = Transportation.find(details[:bestTransportationId])
+			end
+			#check if best option cost is different or non-existent
+			if best_transportation.cost != details[:bestTransportationCost]
+				best_transportation.cost = details[:bestTransportationCost]
+			end
+			best_transportation.save
+
+		end	
+		#replace additional tips
+		@location.getting_in_notes = details[:gettingInNotes]
+		#check if walking distance boolean is different
+		if @location.walking_distance != details[:walkingDistance]
+			@location.walking_distance = details[:walkingDistance]
+		end
+
+		@location.save
 	end
 
 	def process_quote_response(map_to_count, response, year, month)
@@ -204,7 +324,6 @@ class LocationsController < ApplicationController
 				end
 				queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
 			elsif response.code == 0
-				puts 'hello'
 				puts(response.return_message)
 				#queue_request(request,hydra,quotes,key_val,year,month)
 			else

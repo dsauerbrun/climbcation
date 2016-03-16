@@ -215,42 +215,46 @@ class LocationsController < ApplicationController
 		transportations = details[:transportations]
 		newTransportationIds = []
 		existingTransportationIds = []
-		#clean up transportations array(IE. convert to array of transportationIDs)
-		transportations.each do |key, transportation|
-			if transportation == true
-				newTransportationIds << key	
+		if !transportations.nil?
+			#clean up transportations array(IE. convert to array of transportationIDs)
+			transportations.each do |key, transportation|
+				if transportation == true
+					newTransportationIds << key	
+				end
 			end
-		end
-		#cycle through transportations on location and remove the ones that arent in passed transportations
-		@location.transportations.each do |transportation|
-			if !newTransportationIds.include? transportation.id	
-				@location.transportations.delete(transportation.id)
-			else
-				existingTransportationIds << transportation.id
+			#cycle through transportations on location and remove the ones that arent in passed transportations
+			@location.transportations.each do |transportation|
+				if !newTransportationIds.include? transportation.id	
+					@location.transportations.delete(transportation.id)
+				else
+					existingTransportationIds << transportation.id
+				end
 			end
-		end
-		#cyclel through passed transportations and add the ones that arent in location
-		newTransportationIds.each do |newTransportation|
-			if !existingTransportationIds.include? newTransportation
-				@location.transportations << Transportation.find(newTransportation)
+			#cyclel through passed transportations and add the ones that arent in location
+			newTransportationIds.each do |newTransportation|
+				if !existingTransportationIds.include? newTransportation
+					@location.transportations << Transportation.find(newTransportation)
+				end
 			end
 		end
 		best_transportation = @location.primary_transportation
-		#check if best option is different or non-existent
-		if best_transportation.nil?
-			new_best_transportation = PrimaryTransportation.create!(cost: details[:bestTransportationCost], transportation: Transportation.find(details[:bestTransportationId]))
-			@location.primary_transportation = new_best_transportation
-		else
-			if best_transportation.transportation.id != details[:bestTransportationId]
-				best_transportation.transportation.id = Transportation.find(details[:bestTransportationId])
-			end
-			#check if best option cost is different or non-existent
-			if best_transportation.cost != details[:bestTransportationCost]
-				best_transportation.cost = details[:bestTransportationCost]
-			end
-			best_transportation.save
-
-		end	
+		if !details[:bestTransportationCost].nil? or !details[:bestTransportationId].nil?
+			#check if best option is different or non-existent
+			if best_transportation.nil? and !details[:bestTransportationId].nil?
+				details[:bestTransportationCost] ||= -1
+				new_best_transportation = PrimaryTransportation.create!(cost: details[:bestTransportationCost], transportation: Transportation.find(details[:bestTransportationId]))
+				@location.primary_transportation = new_best_transportation
+			else
+				if !details[:bestTransportationId].nil? and best_transportation.transportation.id != details[:bestTransportationId]
+					best_transportation.transportation.id = Transportation.find(details[:bestTransportationId])
+				end
+				#check if best option cost is different or non-existent
+				if !details[:bestTransportationCost].nil? and best_transportation.cost != details[:bestTransportationCost]
+					best_transportation.cost = details[:bestTransportationCost]
+				end
+				best_transportation.save
+			end	
+		end
 		#replace additional tips
 		@location.getting_in_notes = details[:gettingInNotes]
 		#check if walking distance boolean is different

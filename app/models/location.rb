@@ -117,14 +117,44 @@ class Location < ActiveRecord::Base
 		return range_string
 	end
 
+	def get_best_transportation
+		best_transport = {}
+		best_transport['name'] = self.primary_transportation.transportation.name
+		best_transport['cost'] = self.primary_transportation.cost
+		return best_transport
+	end
+
+	def get_food_options
+		food_options = []
+		self.food_option_location_details.each do |food_option|
+			foodObj = {}
+			foodObj['name'] = food_option.food_option.name
+			foodObj['cost'] = food_option.cost
+			food_options.push(foodObj)
+		end
+		return food_options
+	end
+
 	def get_accommodations
-		accommodations = {}
-		self.accommodations.each do |accommodation|
-			accommodations[accommodation.id] = {}
-			accommodations[accommodation.id]['url'] = accommodation.icon.url
-			accommodations[accommodation.id]['name'] = accommodation.name
+		accommodations = []
+		self.accommodation_location_details.each do |accommodation|
+			accommObj = {}
+			accommObj['url'] = accommodation.accommodation.icon.url
+			accommObj['name'] = accommodation.accommodation.name
+			accommObj['cost'] = accommodation.cost
+			accommodations.push(accommObj)
 		end
 		return accommodations
+	end
+
+	def get_transportations
+		transportations = []
+		self.transportations.each do |transportation|
+			transportationObj = {}
+			transportationObj['name'] = transportation.name
+			transportations.push(transportationObj)
+		end
+		return transportations
 	end
 
 	def get_climbing_types
@@ -180,11 +210,24 @@ class Location < ActiveRecord::Base
 		json_return[:home_thumb] = self.home_thumb.url
 		json_return[:seasons] = self.get_seasons
 		json_return[:climbing_types] = self.get_climbing_types
-		json_return[:accommodations] = self.get_accommodations 
 		json_return[:grade] = self.grade.us 
 		json_return[:airport_code] = self.airport_code
 		json_return[:date_range] = self.date_range
 		json_return[:submitter_email] = self.submitter_email
+		
+		#new stuff
+		json_return[:closest_accommodation] = self.closest_accommodation
+		json_return[:walking_distance] = self.walking_distance
+		json_return[:getting_in_notes] = self.getting_in_notes
+		json_return[:accommodation_notes] = self.accommodation_notes
+		json_return[:common_expenses_notes] = self.common_expenses_notes
+		json_return[:saving_money_tip] = self.saving_money_tips
+		
+		json_return[:accommodations] = self.get_accommodations
+		json_return[:transportations] = self.get_transportations
+		json_return[:best_transportation] = self.get_best_transportation
+		json_return[:food_options] = self.get_food_options
+
 		return json_return
 	end
 	

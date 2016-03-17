@@ -306,17 +306,14 @@ class LocationsController < ApplicationController
 		next_request.on_complete do |response|
 			if response.success?
 				if valid_json?(response.body)
-					puts 'success'
 					quotes[key_val][month] = process_quote_response(quotes[key_val],response,year,month)
 				else
-					puts 'bad json'
 					if ip_blacklist == ''
 						ip_blacklist = response.headers['X-ProxyMesh-IP']
 					else
 						ip_blacklist = ip_blacklist<< ',' << response.headers['X-ProxyMesh-IP']	
 					end
 					queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
-					puts response.headers['X-ProxyMesh-IP']
 				end
 			elsif response.timed_out?
 				puts("got a timeout for #{location.airport_code} #{month} month")

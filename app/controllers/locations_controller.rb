@@ -39,6 +39,24 @@ class LocationsController < ApplicationController
 		else
 			string_filter = '%%'
 		end
+		if(!params[:filter][:start_month].nil? and !params[:filter][:end_month].nil?)
+			month_filter = []
+			if params[:filter][:start_month] == params[:filter][:end_month]
+				month_filter << params[:filter][:start_month].to_i
+			elsif params[:filter][:start_month] > params[:filter][:end_month]
+				(1..(params[:filter][:end_month].to_i)).each do |month_num|
+					month_filter << month_num
+				end
+				((params[:filter][:start_month].to_i)..12).each do |month_num|
+					month_filter << month_num
+				end
+			elsif params[:filter][:start_month] < params[:filter][:end_month]
+
+				((params[:filter][:start_month].to_i)..(params[:filter][:end_month].to_i)).each do |month_num|
+					month_filter << month_num
+				end
+			end
+		end
 		if(!params[:filter][:continents].nil?)
 			continent_filter = params[:filter][:continents]
 		else	
@@ -66,7 +84,13 @@ class LocationsController < ApplicationController
 			end
 		end
 
-		location_filter = Location.where(active: true).order(sort_filter).in_bounds([@swBounds, @neBounds]).joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter).joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"').where('lower("info_sections"."body") LIKE lower(?) OR lower(array_dims(array["info_sections"."metadata"])) LIKE lower(?) OR lower("locations"."name") LIKE lower(?)',string_filter,string_filter,string_filter).where(continent: continent_filter).where('price_range_floor_cents < ?',price_filter).includes(:grade,:seasons).paginate(:page => page_num, :per_page => 5).uniq 
+		location_filter = Location.where(active: true).order(sort_filter).in_bounds([@swBounds, @neBounds])
+			.joins(:seasons).where('seasons.numerical_value IN (?)', month_filter)
+			.joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter)
+			.joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"').where('lower("info_sections"."body") LIKE lower(?) OR lower(array_dims(array["info_sections"."metadata"])) LIKE lower(?) OR lower("locations"."name") LIKE lower(?)',string_filter,string_filter,string_filter)
+			.where(continent: continent_filter)
+			.where('price_range_floor_cents < ?',price_filter)
+			.paginate(:page => page_num, :per_page => 100).uniq 
 		#location_filter = Location.all.joins(:climbing_types).includes(:grade,:seasons).uniq 
 		location_filter.each do |location|
 			location_json = location.get_location_json

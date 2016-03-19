@@ -64,8 +64,8 @@ class LocationsController < ApplicationController
 		end
 		if(!params[:filter][:accommodations].nil?)
 			accommodation_filter = params[:filter][:accommodations]
-		else	
-			accommodation_filter = Accommodation.all.pluck(:id) 
+		else
+			accommodation_filter = nil
 		end
 		if(!params[:filter][:climbing_types].nil?)
 			climbing_filter = params[:filter][:climbing_types]
@@ -89,16 +89,16 @@ class LocationsController < ApplicationController
 			end
 		end
 
-			#.joins('LEFT JOIN accommodation_location_details ON "locations"."id" = "accommodation_location_details"."location_id"').where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)
-		puts accommodation_filter
 		location_filter = Location.where(active: true).order(sort_filter).in_bounds([@swBounds, @neBounds])
 			.joins(:seasons).where('seasons.numerical_value IN (?)', month_filter)
 			.joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter)
-			.joins(:accommodation_location_details).where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)
 			.joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"').where('lower("info_sections"."body") LIKE lower(?) OR lower("locations"."name") LIKE lower(?) OR lower("locations"."getting_in_notes") LIKE lower(?) OR lower("locations"."accommodation_notes") LIKE lower(?) OR lower("locations"."common_expenses_notes") LIKE lower(?) OR lower("locations"."saving_money_tips") LIKE lower(?)',string_filter,string_filter,string_filter,string_filter,string_filter,string_filter)
 			.where(continent: continent_filter)
 			.where('price_range_floor_cents < ?',price_filter)
 			.paginate(:page => page_num, :per_page => 100).uniq 
+		if !accommodation_filter.nil?
+			location_filter = location_filter.joins(:accommodation_location_details).where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)
+		end
 		#location_filter = Location.all.joins(:climbing_types).includes(:grade,:seasons).uniq 
 		location_filter.each do |location|
 			location_json = location.get_location_json
@@ -368,7 +368,7 @@ class LocationsController < ApplicationController
 					puts ip_blacklist
 					ip_blacklist = ip_blacklist << ',' << response.headers['X-ProxyMesh-IP']	
 				end
-				queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
+				#queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
 			end
 		end
 		hydra.queue(next_request)

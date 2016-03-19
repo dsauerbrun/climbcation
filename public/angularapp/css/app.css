@@ -430,9 +430,12 @@ h3, h4 {
   .location-info-container .climbcation-well > h3 {
     padding-top: 0px;
     margin-top: 0px; }
+    .location-info-container .climbcation-well > h3 > input {
+      width: 50px; }
   .location-info-container .accommodation-info-section img {
-    width: 50%;
-    margin-left: 25%; }
+    width: 80px;
+    display: block;
+    margin: 0 auto; }
   .location-info-container .footer-link {
     font-size: 0.8em; }
   .location-info-container .info-section:nth-of-type(odd) {

@@ -119,8 +119,10 @@ class Location < ActiveRecord::Base
 
 	def get_best_transportation
 		best_transport = {}
-		best_transport['name'] = self.primary_transportation.transportation.name
-		best_transport['cost'] = self.primary_transportation.cost
+		if !self.primary_transportation.nil?
+			best_transport['name'] = self.primary_transportation.transportation.name
+			best_transport['cost'] = self.primary_transportation.cost
+		end
 		return best_transport
 	end
 

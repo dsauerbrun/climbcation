@@ -311,7 +311,7 @@ class LocationsController < ApplicationController
 					if ip_blacklist == ''
 						ip_blacklist = response.headers['X-ProxyMesh-IP']
 					else
-						ip_blacklist = ip_blacklist<< ',' << response.headers['X-ProxyMesh-IP']	
+						ip_blacklist = ip_blacklist << ',' << response.headers['X-ProxyMesh-IP']	
 					end
 					queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
 				end
@@ -333,7 +333,8 @@ class LocationsController < ApplicationController
 				if ip_blacklist == ''
 					ip_blacklist = response.headers['X-ProxyMesh-IP']
 				else
-					ip_blacklist = ip_blacklist<< ',' << response.headers['X-ProxyMesh-IP']	
+					puts ip_blacklist
+					ip_blacklist = ip_blacklist << ',' << response.headers['X-ProxyMesh-IP']	
 				end
 				queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
 			end

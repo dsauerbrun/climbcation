@@ -37,16 +37,21 @@ class ApplicationController < ActionController::Base
 	
 	def filters
 		@climbtypes = ClimbingType.all
+		@accommodations = Accommodation.all
 		@locations = Location.where(active: true).order('name ASC').all
 		@continents = @locations.pluck(:continent).uniq
 		filters = {}
 		filters['climbTypes'] = {}
+		filters['accommodations'] = {}
 		filters['continents'] = []	
 		@climbtypes.each do |type|
 			filters['climbTypes'][type.name] = type.icon 
 		end
 		@continents.each do |continent|
 			filters['continents'] << continent 
+		end
+		@accommodations.each do |accommodation|
+			filters['accommodations'][accommodation.name] = accommodation.id
 		end
 		render :json => filters 
 	end

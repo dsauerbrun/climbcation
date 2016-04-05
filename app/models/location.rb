@@ -235,7 +235,7 @@ class Location < ActiveRecord::Base
 	end
 	
 	def get_nearby_locations_json
-		@close_locations = self.get_locations_within_miles(200)
+		@close_locations = self.get_locations_within_miles(300)
 		@map_locations = {}
 		@close_locations.each do |location|
 			@map_locations[location.id] = {}
@@ -245,6 +245,7 @@ class Location < ActiveRecord::Base
 			@map_locations[location.id]['name'] = location.name
 			@map_locations[location.id]['country'] = location.country
 			@map_locations[location.id]['distance'] = self.distance_to(location).to_i
+			@map_locations[location.id]['climbing_types'] = self.get_climbing_types
 
 		end
 		return @map_locations

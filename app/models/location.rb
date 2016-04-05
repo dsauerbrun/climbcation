@@ -245,7 +245,7 @@ class Location < ActiveRecord::Base
 			@map_locations[location.id]['name'] = location.name
 			@map_locations[location.id]['country'] = location.country
 			@map_locations[location.id]['distance'] = self.distance_to(location).to_i
-			@map_locations[location.id]['climbing_types'] = self.get_climbing_types
+			@map_locations[location.id]['climbing_types'] = location.get_climbing_types
 
 		end
 		return @map_locations

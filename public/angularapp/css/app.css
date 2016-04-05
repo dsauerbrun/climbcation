@@ -129,6 +129,9 @@ h3, h4 {
 .text-gray {
   color: #6e6e6e; }
 
+.bold {
+  font-weight: bold; }
+
 .no-padding {
   padding: 0; }
 
@@ -291,6 +294,33 @@ h3, h4 {
   background: #7b7b7b; }
 
 /* custom checkbox/radio button end */
+/* accommodation start */
+.accommodation-options {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 200px; }
+
+.accommodation-button-wrapper {
+  display: inline-block; }
+  .accommodation-button-wrapper .accommodation-button {
+    position: relative;
+    height: 100px; }
+    .accommodation-button-wrapper .accommodation-button img {
+      width: 100px; }
+    .accommodation-button-wrapper .accommodation-button .accommodation-cost-container {
+      z-index: 10;
+      text-align: left;
+      position: absolute;
+      left: -1px;
+      bottom: -1px;
+      width: 102%; }
+  .accommodation-button-wrapper .accommodation-button.active, .accommodation-button-wrapper .accommodation-button:active {
+    width: 126px;
+    background-color: #d7eef0; }
+    .accommodation-button-wrapper .accommodation-button.active img, .accommodation-button-wrapper .accommodation-button:active img {
+      width: 80px; }
+
+/*accommodation end */
 .icon {
   height: 32px;
   width: 32px; }
@@ -423,8 +453,30 @@ h3, h4 {
       border-width: 2px; }
       .location-info-container .main-header .location-photo img {
         width: 100%; }
+    .location-info-container .main-header .location-map {
+      padding: 0px;
+      position: relative; }
+      .location-info-container .main-header .location-map .nearby-locations {
+        position: absolute;
+        background-color: rgba(230, 230, 230, 0.8);
+        z-index: 10;
+        width: 100%;
+        padding: 10px;
+        bottom: 0px;
+        text-align: right; }
+        .location-info-container .main-header .location-map .nearby-locations a {
+          font-weight: bold;
+          cursor: pointer; }
+        .location-info-container .main-header .location-map .nearby-locations img {
+          margin-left: 10px; }
+      .location-info-container .main-header .location-map .nearby-locations.expanded {
+        max-height: 80%;
+        text-align: right; }
+        .location-info-container .main-header .location-map .nearby-locations.expanded > div {
+          text-align: left; }
     .location-info-container .main-header #map-canvas {
-      height: 15em; }
+      height: 15em;
+      z-index: 1; }
     .location-info-container .main-header .overview-container div > div > label {
       display: block; }
   .location-info-container .misc-section {
@@ -453,9 +505,7 @@ h3, h4 {
   /* drop image start */
   /* drop image end */
   /* general start */
-  /* general end */
-  /* accommodation start */
-  /*accommodation end */ }
+  /* general end */ }
   #submit-form input.form-control, #submit-form select.form-control {
     height: 25px;
     font-size: 12px; }
@@ -535,6 +585,9 @@ h3, h4 {
     text-align: center; }
     #submit-form .titles span {
       width: 16%; }
+    #submit-form .titles a {
+      width: 16%;
+      cursor: pointer; }
   #submit-form .drop-box {
     border-style: dashed;
     border-width: 3px;
@@ -577,29 +630,6 @@ h3, h4 {
       border-width: 2px;
       border-radius: 3px;
       box-shadow: none; }
-  #submit-form .accommodation-options {
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 200px; }
-  #submit-form .accommodation-button-wrapper {
-    display: inline-block; }
-    #submit-form .accommodation-button-wrapper .accommodation-button {
-      position: relative;
-      height: 100px; }
-      #submit-form .accommodation-button-wrapper .accommodation-button img {
-        width: 100px; }
-      #submit-form .accommodation-button-wrapper .accommodation-button .accommodation-cost-container {
-        z-index: 10;
-        text-align: left;
-        position: absolute;
-        left: -1px;
-        bottom: -1px;
-        width: 102%; }
-    #submit-form .accommodation-button-wrapper .accommodation-button.active, #submit-form .accommodation-button-wrapper .accommodation-button:active {
-      width: 126px;
-      background-color: #d7eef0; }
-      #submit-form .accommodation-button-wrapper .accommodation-button.active img, #submit-form .accommodation-button-wrapper .accommodation-button:active img {
-        width: 80px; }
 
 body {
   color: #3c7e91;

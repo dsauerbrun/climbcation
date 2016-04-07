@@ -212,7 +212,7 @@ class Location < ActiveRecord::Base
 		json_return[:home_thumb] = self.home_thumb.url
 		json_return[:seasons] = self.get_seasons
 		json_return[:climbing_types] = self.get_climbing_types
-		json_return[:grade] = self.grade.us 
+		json_return[:grade] = self.grade.html_attributes['grade'] 
 		json_return[:airport_code] = self.airport_code
 		json_return[:date_range] = self.date_range
 		json_return[:submitter_email] = self.submitter_email

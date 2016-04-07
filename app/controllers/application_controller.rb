@@ -79,7 +79,7 @@ class ApplicationController < ActionController::Base
 		ClimbingType.all.each do |type|
 			attributes['climbing_types'].push(type.html_attributes)
 		end
-		Grade.all.each do |grade|
+		Grade.order(order: :desc).all.each do |grade|
 			attributes['grades'].push(grade.html_attributes)
 		end
 		render :json => attributes

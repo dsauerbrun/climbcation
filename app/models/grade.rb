@@ -4,6 +4,18 @@ class Grade < ActiveRecord::Base
 	def html_attributes
 		attr_map = {}
 		attr_map['grade'] = self.us
+		if !self.french.nil?
+			attr_map['grade'] = attr_map['grade'] + '|' + self.french
+		end
+		if !self.uiaa.nil?
+			#attr_map['grade'] = attr_map['grade'] + '|' + self.uiaa
+		end
+		if !self.australian.nil?
+			#attr_map['grade'] = attr_map['grade'] + '|' + self.australian
+		end
+		if !self.uk.nil?
+			#attr_map['grade'] = attr_map['grade'] + '|' + self.uk
+		end
 		attr_map['id'] = self.id	
 		return attr_map
 	end

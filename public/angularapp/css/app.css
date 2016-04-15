@@ -467,6 +467,8 @@ h3, h4 {
         .location-info-container .main-header .location-map .nearby-locations a {
           font-weight: bold;
           cursor: pointer; }
+        .location-info-container .main-header .location-map .nearby-locations img {
+          margin-left: 10px; }
       .location-info-container .main-header .location-map .nearby-locations.expanded {
         max-height: 80%;
         text-align: right; }

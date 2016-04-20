@@ -45459,7 +45459,7 @@ home.controller('LocationPageController',function($scope,$rootScope,$q,$http,$ro
 	slug = $routeParams.slug;
 	$scope.name = 'hello';
 	$scope.gmap;
-	$scope.origin_airport = 'BER';
+	$scope.origin_airport = 'LAX';
 	$scope.locationObj = {};
 	$scope.nearbyShow = false;
 	var deferred = $q.defer();
@@ -45540,7 +45540,7 @@ home.controller('LocationsController',function($scope, $timeout,LocationsGetter)
 	var locations = this;
 	$scope.locationData = [];
 	$scope.LocationsGetter = LocationsGetter;
-	$scope.origin_airport = "BER";
+	$scope.origin_airport = "LAX";
 	$scope.slugArray = [];
 	
 	LocationsGetter.clearFilters();

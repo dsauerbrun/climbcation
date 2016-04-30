@@ -122,6 +122,7 @@ class Location < ActiveRecord::Base
 		if !self.primary_transportation.nil?
 			best_transport['name'] = self.primary_transportation.transportation.name
 			best_transport['cost'] = self.primary_transportation.cost
+			best_transport['id'] = self.primary_transportation.transportation.id
 		end
 		return best_transport
 	end
@@ -132,6 +133,7 @@ class Location < ActiveRecord::Base
 			foodObj = {}
 			foodObj['name'] = food_option.food_option.name
 			foodObj['cost'] = food_option.cost
+			foodObj['id'] = food_option.food_option.id
 			food_options.push(foodObj)
 		end
 		return food_options
@@ -144,6 +146,7 @@ class Location < ActiveRecord::Base
 			accommObj['url'] = accommodation.accommodation.icon.url
 			accommObj['name'] = accommodation.accommodation.name
 			accommObj['cost'] = accommodation.cost
+			accommObj['id'] = accommodation.accommodation.id
 			accommodations.push(accommObj)
 		end
 		return accommodations
@@ -153,6 +156,7 @@ class Location < ActiveRecord::Base
 		transportations = []
 		self.transportations.each do |transportation|
 			transportationObj = {}
+			transportationObj['id'] = transportation.id
 			transportationObj['name'] = transportation.name
 			transportations.push(transportationObj)
 		end
@@ -183,6 +187,7 @@ class Location < ActiveRecord::Base
 		sections = {}
 		self.info_sections.each do |section|
 			sections[section.id] = {}
+			sections[section.id][:id] = section.id
 			sections[section.id][:title] = section.title
 			sections[section.id][:body] = section.body
 			sections[section.id][:subsections] = {} 

@@ -7,6 +7,7 @@ class InfoSection < ActiveRecord::Base
 		if section['title'] != ''
 			infosect = InfoSection.create!(title: section['title'], body: section['body'])
 			location.info_sections << infosect
+			return infosect
 		end
 	end
 end

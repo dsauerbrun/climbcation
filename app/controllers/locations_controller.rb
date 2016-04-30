@@ -172,6 +172,27 @@ class LocationsController < ApplicationController
 		render :json => returnit
 	end
 
+	def edit_sections
+		new_id = ''
+		if params[:section]['id'].nil?
+			new_info = InfoSection.create_new_info_section(params[:locationId],params[:section])
+			new_id = new_info.id
+		else
+			section = InfoSection.find(params[:section]['id'])
+			section.title = params[:section]['title']
+			section.body = params[:section]['body']
+			section.save
+		end
+		returnit = {'new_id' => new_id}
+		render :json => returnit
+	end
+
+	def edit_food_options
+		change_food_options(params[:location], params[:id])
+		returnit = {'name' => 'hello'}
+		render :json => returnit
+	end
+
 	def change_food_options(details, location_id)
 		@location = Location.find(location_id)
 		new_food_options = details[:foodOptionDetails]
@@ -179,11 +200,11 @@ class LocationsController < ApplicationController
 		#remove null food_options
 		new_food_options.delete_if { |k, v| v.nil? }
 		#go through each existing food, remove if not in new and change if cost is different
-		@location.food_option_location_details do |food_option|
-			if new_food_options.key?(food_option.food_option.id)
+		@location.food_option_location_details.each do |food_option|
+			if new_food_options.key?(food_option.food_option.id.to_s)
 				#food exists already
-				if new_food_options[food_option.food_option.id].cost != food_option.cost
-					food_option.cost = new_food_options[food_option.food_option.id].cost
+				if new_food_options[food_option.food_option.id.to_s]['cost'] != food_option.cost
+					food_option.cost = new_food_options[food_option.food_option.id.to_s]['cost']
 					food_option.save
 				end
 			else
@@ -194,8 +215,8 @@ class LocationsController < ApplicationController
 		end
 		#add new food options if they dont exist already
 		new_food_options.each do |key,new_food_option|
-			if !existing_food_options.include? new_food_option[:id]
-				new_food_option_obj = FoodOptionLocationDetail.create!(cost: new_food_option[:cost], food_option: FoodOption.find(new_food_option[:id]))
+			if !existing_food_options.include? new_food_option[:id].to_i
+				new_food_option_obj = FoodOptionLocationDetail.create!(cost: new_food_option[:cost], food_option: FoodOption.find(new_food_option[:id].to_i))
 				@location.food_option_location_details << new_food_option_obj
 			end
 		end
@@ -207,6 +228,12 @@ class LocationsController < ApplicationController
 		@location.save
 	end
 
+	def edit_accommodations
+		change_accommodations(params[:location], params[:id])
+		returnit = {'name' => 'hello'}
+		render :json => returnit
+	end
+
 	def change_accommodations(details, location_id)
 		@location = Location.find(location_id)
 		new_accommodations = details[:accommodations]
@@ -214,11 +241,11 @@ class LocationsController < ApplicationController
 		#remove null accommodations
 		new_accommodations.delete_if { |k, v| v.nil? }
 		#go through each existing accommodation, remove if not in new and change if cost is different
-		@location.accommodation_location_details do |accommodation|
-			if new_accommodations.key?(accommodation.accommodation.id)
+		@location.accommodation_location_details.each do |accommodation|
+			if new_accommodations.key?(accommodation.accommodation.id.to_s)
 				#accommodation exists already
-				if new_accommodations[accommodation.accommodation.id].cost != accommodation.cost
-					accommodation.cost = new_accommodations[accommodation.accommodation.id].cost
+				if new_accommodations[accommodation.accommodation.id.to_s]['cost'] != accommodation.cost
+					accommodation.cost = new_accommodations[accommodation.accommodation.id.to_s]['cost']
 					accommodation.save
 				end
 			else
@@ -240,6 +267,12 @@ class LocationsController < ApplicationController
 		@location.closest_accommodation = details[:closestAccommodation]
 	
 		@location.save
+	end
+
+	def edit_getting_in
+		change_getting_in(params[:location], params[:id])
+		returnit = {'name' => 'hello'}
+		render :json => returnit
 	end
 
 	def change_getting_in(details, location_id)
@@ -277,11 +310,11 @@ class LocationsController < ApplicationController
 				new_best_transportation = PrimaryTransportation.create!(cost: details[:bestTransportationCost], transportation: Transportation.find(details[:bestTransportationId]))
 				@location.primary_transportation = new_best_transportation
 			else
-				if !details[:bestTransportationId].nil? and best_transportation.transportation.id != details[:bestTransportationId]
-					best_transportation.transportation.id = Transportation.find(details[:bestTransportationId])
+				if !details[:bestTransportationId].nil? and best_transportation.transportation.id != details[:bestTransportationId].to_i
+					best_transportation.transportation = Transportation.find(details[:bestTransportationId])
 				end
 				#check if best option cost is different or non-existent
-				if !details[:bestTransportationCost].nil? and best_transportation.cost != details[:bestTransportationCost]
+				if !details[:bestTransportationCost].nil? or best_transportation.cost != details[:bestTransportationCost]
 					best_transportation.cost = details[:bestTransportationCost]
 				end
 				best_transportation.save

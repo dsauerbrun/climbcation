@@ -45423,7 +45423,635 @@ return a>v||p>a&&u>a},a.noDecrementHours=function(){var a=n(p,60*-s);return u>a|
 
 })(angular.module('ezfb', []));
 
-var home = angular.module('app', ['helperService','filter-directives','location-list-item-directives','location-section-directives','section-form-directive','ngRoute','facebookComments','ezfb','ui.bootstrap','customFilters']);
+/**
+  * x is a value between 0 and 1, indicating where in the animation you are.
+  */
+var duScrollDefaultEasing = function (x) {
+  'use strict';
+
+  if(x < 0.5) {
+    return Math.pow(x*2, 2)/2;
+  }
+  return 1-Math.pow((1-x)*2, 2)/2;
+};
+
+var duScroll = angular.module('duScroll', [
+  'duScroll.scrollspy',
+  'duScroll.smoothScroll',
+  'duScroll.scrollContainer',
+  'duScroll.spyContext',
+  'duScroll.scrollHelpers'
+])
+  //Default animation duration for smoothScroll directive
+  .value('duScrollDuration', 350)
+  //Scrollspy debounce interval, set to 0 to disable
+  .value('duScrollSpyWait', 100)
+  //Wether or not multiple scrollspies can be active at once
+  .value('duScrollGreedy', false)
+  //Default offset for smoothScroll directive
+  .value('duScrollOffset', 0)
+  //Default easing function for scroll animation
+  .value('duScrollEasing', duScrollDefaultEasing)
+  //Which events on the container (such as body) should cancel scroll animations
+  .value('duScrollCancelOnEvents', 'scroll mousedown mousewheel touchmove keydown')
+  //Whether or not to activate the last scrollspy, when page/container bottom is reached
+  .value('duScrollBottomSpy', false)
+  //Active class name
+  .value('duScrollActiveClass', 'active');
+
+if (typeof module !== 'undefined' && module && module.exports) {
+  module.exports = duScroll;
+}
+
+
+angular.module('duScroll.scrollHelpers', ['duScroll.requestAnimation'])
+.run(["$window", "$q", "cancelAnimation", "requestAnimation", "duScrollEasing", "duScrollDuration", "duScrollOffset", "duScrollCancelOnEvents", function($window, $q, cancelAnimation, requestAnimation, duScrollEasing, duScrollDuration, duScrollOffset, duScrollCancelOnEvents) {
+  'use strict';
+
+  var proto = {};
+
+  var isDocument = function(el) {
+    return (typeof HTMLDocument !== 'undefined' && el instanceof HTMLDocument) || (el.nodeType && el.nodeType === el.DOCUMENT_NODE);
+  };
+
+  var isElement = function(el) {
+    return (typeof HTMLElement !== 'undefined' && el instanceof HTMLElement) || (el.nodeType && el.nodeType === el.ELEMENT_NODE);
+  };
+
+  var unwrap = function(el) {
+    return isElement(el) || isDocument(el) ? el : el[0];
+  };
+
+  proto.duScrollTo = function(left, top, duration, easing) {
+    var aliasFn;
+    if(angular.isElement(left)) {
+      aliasFn = this.duScrollToElement;
+    } else if(angular.isDefined(duration)) {
+      aliasFn = this.duScrollToAnimated;
+    }
+    if(aliasFn) {
+      return aliasFn.apply(this, arguments);
+    }
+    var el = unwrap(this);
+    if(isDocument(el)) {
+      return $window.scrollTo(left, top);
+    }
+    el.scrollLeft = left;
+    el.scrollTop = top;
+  };
+
+  var scrollAnimation, deferred;
+  proto.duScrollToAnimated = function(left, top, duration, easing) {
+    if(duration && !easing) {
+      easing = duScrollEasing;
+    }
+    var startLeft = this.duScrollLeft(),
+        startTop = this.duScrollTop(),
+        deltaLeft = Math.round(left - startLeft),
+        deltaTop = Math.round(top - startTop);
+
+    var startTime = null, progress = 0;
+    var el = this;
+
+    var cancelScrollAnimation = function($event) {
+      if (!$event || (progress && $event.which > 0)) {
+        if(duScrollCancelOnEvents) {
+          el.unbind(duScrollCancelOnEvents, cancelScrollAnimation);
+        }
+        cancelAnimation(scrollAnimation);
+        deferred.reject();
+        scrollAnimation = null;
+      }
+    };
+
+    if(scrollAnimation) {
+      cancelScrollAnimation();
+    }
+    deferred = $q.defer();
+
+    if(duration === 0 || (!deltaLeft && !deltaTop)) {
+      if(duration === 0) {
+        el.duScrollTo(left, top);
+      }
+      deferred.resolve();
+      return deferred.promise;
+    }
+
+    var animationStep = function(timestamp) {
+      if (startTime === null) {
+        startTime = timestamp;
+      }
+
+      progress = timestamp - startTime;
+      var percent = (progress >= duration ? 1 : easing(progress/duration));
+
+      el.scrollTo(
+        startLeft + Math.ceil(deltaLeft * percent),
+        startTop + Math.ceil(deltaTop * percent)
+      );
+      if(percent < 1) {
+        scrollAnimation = requestAnimation(animationStep);
+      } else {
+        if(duScrollCancelOnEvents) {
+          el.unbind(duScrollCancelOnEvents, cancelScrollAnimation);
+        }
+        scrollAnimation = null;
+        deferred.resolve();
+      }
+    };
+
+    //Fix random mobile safari bug when scrolling to top by hitting status bar
+    el.duScrollTo(startLeft, startTop);
+
+    if(duScrollCancelOnEvents) {
+      el.bind(duScrollCancelOnEvents, cancelScrollAnimation);
+    }
+
+    scrollAnimation = requestAnimation(animationStep);
+    return deferred.promise;
+  };
+
+  proto.duScrollToElement = function(target, offset, duration, easing) {
+    var el = unwrap(this);
+    if(!angular.isNumber(offset) || isNaN(offset)) {
+      offset = duScrollOffset;
+    }
+    var top = this.duScrollTop() + unwrap(target).getBoundingClientRect().top - offset;
+    if(isElement(el)) {
+      top -= el.getBoundingClientRect().top;
+    }
+    return this.duScrollTo(0, top, duration, easing);
+  };
+
+  proto.duScrollLeft = function(value, duration, easing) {
+    if(angular.isNumber(value)) {
+      return this.duScrollTo(value, this.duScrollTop(), duration, easing);
+    }
+    var el = unwrap(this);
+    if(isDocument(el)) {
+      return $window.scrollX || document.documentElement.scrollLeft || document.body.scrollLeft;
+    }
+    return el.scrollLeft;
+  };
+  proto.duScrollTop = function(value, duration, easing) {
+    if(angular.isNumber(value)) {
+      return this.duScrollTo(this.duScrollLeft(), value, duration, easing);
+    }
+    var el = unwrap(this);
+    if(isDocument(el)) {
+      return $window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+    }
+    return el.scrollTop;
+  };
+
+  proto.duScrollToElementAnimated = function(target, offset, duration, easing) {
+    return this.duScrollToElement(target, offset, duration || duScrollDuration, easing);
+  };
+
+  proto.duScrollTopAnimated = function(top, duration, easing) {
+    return this.duScrollTop(top, duration || duScrollDuration, easing);
+  };
+
+  proto.duScrollLeftAnimated = function(left, duration, easing) {
+    return this.duScrollLeft(left, duration || duScrollDuration, easing);
+  };
+
+  angular.forEach(proto, function(fn, key) {
+    angular.element.prototype[key] = fn;
+
+    //Remove prefix if not already claimed by jQuery / ui.utils
+    var unprefixed = key.replace(/^duScroll/, 'scroll');
+    if(angular.isUndefined(angular.element.prototype[unprefixed])) {
+      angular.element.prototype[unprefixed] = fn;
+    }
+  });
+
+}]);
+
+
+//Adapted from https://gist.github.com/paulirish/1579671
+angular.module('duScroll.polyfill', [])
+.factory('polyfill', ["$window", function($window) {
+  'use strict';
+
+  var vendors = ['webkit', 'moz', 'o', 'ms'];
+
+  return function(fnName, fallback) {
+    if($window[fnName]) {
+      return $window[fnName];
+    }
+    var suffix = fnName.substr(0, 1).toUpperCase() + fnName.substr(1);
+    for(var key, i = 0; i < vendors.length; i++) {
+      key = vendors[i]+suffix;
+      if($window[key]) {
+        return $window[key];
+      }
+    }
+    return fallback;
+  };
+}]);
+
+angular.module('duScroll.requestAnimation', ['duScroll.polyfill'])
+.factory('requestAnimation', ["polyfill", "$timeout", function(polyfill, $timeout) {
+  'use strict';
+
+  var lastTime = 0;
+  var fallback = function(callback, element) {
+    var currTime = new Date().getTime();
+    var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+    var id = $timeout(function() { callback(currTime + timeToCall); },
+      timeToCall);
+    lastTime = currTime + timeToCall;
+    return id;
+  };
+
+  return polyfill('requestAnimationFrame', fallback);
+}])
+.factory('cancelAnimation', ["polyfill", "$timeout", function(polyfill, $timeout) {
+  'use strict';
+
+  var fallback = function(promise) {
+    $timeout.cancel(promise);
+  };
+
+  return polyfill('cancelAnimationFrame', fallback);
+}]);
+
+
+angular.module('duScroll.spyAPI', ['duScroll.scrollContainerAPI'])
+.factory('spyAPI', ["$rootScope", "$timeout", "$window", "$document", "scrollContainerAPI", "duScrollGreedy", "duScrollSpyWait", "duScrollBottomSpy", "duScrollActiveClass", function($rootScope, $timeout, $window, $document, scrollContainerAPI, duScrollGreedy, duScrollSpyWait, duScrollBottomSpy, duScrollActiveClass) {
+  'use strict';
+
+  var createScrollHandler = function(context) {
+    var timer = false, queued = false;
+    var handler = function() {
+      queued = false;
+      var container = context.container,
+          containerEl = container[0],
+          containerOffset = 0,
+          bottomReached;
+
+      if (typeof HTMLElement !== 'undefined' && containerEl instanceof HTMLElement || containerEl.nodeType && containerEl.nodeType === containerEl.ELEMENT_NODE) {
+        containerOffset = containerEl.getBoundingClientRect().top;
+        bottomReached = Math.round(containerEl.scrollTop + containerEl.clientHeight) >= containerEl.scrollHeight;
+      } else {
+        var documentScrollHeight = $document[0].body.scrollHeight || $document[0].documentElement.scrollHeight; // documentElement for IE11
+        bottomReached = Math.round($window.pageYOffset + $window.innerHeight) >= documentScrollHeight;
+      }
+      var compareProperty = (duScrollBottomSpy && bottomReached ? 'bottom' : 'top');
+
+      var i, currentlyActive, toBeActive, spies, spy, pos;
+      spies = context.spies;
+      currentlyActive = context.currentlyActive;
+      toBeActive = undefined;
+
+      for(i = 0; i < spies.length; i++) {
+        spy = spies[i];
+        pos = spy.getTargetPosition();
+        if (!pos) continue;
+
+        if((duScrollBottomSpy && bottomReached) || (pos.top + spy.offset - containerOffset < 20 && (duScrollGreedy || pos.top*-1 + containerOffset) < pos.height)) {
+          //Find the one closest the viewport top or the page bottom if it's reached
+          if(!toBeActive || toBeActive[compareProperty] < pos[compareProperty]) {
+            toBeActive = {
+              spy: spy
+            };
+            toBeActive[compareProperty] = pos[compareProperty];
+          }
+        }
+      }
+
+      if(toBeActive) {
+        toBeActive = toBeActive.spy;
+      }
+      if(currentlyActive === toBeActive || (duScrollGreedy && !toBeActive)) return;
+      if(currentlyActive) {
+        currentlyActive.$element.removeClass(duScrollActiveClass);
+        $rootScope.$broadcast(
+          'duScrollspy:becameInactive',
+          currentlyActive.$element,
+          angular.element(currentlyActive.getTargetElement())
+        );
+      }
+      if(toBeActive) {
+        toBeActive.$element.addClass(duScrollActiveClass);
+        $rootScope.$broadcast(
+          'duScrollspy:becameActive',
+          toBeActive.$element,
+          angular.element(toBeActive.getTargetElement())
+        );
+      }
+      context.currentlyActive = toBeActive;
+    };
+
+    if(!duScrollSpyWait) {
+      return handler;
+    }
+
+    //Debounce for potential performance savings
+    return function() {
+      if(!timer) {
+        handler();
+        timer = $timeout(function() {
+          timer = false;
+          if(queued) {
+            handler();
+          }
+        }, duScrollSpyWait, false);
+      } else {
+        queued = true;
+      }
+    };
+  };
+
+  var contexts = {};
+
+  var createContext = function($scope) {
+    var id = $scope.$id;
+    var context = {
+      spies: []
+    };
+
+    context.handler = createScrollHandler(context);
+    contexts[id] = context;
+
+    $scope.$on('$destroy', function() {
+      destroyContext($scope);
+    });
+
+    return id;
+  };
+
+  var destroyContext = function($scope) {
+    var id = $scope.$id;
+    var context = contexts[id], container = context.container;
+    if(container) {
+      container.off('scroll', context.handler);
+    }
+    delete contexts[id];
+  };
+
+  var defaultContextId = createContext($rootScope);
+
+  var getContextForScope = function(scope) {
+    if(contexts[scope.$id]) {
+      return contexts[scope.$id];
+    }
+    if(scope.$parent) {
+      return getContextForScope(scope.$parent);
+    }
+    return contexts[defaultContextId];
+  };
+
+  var getContextForSpy = function(spy) {
+    var context, contextId, scope = spy.$scope;
+    if(scope) {
+      return getContextForScope(scope);
+    }
+    //No scope, most likely destroyed
+    for(contextId in contexts) {
+      context = contexts[contextId];
+      if(context.spies.indexOf(spy) !== -1) {
+        return context;
+      }
+    }
+  };
+
+  var isElementInDocument = function(element) {
+    while (element.parentNode) {
+      element = element.parentNode;
+      if (element === document) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  var addSpy = function(spy) {
+    var context = getContextForSpy(spy);
+    if (!context) return;
+    context.spies.push(spy);
+    if (!context.container || !isElementInDocument(context.container)) {
+      if(context.container) {
+        context.container.off('scroll', context.handler);
+      }
+      context.container = scrollContainerAPI.getContainer(spy.$scope);
+      context.container.on('scroll', context.handler).triggerHandler('scroll');
+    }
+  };
+
+  var removeSpy = function(spy) {
+    var context = getContextForSpy(spy);
+    if(spy === context.currentlyActive) {
+      $rootScope.$broadcast('duScrollspy:becameInactive', context.currentlyActive.$element);
+      context.currentlyActive = null;
+    }
+    var i = context.spies.indexOf(spy);
+    if(i !== -1) {
+      context.spies.splice(i, 1);
+    }
+		spy.$element = null;
+  };
+
+  return {
+    addSpy: addSpy,
+    removeSpy: removeSpy,
+    createContext: createContext,
+    destroyContext: destroyContext,
+    getContextForScope: getContextForScope
+  };
+}]);
+
+
+angular.module('duScroll.scrollContainerAPI', [])
+.factory('scrollContainerAPI', ["$document", function($document) {
+  'use strict';
+
+  var containers = {};
+
+  var setContainer = function(scope, element) {
+    var id = scope.$id;
+    containers[id] = element;
+    return id;
+  };
+
+  var getContainerId = function(scope) {
+    if(containers[scope.$id]) {
+      return scope.$id;
+    }
+    if(scope.$parent) {
+      return getContainerId(scope.$parent);
+    }
+    return;
+  };
+
+  var getContainer = function(scope) {
+    var id = getContainerId(scope);
+    return id ? containers[id] : $document;
+  };
+
+  var removeContainer = function(scope) {
+    var id = getContainerId(scope);
+    if(id) {
+      delete containers[id];
+    }
+  };
+
+  return {
+    getContainerId:   getContainerId,
+    getContainer:     getContainer,
+    setContainer:     setContainer,
+    removeContainer:  removeContainer
+  };
+}]);
+
+
+angular.module('duScroll.smoothScroll', ['duScroll.scrollHelpers', 'duScroll.scrollContainerAPI'])
+.directive('duSmoothScroll', ["duScrollDuration", "duScrollOffset", "scrollContainerAPI", function(duScrollDuration, duScrollOffset, scrollContainerAPI) {
+  'use strict';
+
+  return {
+    link : function($scope, $element, $attr) {
+      $element.on('click', function(e) {
+        if((!$attr.href || $attr.href.indexOf('#') === -1) && $attr.duSmoothScroll === '') return;
+
+        var id = $attr.href ? $attr.href.replace(/.*(?=#[^\s]+$)/, '').substring(1) : $attr.duSmoothScroll;
+
+        var target = document.getElementById(id) || document.getElementsByName(id)[0];
+        if(!target || !target.getBoundingClientRect) return;
+
+        if (e.stopPropagation) e.stopPropagation();
+        if (e.preventDefault) e.preventDefault();
+
+        var offset    = $attr.offset ? parseInt($attr.offset, 10) : duScrollOffset;
+        var duration  = $attr.duration ? parseInt($attr.duration, 10) : duScrollDuration;
+        var container = scrollContainerAPI.getContainer($scope);
+
+        container.duScrollToElement(
+          angular.element(target),
+          isNaN(offset) ? 0 : offset,
+          isNaN(duration) ? 0 : duration
+        );
+      });
+    }
+  };
+}]);
+
+
+angular.module('duScroll.spyContext', ['duScroll.spyAPI'])
+.directive('duSpyContext', ["spyAPI", function(spyAPI) {
+  'use strict';
+
+  return {
+    restrict: 'A',
+    scope: true,
+    compile: function compile(tElement, tAttrs, transclude) {
+      return {
+        pre: function preLink($scope, iElement, iAttrs, controller) {
+          spyAPI.createContext($scope);
+        }
+      };
+    }
+  };
+}]);
+
+
+angular.module('duScroll.scrollContainer', ['duScroll.scrollContainerAPI'])
+.directive('duScrollContainer', ["scrollContainerAPI", function(scrollContainerAPI){
+  'use strict';
+
+  return {
+    restrict: 'A',
+    scope: true,
+    compile: function compile(tElement, tAttrs, transclude) {
+      return {
+        pre: function preLink($scope, iElement, iAttrs, controller) {
+          iAttrs.$observe('duScrollContainer', function(element) {
+            if(angular.isString(element)) {
+              element = document.getElementById(element);
+            }
+
+            element = (angular.isElement(element) ? angular.element(element) : iElement);
+            scrollContainerAPI.setContainer($scope, element);
+            $scope.$on('$destroy', function() {
+              scrollContainerAPI.removeContainer($scope);
+            });
+          });
+        }
+      };
+    }
+  };
+}]);
+
+
+angular.module('duScroll.scrollspy', ['duScroll.spyAPI'])
+.directive('duScrollspy', ["spyAPI", "duScrollOffset", "$timeout", "$rootScope", function(spyAPI, duScrollOffset, $timeout, $rootScope) {
+  'use strict';
+
+  var Spy = function(targetElementOrId, $scope, $element, offset) {
+    if(angular.isElement(targetElementOrId)) {
+      this.target = targetElementOrId;
+    } else if(angular.isString(targetElementOrId)) {
+      this.targetId = targetElementOrId;
+    }
+    this.$scope = $scope;
+    this.$element = $element;
+    this.offset = offset;
+  };
+
+  Spy.prototype.getTargetElement = function() {
+    if (!this.target && this.targetId) {
+      this.target = document.getElementById(this.targetId) || document.getElementsByName(this.targetId)[0];
+    }
+    return this.target;
+  };
+
+  Spy.prototype.getTargetPosition = function() {
+    var target = this.getTargetElement();
+    if(target) {
+      return target.getBoundingClientRect();
+    }
+  };
+
+  Spy.prototype.flushTargetCache = function() {
+    if(this.targetId) {
+      this.target = undefined;
+    }
+  };
+
+  return {
+    link: function ($scope, $element, $attr) {
+      var href = $attr.ngHref || $attr.href;
+      var targetId;
+
+      if (href && href.indexOf('#') !== -1) {
+        targetId = href.replace(/.*(?=#[^\s]+$)/, '').substring(1);
+      } else if($attr.duScrollspy) {
+        targetId = $attr.duScrollspy;
+      } else if($attr.duSmoothScroll) {
+        targetId = $attr.duSmoothScroll;
+      }
+      if(!targetId) return;
+
+      // Run this in the next execution loop so that the scroll context has a chance
+      // to initialize
+      var timeoutPromise = $timeout(function() {
+        var spy = new Spy(targetId, $scope, $element, -($attr.offset ? parseInt($attr.offset, 10) : duScrollOffset));
+        spyAPI.addSpy(spy);
+
+        $scope.$on('$locationChangeSuccess', spy.flushTargetCache.bind(spy));
+        var deregisterOnStateChange = $rootScope.$on('$stateChangeSuccess', spy.flushTargetCache.bind(spy));
+        $scope.$on('$destroy', function() {
+          spyAPI.removeSpy(spy);
+          deregisterOnStateChange();
+        });
+      }, 0, false);
+      $scope.$on('$destroy', function() {$timeout.cancel(timeoutPromise);});
+    }
+  };
+}]);
+
+var home = angular.module('app', ['helperService','filter-directives','location-list-item-directives','location-section-directives','section-form-directive','ngRoute','facebookComments','ezfb','ui.bootstrap','duScroll','customFilters']);
 home.config(['$routeProvider', function($routeProvider) {
 	$routeProvider
 	.when('/home', {
@@ -45459,10 +46087,22 @@ home.controller('LocationPageController',function($scope,$rootScope,$q,$http,$ro
 	slug = $routeParams.slug;
 	$scope.name = 'hello';
 	$scope.gmap;
-	$scope.origin_airport = 'LAX';
-	$scope.locationObj = {};
+	$scope.origin_airport = 'BER';
 	$scope.nearbyShow = false;
-	var deferred = $q.defer();
+	$scope.editingAccommodation = false;
+	$scope.editingGettingIn = false;
+	$scope.editingFoodOptions = true;
+
+	$scope.toggleEditAccommodation = function() {
+		$scope.editingAccommodation = !$scope.editingAccommodation;
+	}
+	$scope.toggleEditGettingIn = function() {
+		$scope.editingGettingIn = !$scope.editingGettingIn;
+	}
+	$scope.toggleEditFoodOptions = function() {
+		$scope.editingFoodOptions = !$scope.editingFoodOptions;
+	}
+
 	var emptySectionTemplate = {previewOff: false, newSection: true, title:'', body: '', subsections: [{title:'', subsectionDescriptions:[{desc:''}]}]}
 	emptySectionTemplate.clone = function(){
 		return jQuery.extend(true, {}, this);
@@ -45474,30 +46114,30 @@ home.controller('LocationPageController',function($scope,$rootScope,$q,$http,$ro
 			scrollTop: $('#'+id.replace(/\s+/g, '')).offset().top
 		}, 1000);
 	};
-	$http.get('api/location/'+slug).success(function(data){
-		deferred.resolve(data);
-	});
-	deferred.promise.then(
+	$http.get('api/location/'+slug).then(
 		function(success){
-			$scope.longitude = success['location']['longitude'];
-			$scope.latitude = success['location']['latitude'];
-			//processSectionsByPair(success['sections']);
-			$scope.sections = success['sections'];
-			$scope.tableOfContents = processTableContents($scope.sections);
-			$scope.locationData = success['location']
-			$scope.nearby = success['nearby'];
-			$scope.gmap = createMap('map-canvas',$scope.latitude,$scope.longitude,6);
-			addCloseLocations($scope.gmap,success['nearby']);
-			addMarker($scope.gmap,$scope.latitude,$scope.longitude,success['location']['title'],'<p>'+success['location']['title']+'</p>',false);
+			if (success.status == 200) {
+				success = success.data;
+				$scope.longitude = success['location']['longitude'];
+				$scope.latitude = success['location']['latitude'];
+				$scope.sections = success['sections'];
+				$scope.tableOfContents = processTableContents($scope.sections);
+				$scope.locationData = success['location']
+				$scope.nearby = success['nearby'];
+				$scope.gmap = createMap('map-canvas',$scope.latitude,$scope.longitude,6);
+				addCloseLocations($scope.gmap,success['nearby']);
+				addMarker($scope.gmap,$scope.latitude,$scope.longitude,success['location']['title'],'<p>'+success['location']['title']+'</p>',false);
 
-			$scope.$watch('origin_airport', function() {
-				LocationsGetter.getFlightQuotes([$scope.locationData.slug], $scope.origin_airport).then(function(promiseQuotes) {
-					$timeout(function(){
-						setLocationHighchart(promiseQuotes,$scope.origin_airport);
+				$scope.$watch('origin_airport', function() {
+					LocationsGetter.getFlightQuotes([$scope.locationData.slug], $scope.origin_airport).then(function(promiseQuotes) {
+						$timeout(function(){
+							setLocationHighchart(promiseQuotes,$scope.origin_airport);
+						});
 					});
 				});
-			})
-			
+
+				populateEditables($scope.locationData);
+			}
 		}
 	);
 
@@ -45522,25 +46162,190 @@ home.controller('LocationPageController',function($scope,$rootScope,$q,$http,$ro
 		$scope.nearbyShow = !$scope.nearbyShow;
 	}
 
-	$http.get('api/get_attribute_options').then(function(data){
-		var respData = data.data
-		$scope.accommodations = respData['accommodations'];
-		$scope.climbingTypes = respData['climbing_types'];
-		$scope.months = respData['months'];
-		$scope.grades = respData['grades'];
-		$scope.foodOptions = respData['food_options'];
-		$scope.transportations = respData['transportations'];
-	});
+	// EDITING FUNCTIONALITY BELOW
 
+	$scope.locationObj = {
+		submitter_email: '',
+		name: '',
+		country: '',
+		continent: '',
+		airport: '',
+		price_floor: '',
+		price_ceiling: '',
+		months: {},
+		accommodations: {},
+		climbingTypes: {},
+		grade: '',
+		sections: [],
+		closestAccommodation: '<1 mile',
+		foodOptions: {},
+		transportations: {},
+		foodOptionDetails: {}
+	};
+
+	$scope.submitAccommodationChanges = function() {
+		$http.post('api/locations/' + $scope.locationData.id +'/accommodations',
+			{location: $scope.locationObj}
+		).then(function(response) {
+			if (response.status == 200) {
+				$http.get('api/location/'+slug).then(function(response) {
+					$scope.locationData.accommodations = response.data.location.accommodations;
+					$scope.locationData.accommodation_notes = response.data.location.accommodation_notes;
+					$scope.locationData.closest_accommodation = response.data.location.closest_accommodation;
+					$scope.toggleEditAccommodation();
+				});
+			}
+		});
+	}
+
+	$scope.selectAccommodation = function(accommodation) {
+		var accommodationExists = $scope.locationObj.accommodations[accommodation.id];
+
+		if (accommodationExists) {
+			//remove it from list of accommodations
+			$scope.locationObj.accommodations[accommodationExists.id] = null;
+		} else {
+			//mark the id and create a cost range field
+			$scope.locationObj.accommodations[accommodation.id] = {id: accommodation.id, cost: ''};
+		}
+	};
+
+	$scope.submitGettingInChanges = function() {
+		$http.post('api/locations/' + $scope.locationData.id +'/gettingin',
+			{location: $scope.locationObj}
+		).then(function(response) {
+			if (response.status == 200) {
+				$http.get('api/location/'+slug).then(function(response) {
+					$scope.locationData.transportations = response.data.location.transportations;
+					$scope.locationData.getting_in_notes = response.data.location.getting_in_notes;
+					$scope.locationData.best_transportation = response.data.location.best_transportation;
+					$scope.locationData.walking_distance = response.data.location.walking_distance;
+					$scope.toggleEditGettingIn();
+
+				});
+			}
+		});
+	}
+
+	$scope.selectBestTransportation = function(id) {
+		// set the best transportation
+		$scope.locationObj.bestTransportationId = id;
+		$scope.locationObj.bestTransportationCost = null;
+		//set ranges
+		
+		var bestTransportation = _.find($scope.transportations, function(transportation) {
+			return transportation.id == id;
+		})
+		$scope.bestTransportationName = bestTransportation.name;
+		$scope.bestTransportationCostOptions = [];
+		_.forEach(bestTransportation.ranges, function(range) {
+			var rangeObj = {
+				cost: range,
+				active: false
+			}
+			$scope.bestTransportationCostOptions.push(rangeObj);
+		});
+	}
+
+	$scope.selectBestTransportationCost = function(cost) {
+		// reset active
+		console.log('best trans', $scope.bestTransportationCostOptions, cost)
+		_.forEach($scope.bestTransportationCostOptions, function(costOption) {
+			costOption.active = false;
+			if ( costOption.cost == cost || costOption.cost == cost.cost) {
+				costOption.active = true;
+				$scope.locationObj.bestTransportationCost = cost.cost || cost;
+			}
+		});		
+	}
+
+	$scope.submitFoodOptionsChanges = function() {
+		$http.post('api/locations/' + $scope.locationData.id +'/foodoptions',
+			{location: $scope.locationObj}
+		).then(function(response) {
+			if (response.status == 200) {
+				$http.get('api/location/'+slug).then(function(response) {
+					$scope.locationData.food_options = response.data.location.food_options;
+					$scope.locationData.common_expenses_notes = response.data.location.common_expenses_notes;
+					$scope.locationData.saving_money_tip = response.data.location.saving_money_tip;
+					$scope.toggleEditFoodOptions();
+
+				});
+			}
+		});
+	}
+
+	$scope.selectFoodOptionDetail = function(id, range) {
+		$scope.locationObj.foodOptionDetails[id] = {};
+		$scope.locationObj.foodOptionDetails[id].id = id;
+		$scope.locationObj.foodOptionDetails[id].cost = range;
+	}
+
+	$scope.cleanFoodOptionDetails = function() {
+		_.forEach($scope.locationObj.foodOptions, function(foodOption, key) {
+			if (!foodOption) {
+				$scope.locationObj.foodOptionDetails[key] = null;
+			} else if (!$scope.locationObj.foodOptionDetails[key]) {
+				$scope.locationObj.foodOptionDetails[key] = {};
+				$scope.locationObj.foodOptionDetails[key].id = key;
+				$scope.locationObj.foodOptionDetails[key].cost = null;
+			}
+		});
+	}
+
+	$scope.addSection = function() {
+		$scope.sections.new = {title: '', body: '', previewOff: true};
+	}
 	
+	function populateEditables(location) {
+		$http.get('api/get_attribute_options').then(function(data){
+			var respData = data.data
+			$scope.accommodations = respData['accommodations'];
+			$scope.climbingTypes = respData['climbing_types'];
+			$scope.months = respData['months'];
+			$scope.grades = respData['grades'];
+			$scope.foodOptions = respData['food_options'];
+			$scope.transportations = respData['transportations'];
+		}).then(function() {
+			_.forEach(location.accommodations, function(accommodation) {
+				$scope.locationObj.accommodations[accommodation.id] = { id: accommodation.id, cost: accommodation.cost};
+			})
+			$scope.locationObj.accommodationNotes = location.accommodation_notes;
+			$scope.locationObj.closestAccommodation = location.closest_accommodation;
+
+			_.forEach(location.transportations, function(transportation) {
+				$scope.locationObj.transportations[transportation.id] = true;
+			});
+			location.best_transportation.id && $scope.selectBestTransportation(location.best_transportation.id);
+			location.best_transportation.cost && $scope.selectBestTransportationCost(location.best_transportation.cost)
+			$scope.locationObj.gettingInNotes = location.getting_in_notes;
+			$scope.locationObj.walkingDistance = location.walking_distance;
+
+			_.forEach(location.food_options, function(foodOption) {
+				$scope.locationObj.foodOptions[foodOption.id] = true;
+				foodOption.cost && $scope.selectFoodOptionDetail(foodOption.id, foodOption.cost);
+			});
+			$scope.locationObj.commonExpensesNotes = location.common_expenses_notes
+			$scope.locationObj.savingMoneyTips = location.saving_money_tip;
+
+			console.log(location);
+			console.log($scope.locationObj)
+		})
+		
+		
+	}
+
+	$scope.stopPropagation = function($event) {
+		$event.stopPropagation();
+	};
 
 });
 
-home.controller('LocationsController',function($scope, $timeout,LocationsGetter){
+home.controller('LocationsController',function($scope, $timeout,LocationsGetter, $location, $document){
 	var locations = this;
 	$scope.locationData = [];
 	$scope.LocationsGetter = LocationsGetter;
-	$scope.origin_airport = "LAX";
+	$scope.origin_airport = "BER";
 	$scope.slugArray = [];
 	
 	LocationsGetter.clearFilters();
@@ -45606,12 +46411,15 @@ home.controller('LocationsController',function($scope, $timeout,LocationsGetter)
 		);
 
 	});
-
+	$scope.goToFilter = function() {
+		var filter = angular.element(document.getElementById('filter'));
+		$document.scrollToElement(filter, 0, 500);
+	}
 
 });
 
 home.controller('MapFilterController',function($scope,LocationsGetter){
-	$scope.filterMap = createMap('mapFilter',40.3427932,-105.6858329,3);
+	$scope.filterMap = createMap('mapFilter',40.3427932,0,1);
 	LocationsGetter.markerMap = {};
 	$scope.filterMap.addListener('dragend', function() {
 		LocationsGetter.mapFilter['northeast']['longitude'] = $scope.filterMap.getBounds().getNorthEast().lng();
@@ -46196,32 +47004,6 @@ filters.filter('accommodationChosen', function() {
   	return Boolean(found);
   };
 });
-var facebookComments = angular.module('facebookComments', []);
-
-facebookComments.directive('dynFbCommentBox', function () {
-    function createHTML(href, numposts, progwidth) {
-        return '<div class="fb-comments" ' +
-                       'data-href="' + href + '" ' +
-                       'data-numposts="' + numposts + '" ' +
-                       'data-width="' + progwidth + '">' +
-               '</div>';
-    }
-
-    return {
-        restrict: 'A',
-        scope: {},
-        link: function postLink(scope, elem, attrs) {
-            attrs.$observe('pageHref', function (newValue) {
-                var href        = newValue;
-                var numposts    = attrs.numposts    || 5;
-                var progwidth = attrs.progwidth;
-
-                elem.html(createHTML(href, numposts, progwidth));
-                FB.XFBML.parse(elem[0]);
-            });
-        }
-    };
-});
 var filterDir = angular.module('filter-directives', []);
 
 filterDir.directive('filter', function(){
@@ -46369,6 +47151,32 @@ function numberOfButtonGroupActive(buttonGroup){
 	return count;
 }
 
+var facebookComments = angular.module('facebookComments', []);
+
+facebookComments.directive('dynFbCommentBox', function () {
+    function createHTML(href, numposts, progwidth) {
+        return '<div class="fb-comments" ' +
+                       'data-href="' + href + '" ' +
+                       'data-numposts="' + numposts + '" ' +
+                       'data-width="' + progwidth + '">' +
+               '</div>';
+    }
+
+    return {
+        restrict: 'A',
+        scope: {},
+        link: function postLink(scope, elem, attrs) {
+            attrs.$observe('pageHref', function (newValue) {
+                var href        = newValue;
+                var numposts    = attrs.numposts    || 5;
+                var progwidth = attrs.progwidth;
+
+                elem.html(createHTML(href, numposts, progwidth));
+                FB.XFBML.parse(elem[0]);
+            });
+        }
+    };
+});
 var locationListItemDir = angular.module('location-list-item-directives', []);
 
 locationListItemDir.directive('location', function(){
@@ -46386,142 +47194,6 @@ locationListItemDir.controller('LocationListItemController',function($scope,$ele
 		LocationsGetter.markerMap[$scope.locationData.slug].setOptions({opacity:.5});
 	});
 });
-
-var locationOtherSection = angular.module('location-other-section-directives', []);
-
-locationOtherSection.controller('locationOtherSectionController', function($scope){
-	console.log('here i am')
-});
-
-locationOtherSection.directive('locationothersection', function(){
-	return {
-		restrict: 'E',
-		scope: {
-			section: '=',
-			sectionsLength: '=',
-			indexIterator: '=',
-			saveSection: '&',
-			removeSection: '&'
-		},
-		templateUrl: 'common/directives/location_other_section/location_other_section.tpl.html',
-		controller: 'locationOtherSectionController'
-	};
-});
-
-
-var locationSection = angular.module('location-section-directives', []);
-
-locationSection.controller('locationSectionController', function($scope){
-	var emptySubsection = {'title':'','subsectionDescriptions':[{'desc':''}]};
-	emptySubsection.clone = function(){
-		return jQuery.extend(true, {}, this);
-	};
-
-	$scope.notDefaultSection = function(section){
-		if(section.title == 'Getting in' || section.title == 'Accommodation' || section.title == 'Cost' || section.title == 'Transportation'){
-			return false;
-		}
-		else{
-			return true;
-		}
-	}
-	$scope.previewSection = function(section){
-		section.previewOff = !section.previewOff;
-	}
-
-	$scope.addSubsection = function(subsection,section){
-		//$scope.sections.push({'title':title,'description':description,'subsections':subsections})
-		section['subsections'].push(subsection);
-		section['subsections'][0] = emptySubsection.clone();
-		//section['subsections'][0]['descriptions'] = ['']
-	}
-
-	$scope.removeSubsection = function(subsection,subsections){
-		index = subsections.indexOf(subsection);
-		subsections.splice(index,1);
-	};
-
-	$scope.addSubsectionDesc = function(description, subsectionDescArray){
-		subsectionDescArray.push(description);
-		subsectionDescArray[0] = {'text':''};
-	}
-
-	$scope.removeSubsectionDesc = function(description, subsectionDescArray){
-		index = subsectionDescArray.indexOf(description);
-		subsectionDescArray.splice(index,1);
-	}
-
-	$scope.sectionDescriptionPlaceholder = function(section){
-		if(section.title == 'Getting in'){
-			return 'ex: You\'ll need to drive in since there are no nearby airports';
-		}
-		else if(section.title == 'Accommodation'){
-			return 'ex: Smith boasts one of the best campsites out there';
-		}
-		else if(section.title == 'Cost'){
-			return 'ex: You can dirtbag it in the campground and make it a really cheap stay';
-		}
-		else if(section.title == 'Transportation'){
-			return 'ex: If you\'re at the Bivy campsite you can walk to the park but you\'ll probably want to hitchhike into town to get food(very easily done since you can meet plenty of people at the Bivy). A bicycle is ideal if you\'re camping';
-		}
-		else{
-			return 'Section Description';
-		}
-	}
-
-	$scope.subsectionTitlePlaceholder = function(section){
-		if(section.title == 'Getting in'){
-			return 'ex: Flying';
-		}
-		else if(section.title == 'Accommodation'){
-			return 'ex: Camping';
-		}
-		else if(section.title == 'Cost'){
-			return 'ex: Food';
-		}
-		else if(section.title == 'Transportation'){
-			return 'ex: Hitchhiking';
-		}
-		else{
-			return 'Subsection Title';
-		}
-	}
-
-	$scope.subsectionDescriptionPlaceholder = function(section){
-		if(section.title == 'Getting in'){
-			return 'ex: The closest airport is Los angeles(LAX) so you will need to drive or take a bus';
-		}
-		else if(section.title == 'Accommodation'){
-			return 'ex: The campsite is $5/night';
-		}
-		else if(section.title == 'Cost'){
-			return 'ex: You\'ve got safeway, trader joes, costco, etc... nearby.';
-		}
-		else if(section.title == 'Transportation'){
-			return 'ex: if you\'re staying at the bivy, catching a ride in town with a fellow climber will be very easy';
-		}
-		else{
-			return 'Subsection Description';
-		}
-	}
-
-});
-
-locationSection.directive('locationsection', function(){
-	return {
-		restrict: 'E',
-		scope: {
-			section: '=',
-			sectionsLength: '=',
-			indexIterator: '=',
-			saveSection: '&',
-			removeSection: '&'
-		},
-		templateUrl: 'common/directives/location_section/location_section.tpl.html',
-		controller: 'locationSectionController'
-	};
-});
-
 
 var sectionForm = angular.module('section-form-directive', ['ngFileUpload','location-other-section-directives']);
 
@@ -46614,22 +47286,13 @@ sectionForm.controller('SectionFormController', function($scope,$q,$http,Upload,
 		var accommodationExists = $scope.locationObj.accommodations[accommodation.id];
 
 		if (accommodationExists) {
-			console.log('in exists')
 			//remove it from list of accommodations
 			$scope.locationObj.accommodations[accommodationExists.id] = null;
 		} else {
 			//mark the id and create a cost range field
 			$scope.locationObj.accommodations[accommodation.id] = {id: accommodation.id, cost: ''};
 		}
-	};
-
-	$scope.setAccommodationCost = function (accommodation, range) {
-		var accommodationExists = _.find($scope.locationObj.accommodations, function(accommodationObj) {
-			return accommodation.id == accommodationObj.id;
-		});
-		if (accommodationExists) {
-			accommodationExists.cost = range;
-		}
+		console.log($scope.locationObj)
 	};
 
 	$scope.selectFoodOptionDetail = function(id, range) {
@@ -46640,10 +47303,13 @@ sectionForm.controller('SectionFormController', function($scope,$q,$http,Upload,
 
 	$scope.cleanFoodOptionDetails = function() {
 		_.forEach($scope.locationObj.foodOptions, function(foodOption, key) {
-			console.log(foodOption)
-			console.log(key)
+			console.log(key, foodOption)
 			if (!foodOption) {
 				$scope.locationObj.foodOptionDetails[key] = null;
+			} else if (!$scope.locationObj.foodOptionDetails[key]) {
+				$scope.locationObj.foodOptionDetails[key] = {};
+				$scope.locationObj.foodOptionDetails[key].id = key;
+				$scope.locationObj.foodOptionDetails[key].cost = null;
 			}
 		});
 	}
@@ -46884,12 +47550,176 @@ sectionForm.directive('integer', function() {
     }
   };
 });
-angular.module("app").run(["$templateCache", function($templateCache) {$templateCache.put("features/filter/filter.tpl.html","<section class=\"filter\"><div class=\"container\"><h4 class=\"text-center\"><strong>Select the relevant criteria to find your perfect climbing trip</strong></h4><h5 class=\"text-center\">(results will update automatically based on your selection)</h5><div class=\"row\"><div class=\"col-md-4\"><h5>Your Local Airport</h5><input class=\"form-control\" type=\"text\" ng-model=\"origin_airport\" ng-trim=\"true\" ng-minlength=\"3\" ng-maxlength=\"3\"></div><div class=\"col-md-4\"><h5>Keyword Search</h5><input type=\"text\" class=\"form-control\" ng-model=\"searchQuery\" ng-trim=\"true\" ng-change=\"LocationsGetter.filterByQuery(searchQuery)\" ng-model-options=\"{ debounce: 500 }\" placeholder=\"limestone\"></div><div class=\"col-md-4\"><h5>Time</h5><span class=\"dropdown\"><button class=\"btn btn-default dropdown-toggle\" type=\"button\" id=\"startMonth\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"true\">{{startMonthName}} <span class=\"caret\"></span></button><ul class=\"dropdown-menu\" aria-labelledby=\"startMonth\"><li><a ng-click=\"startMonth = 1; startMonthName = \'January\'\">January</a></li><li><a ng-click=\"startMonth = 2; startMonthName = \'February\'\">February</a></li><li><a ng-click=\"startMonth = 3; startMonthName = \'March\'\">March</a></li><li><a ng-click=\"startMonth = 4; startMonthName = \'April\'\">April</a></li><li><a ng-click=\"startMonth = 5; startMonthName = \'May\'\">May</a></li><li><a ng-click=\"startMonth = 6; startMonthName = \'June\'\">June</a></li><li><a ng-click=\"startMonth = 7; startMonthName = \'July\'\">July</a></li><li><a ng-click=\"startMonth = 8; startMonthName = \'August\'\">August</a></li><li><a ng-click=\"startMonth = 9; startMonthName = \'September\'\">September</a></li><li><a ng-click=\"startMonth = 10; startMonthName = \'October\'\">October</a></li><li><a ng-click=\"startMonth = 11; startMonthName = \'November\'\">November</a></li><li><a ng-click=\"startMonth = 12; startMonthName = \'December\'\">December</a></li></ul></span> To <span class=\"dropdown\"><button class=\"btn btn-default dropdown-toggle\" type=\"button\" id=\"endMonth\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"true\">{{endMonthName}} <span class=\"caret\"></span></button><ul class=\"dropdown-menu\" aria-labelledby=\"endMonth\"><li><a ng-click=\"endMonth = 1; endMonthName = \'January\'\">January</a></li><li><a ng-click=\"endMonth = 2; endMonthName = \'February\'\">February</a></li><li><a ng-click=\"endMonth = 3; endMonthName = \'March\'\">March</a></li><li><a ng-click=\"endMonth = 4; endMonthName = \'April\'\">April</a></li><li><a ng-click=\"endMonth = 5; endMonthName = \'May\'\">May</a></li><li><a ng-click=\"endMonth = 6; endMonthName = \'June\'\">June</a></li><li><a ng-click=\"endMonth = 7; endMonthName = \'July\'\">July</a></li><li><a ng-click=\"endMonth = 8; endMonthName = \'August\'\">August</a></li><li><a ng-click=\"endMonth = 9; endMonthName = \'September\'\">September</a></li><li><a ng-click=\"endMonth = 10; endMonthName = \'October\'\">October</a></li><li><a ng-click=\"endMonth = 11; endMonthName = \'November\'\">November</a></li><li><a ng-click=\"endMonth = 12; endMonthName = \'December\'\">December</a></li></ul></span></div></div><div class=\"row\"><div class=\"col-md-4\"><h5>Climbing Type</h5><div class=\"btn-group btn-group-sm btn-group-filter\" data=\"climbing_types\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',name )\" ng-repeat=\"(name,climbType) in filter.climbTypes\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ name }}\">{{name}}</button></div></div><div class=\"col-md-4\"><h5>Lodging Type</h5><div class=\"btn-group btn-group-sm btn-group-filter\" data=\"Lodging\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'accommodations\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\" data=\"all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'accommodations\',id )\" ng-repeat=\"(name,id) in filter.accommodations\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ name }}\">{{name}}</button></div></div><div class=\"col-md-4\"><h5>Cost</h5><div class=\"btn-group btn-group-sm btn-group-filter\" data=\"price\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\" data=\"all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'15\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"15\">$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'30\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"30\">$$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'45\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"45\">$$$</button></div></div></div></div><div class=\"loading-overlay\" ng-if=\"LocationsGetter.loading\"><div class=\"loading-text text-center\"><h6>Updating Climbing Locations</h6></div></div></section>");
-$templateCache.put("views/home/home.tpl.html","<section ng-controller=\"LocationsController\"><div class=\"map-hero\"><div id=\"mapFilter\" ng-controller=\"MapFilterController\" class=\"row\"></div><div class=\"map-overlay\"><div class=\"map-overlay-title\"><h1>Find Your Next Climbing Destination</h1></div><img class=\"pull-left\" src=\"/images/hero-image-left.png\"> <img class=\"pull-right\" src=\"/images/hero-image-right.png\"></div></div><filter></filter><div class=\"row\"><div class=\"col-md-12 locations-window\" data-spy=\"scroll\"><location class=\"col-md-6\" ng-repeat=\"locationData in locationData\"></location></div></div></section>");
-$templateCache.put("views/location/location.tpl.html","<div id=\"saveSuccessModal\" class=\"modal\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button><h4 class=\"modal-title\">Thank you!</h4></div><div class=\"modal-body\"><p>Your change has been submitted!</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button></div></div></div></div><section class=\"location-info-container\"><div class=\"container-fluid\"><div class=\"row\"><div class=\"col-md-12\"><h1 class=\"text-center\">{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</h1><div class=\"main-header\"><div class=\"well climbcation-well location-map\"><div class=\"nearby-locations\" ng-class=\"{\'expanded\': nearbyShow}\"><div ng-if=\"nearbyShow\"><div ng-repeat=\"nearbyLoc in nearby | limitTo:5\"><a href=\"#/location/{{nearbyLoc.slug}}\">{{ nearbyLoc.name }}</a> <span class=\"text-gray bold\">({{nearbyLoc.distance}} mi away)</span> <img ng-repeat=\"nearbyType in nearbyLoc.climbing_types\" ng-src=\"{{nearbyType.url}}\"></div></div><a class=\"toggle\" ng-click=\"toggleNearby()\">{{ nearbyShow? \'Hide Nearby Locations\':\'Show Nearby Locations\' }}</a></div><div id=\"map-canvas\" class=\"\"></div></div><div class=\"location-photo well climbcation-well\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\"></div><div class=\"well climbcation-well overview-container\"><h3 class=\"text-center\">{{ locationData[\'name\'] }} Overview</h3><div class=\"row\"><div class=\"col-md-6\"><label>What should I climb?</label> <img ng-repeat=\"climbing_type in locationData[\'climbing_types\']\" ng-src=\"{{ climbing_type[\'url\'] }}\" title=\"{{ climbing_type[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-6\"><label>When Should I go?</label> {{ locationData[\'date_range\'] }}</div></div><div class=\"row\"><div class=\"col-md-6\"><label>Daily Expenses<br>(excluding accommodation)</label> ${{ locationData.price_range_floor_cents}} - ${{ locationData.price_range_ceiling_cents}}</div><div class=\"col-md-6\"><label>Most Classics</label> {{ locationData[\'grade\'] }} and above</div></div></div></div></div></div></div><div class=\"container-fluid\"><div class=\"row\"><div class=\"col-md-6\"><div class=\"well climbcation-well\"><h3>Getting In</h3><span class=\"text-gray\">Crags and other destinations(food,camping, etc...) <strong>{{locationData.walking_distance?\'are\':\'are not\'}}</strong> withing walking distance.</span><div class=\"info-container\"><div><label class=\"text-center\">Available Options</label><ul><li class=\"text-gray\" ng-repeat=\"transport in locationData.transportations\"><h4>{{ transport.name }}</h4></li></ul></div><div><label class=\"text-center\">Best Transportation Option</label><h3 class=\"text-center text-gray\">{{locationData.best_transportation.name}}</h3><h4 class=\"text-center text-gray\">{{locationData.best_transportation.cost}}</h4></div></div><label>Any additional tips about getting around {{locationData.name}}?</label><h4 class=\"text-gray\">{{locationData.getting_in_notes || \'No Details Available\' }}</h4></div></div><div class=\"col-md-6\"><div class=\"well climbcation-well\"><h3>Accommodation</h3><span class=\"text-gray\">Closest accommodation is <strong>{{locationData.closest_accommodation}}</strong> from the crags.</span><div class=\"info-container\"><div class=\"accommodation-info-section\" ng-repeat=\"accommodation in locationData.accommodations\"><h3 class=\"text-gray text-center\">{{accommodation.name}}</h3><img ng-src=\"{{accommodation.url}}\"><h4 class=\"text-gray text-center\">{{accommodation.cost}}</h4></div></div><label>Any additional tips for staying in {{locationData.name}}?</label><h4 class=\"text-gray\">{{locationData.accommodation_notes || \'No Details Available\' }}</h4></div></div></div><div class=\"row\"><div class=\"col-md-6\"><div class=\"well climbcation-well\"><h3>One way flight cost(<input ng-model=\"origin_airport\" ng-trim=\"true\" ng-minlength=\"3\" ng-maxlength=\"3\"> to {{locationData.airport_code}})</h3><div id=\"highchart{{locationData.airport_code + \'-\' + locationData.slug + \'-\' + locationData.id}}\"></div></div></div><div class=\"col-md-6\"><div class=\"well climbcation-well\"><h3>Cost</h3><label>Food options (cost per meal)</label><div class=\"info-container\"><div ng-repeat=\"food_option in locationData.food_options\"><h3 class=\"text-gray text-center\">{{food_option.name}}</h3><h4 class=\"text-gray text-center\">{{food_option.cost}}</h4></div></div><label>Any any other common expenses in {{locationData.name}}?</label><h4 class=\"text-gray\">{{locationData.common_expenses_notes || \'No Details Available\'}}</h4><label>Any tips on saving money around {{locationData.name}}?</label><h4 class=\"text-gray\">{{locationData.saving_money_tip || \'No Details Available\' }}</h4></div></div></div></div><div class=\"container-fluid\"><div class=\"climbcation-well well has-header\"><div class=\"well-header\"><h3>{{locationData.name}} Miscellaneous</h3></div><div class=\"well-content\"><div class=\"row\"><div class=\"col-md-6 misc-section\" ng-repeat=\"misc in sections\"><h3>{{misc.title}}</h3><h4 class=\"text-gray\">{{misc.body}}</h4></div></div></div></div></div><div class=\"container-fluid\"><div class=\"row\"><div class=\"col-md-8\"><div id=\"comments\" onrender=\"rendered()\" class=\"fb-comments info-section\" data-width=\"100%\" ng-attr-data-href=\"http://www.climbcation.com/{{ locationData[\'name\'] }}\" data-numposts=\"5\"></div></div><div class=\"col-md-4\" ng-if=\"false\"><div class=\"info-container\"><div class=\"text-center\"><h3 class=\"text-center\">Is something about {{locationData.name}} missing?</h3><div class=\"btn btn-climbcation text-center\">Add New Category</div></div></div></div></div></div></section>");
+var locationSection = angular.module('location-section-directives', []);
+
+locationSection.controller('locationSectionController', function($scope){
+	var emptySubsection = {'title':'','subsectionDescriptions':[{'desc':''}]};
+	emptySubsection.clone = function(){
+		return jQuery.extend(true, {}, this);
+	};
+
+	$scope.notDefaultSection = function(section){
+		if(section.title == 'Getting in' || section.title == 'Accommodation' || section.title == 'Cost' || section.title == 'Transportation'){
+			return false;
+		}
+		else{
+			return true;
+		}
+	}
+	$scope.previewSection = function(section){
+		section.previewOff = !section.previewOff;
+	}
+
+	$scope.addSubsection = function(subsection,section){
+		//$scope.sections.push({'title':title,'description':description,'subsections':subsections})
+		section['subsections'].push(subsection);
+		section['subsections'][0] = emptySubsection.clone();
+		//section['subsections'][0]['descriptions'] = ['']
+	}
+
+	$scope.removeSubsection = function(subsection,subsections){
+		index = subsections.indexOf(subsection);
+		subsections.splice(index,1);
+	};
+
+	$scope.addSubsectionDesc = function(description, subsectionDescArray){
+		subsectionDescArray.push(description);
+		subsectionDescArray[0] = {'text':''};
+	}
+
+	$scope.removeSubsectionDesc = function(description, subsectionDescArray){
+		index = subsectionDescArray.indexOf(description);
+		subsectionDescArray.splice(index,1);
+	}
+
+	$scope.sectionDescriptionPlaceholder = function(section){
+		if(section.title == 'Getting in'){
+			return 'ex: You\'ll need to drive in since there are no nearby airports';
+		}
+		else if(section.title == 'Accommodation'){
+			return 'ex: Smith boasts one of the best campsites out there';
+		}
+		else if(section.title == 'Cost'){
+			return 'ex: You can dirtbag it in the campground and make it a really cheap stay';
+		}
+		else if(section.title == 'Transportation'){
+			return 'ex: If you\'re at the Bivy campsite you can walk to the park but you\'ll probably want to hitchhike into town to get food(very easily done since you can meet plenty of people at the Bivy). A bicycle is ideal if you\'re camping';
+		}
+		else{
+			return 'Section Description';
+		}
+	}
+
+	$scope.subsectionTitlePlaceholder = function(section){
+		if(section.title == 'Getting in'){
+			return 'ex: Flying';
+		}
+		else if(section.title == 'Accommodation'){
+			return 'ex: Camping';
+		}
+		else if(section.title == 'Cost'){
+			return 'ex: Food';
+		}
+		else if(section.title == 'Transportation'){
+			return 'ex: Hitchhiking';
+		}
+		else{
+			return 'Subsection Title';
+		}
+	}
+
+	$scope.subsectionDescriptionPlaceholder = function(section){
+		if(section.title == 'Getting in'){
+			return 'ex: The closest airport is Los angeles(LAX) so you will need to drive or take a bus';
+		}
+		else if(section.title == 'Accommodation'){
+			return 'ex: The campsite is $5/night';
+		}
+		else if(section.title == 'Cost'){
+			return 'ex: You\'ve got safeway, trader joes, costco, etc... nearby.';
+		}
+		else if(section.title == 'Transportation'){
+			return 'ex: if you\'re staying at the bivy, catching a ride in town with a fellow climber will be very easy';
+		}
+		else{
+			return 'Subsection Description';
+		}
+	}
+
+});
+
+locationSection.directive('locationsection', function(){
+	return {
+		restrict: 'E',
+		scope: {
+			section: '=',
+			sectionsLength: '=',
+			indexIterator: '=',
+			saveSection: '&',
+			removeSection: '&'
+		},
+		templateUrl: 'common/directives/location_section/location_section.tpl.html',
+		controller: 'locationSectionController'
+	};
+});
+
+
+var locationOtherSection = angular.module('location-other-section-directives', []);
+
+locationOtherSection.controller('locationOtherSectionController', function($scope, $http){
+	$scope.togglePreview = function(section){
+		section.previewOff = !section.previewOff;
+	}
+
+	$scope.saveChanges = function() {
+		$http.post('api/locations/' + $scope.locationId +'/sections',
+			{
+				locationId: $scope.locationId,
+				section: {
+						id: $scope.section.id,
+						title: $scope.section.title,
+						body: $scope.section.body
+					}
+			}
+		).then(function(response) {
+			if (response.status == 200) {
+					console.log(response)
+					$scope.section.id = response.data.new_id;
+					$scope.oldBody = $scope.section.body;
+					$scope.oldTitle = $scope.section.title;
+					$scope.togglePreview($scope.section);
+			}
+		});
+	}
+	$scope.oldBody = $scope.section.body;
+	$scope.oldTitle = $scope.section.title;
+	console.log($scope.section)
+});
+
+locationOtherSection.directive('locationothersection', function(){
+	return {
+		restrict: 'E',
+		scope: {
+			editable: '=',
+			locationId: '=',
+			section: '=',
+			sectionsLength: '=',
+			indexIterator: '=',
+			saveSection: '&',
+			removeSection: '&'
+		},
+		templateUrl: 'common/directives/location_other_section/location_other_section.tpl.html',
+		controller: 'locationOtherSectionController'
+	};
+});
+
+
+angular.module("app").run(["$templateCache", function($templateCache) {$templateCache.put("features/filter/filter.tpl.html","<section class=\"filter\"><div class=\"container-fluid\"><h4 class=\"text-center\"><strong>Select the relevant criteria to find your perfect climbing trip</strong></h4><h5 class=\"text-center\">(results will update automatically based on your selection)</h5><div class=\"col-md-9\"><div class=\"row\"><div class=\"col-md-5\"><h5>Your Local Airport</h5><input class=\"form-control\" type=\"text\" ng-model=\"origin_airport\" ng-trim=\"true\" ng-minlength=\"3\" ng-maxlength=\"3\"></div><div class=\"col-md-4\"><h5>Keyword Search</h5><input type=\"text\" class=\"form-control\" ng-model=\"searchQuery\" ng-trim=\"true\" ng-change=\"LocationsGetter.filterByQuery(searchQuery)\" ng-model-options=\"{ debounce: 500 }\" placeholder=\"limestone\"></div><div class=\"col-md-3\"><h5>Time</h5><span class=\"dropdown\"><button class=\"btn btn-default dropdown-toggle\" type=\"button\" id=\"startMonth\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"true\">{{startMonthName}} <span class=\"caret\"></span></button><ul class=\"dropdown-menu\" aria-labelledby=\"startMonth\"><li><a ng-click=\"startMonth = 1; startMonthName = \'January\'\">January</a></li><li><a ng-click=\"startMonth = 2; startMonthName = \'February\'\">February</a></li><li><a ng-click=\"startMonth = 3; startMonthName = \'March\'\">March</a></li><li><a ng-click=\"startMonth = 4; startMonthName = \'April\'\">April</a></li><li><a ng-click=\"startMonth = 5; startMonthName = \'May\'\">May</a></li><li><a ng-click=\"startMonth = 6; startMonthName = \'June\'\">June</a></li><li><a ng-click=\"startMonth = 7; startMonthName = \'July\'\">July</a></li><li><a ng-click=\"startMonth = 8; startMonthName = \'August\'\">August</a></li><li><a ng-click=\"startMonth = 9; startMonthName = \'September\'\">September</a></li><li><a ng-click=\"startMonth = 10; startMonthName = \'October\'\">October</a></li><li><a ng-click=\"startMonth = 11; startMonthName = \'November\'\">November</a></li><li><a ng-click=\"startMonth = 12; startMonthName = \'December\'\">December</a></li></ul></span> To <span class=\"dropdown\"><button class=\"btn btn-default dropdown-toggle\" type=\"button\" id=\"endMonth\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"true\">{{endMonthName}} <span class=\"caret\"></span></button><ul class=\"dropdown-menu\" aria-labelledby=\"endMonth\"><li><a ng-click=\"endMonth = 1; endMonthName = \'January\'\">January</a></li><li><a ng-click=\"endMonth = 2; endMonthName = \'February\'\">February</a></li><li><a ng-click=\"endMonth = 3; endMonthName = \'March\'\">March</a></li><li><a ng-click=\"endMonth = 4; endMonthName = \'April\'\">April</a></li><li><a ng-click=\"endMonth = 5; endMonthName = \'May\'\">May</a></li><li><a ng-click=\"endMonth = 6; endMonthName = \'June\'\">June</a></li><li><a ng-click=\"endMonth = 7; endMonthName = \'July\'\">July</a></li><li><a ng-click=\"endMonth = 8; endMonthName = \'August\'\">August</a></li><li><a ng-click=\"endMonth = 9; endMonthName = \'September\'\">September</a></li><li><a ng-click=\"endMonth = 10; endMonthName = \'October\'\">October</a></li><li><a ng-click=\"endMonth = 11; endMonthName = \'November\'\">November</a></li><li><a ng-click=\"endMonth = 12; endMonthName = \'December\'\">December</a></li></ul></span></div></div><div class=\"row\"><div class=\"col-md-5\"><h5>Climbing Type</h5><div class=\"btn-group btn-group-sm btn-group-filter\" data=\"climbing_types\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'climbing_types\',name )\" ng-repeat=\"(name,climbType) in filter.climbTypes\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ name }}\">{{name}}</button></div></div><div class=\"col-md-4\"><h5>Lodging Type</h5><div class=\"btn-group btn-group-sm btn-group-filter\" data=\"Lodging\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'accommodations\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\" data=\"all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'accommodations\',id )\" ng-repeat=\"(name,id) in filter.accommodations\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"{{ name }}\">{{name}}</button></div></div><div class=\"col-md-3\"><h5>Cost</h5><div class=\"btn-group btn-group-sm btn-group-filter\" data=\"price\" role=\"group\"><button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'All\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default active all\" data=\"all\">All</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'15\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"15\">$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'30\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"30\">$$</button> <button ng-click=\"LocationsGetter.toggleFilterButton($event,\'price_max\',\'45\' )\" type=\"button\" class=\"filter-button btn btn-lg btn-default\" data=\"45\">$$$</button></div></div></div></div><div class=\"col-md-3\"><div id=\"mapFilter\" ng-controller=\"MapFilterController\" class=\"row\"></div></div></div><div class=\"loading-overlay\" ng-if=\"LocationsGetter.loading\"><div class=\"loading-text text-center\"><h6>Updating Climbing Locations</h6></div></div></section>");
+$templateCache.put("views/home/home.tpl.html","<section ng-controller=\"LocationsController\"><div class=\"home-hero\"><div class=\"home-hero-overlay\"><div class=\"home-hero-overlay-title\"><h2>Ever heard of Rodellar? It offers some of the best sport climbing in Europe</h2><div class=\"btn btn-climbcation\" ng-click=\"goToFilter()\">Find more awesome places you\'ve never heard of below</div></div><img class=\"pull-left\" src=\"/images/hero-image-left.png\"> <img class=\"pull-right\" src=\"/images/hero-image-right.png\"></div></div><filter id=\"filter\"></filter><div class=\"row\"><div class=\"col-md-12 locations-window\" data-spy=\"scroll\"><location class=\"col-md-6\" ng-repeat=\"locationData in locationData\"></location></div></div></section>");
 $templateCache.put("views/new_location/submitpage.tpl.html","<sectionform></sectionform>");
+$templateCache.put("views/location/location.tpl.html","<div id=\"saveSuccessModal\" class=\"modal\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button><h4 class=\"modal-title\">Thank you!</h4></div><div class=\"modal-body\"><p>Your change has been submitted!</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button></div></div></div></div><section class=\"location-info-container\"><div class=\"container-fluid\"><div class=\"row\"><div class=\"col-md-12\"><h1 class=\"text-center\">{{ locationData[\'name\'] }}, {{ locationData[\'country\'] }}</h1><div class=\"main-header\"><div class=\"well climbcation-well location-map\"><div class=\"nearby-locations\" ng-class=\"{\'expanded\': nearbyShow}\"><div ng-if=\"nearbyShow\"><div ng-repeat=\"nearbyLoc in nearby | limitTo:5\"><a href=\"#/location/{{nearbyLoc.slug}}\">{{ nearbyLoc.name }}</a> <span class=\"text-gray bold\">({{nearbyLoc.distance}} mi away)</span> <img ng-repeat=\"nearbyType in nearbyLoc.climbing_types\" ng-src=\"{{nearbyType.url}}\" class=\"icon\"></div></div><a class=\"toggle\" ng-click=\"toggleNearby()\">{{ nearbyShow? \'Hide Nearby Locations\':\'Show Nearby Locations\' }}</a></div><div id=\"map-canvas\" class=\"\"></div></div><div class=\"location-photo well climbcation-well\"><img ng-src=\"{{ locationData[\'home_thumb\'] }}\"></div><div class=\"well climbcation-well overview-container\"><h3 class=\"text-center\">{{ locationData[\'name\'] }} Overview</h3><div class=\"row\"><div class=\"col-md-6\"><label>What should I climb?</label> <img ng-repeat=\"climbing_type in locationData[\'climbing_types\']\" ng-src=\"{{ climbing_type[\'url\'] }}\" title=\"{{ climbing_type[\'name\'] }}\" class=\"icon\"></div><div class=\"col-md-6\"><label>When Should I go?</label> {{ locationData[\'date_range\'] }}</div></div><div class=\"row\"><div class=\"col-md-6\"><label>Daily Expenses<br>(excluding accommodation)</label> ${{ locationData.price_range_floor_cents}} - ${{ locationData.price_range_ceiling_cents}}</div><div class=\"col-md-6\"><label>Most Classics</label> {{ locationData[\'grade\'] }} and above</div></div></div></div></div></div></div><div class=\"container-fluid\"><div class=\"row\"><div class=\"col-md-6\"><div class=\"well climbcation-well\" ng-if=\"!editingGettingIn\"><div class=\"row\"><h3 class=\"col-md-8\">Getting In</h3><div class=\"col-md-4\"><span class=\"text-button\" ng-click=\"toggleEditGettingIn()\">Edit Category</span></div></div><span class=\"text-gray\">Crags and other destinations(food,camping, etc...) <strong>{{locationData.walking_distance?\'are\':\'are not\'}}</strong> withing walking distance.</span><div class=\"info-container\"><div><label class=\"text-center\">Available Options</label><ul><li class=\"text-gray\" ng-repeat=\"transport in locationData.transportations\"><h4>{{ transport.name }}</h4></li></ul></div><div><label class=\"text-center\">Best Transportation Option</label><h3 class=\"text-center text-gray\">{{locationData.best_transportation.name}}</h3><h4 class=\"text-center text-gray\">{{locationData.best_transportation.cost}}</h4></div></div><label>Any additional tips about getting around {{locationData.name}}?</label><h4 class=\"text-gray\">{{locationData.getting_in_notes || \'No Details Available\' }}</h4></div><div class=\"well climbcation-well\" ng-if=\"editingGettingIn\"><div class=\"row\"><h3 class=\"col-md-8\">Getting In</h3><div class=\"col-md-4\"><span class=\"text-button\" ng-click=\"toggleEditGettingIn()\">Cancel</span> <span class=\"btn btn-sm btn-climbcation\" ng-click=\"submitGettingInChanges()\">Submit Changes</span></div></div><div class=\"row\"><div class=\"col-md-8\"><label>Are crags and other destinations(food, camping, etc...) within walking distance?</label></div><div class=\"col-md-4\"><div class=\"btn-group btn-group-sm center-block\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': locationObj.walkingDistance}\" ng-click=\"locationObj.walkingDistance = true\">Yes</button> <button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': !locationObj.walkingDistance}\" ng-click=\"locationObj.walkingDistance = false\">No</button></div></div></div><div class=\"row\"><div class=\"col-md-6\"><label>Select all available options for getting to {{locationData.name}}</label><div ng-repeat=\"transportation in transportations\"><label class=\"control control--checkbox\" for=\"{{ transportation[\'name\'] }}\" ng-class=\"{\'active\': locationForm[transportation.name].$viewValue == true}\"><input name=\"{{transportation.name}}\" type=\"checkbox\" id=\"{{ transportation.name }}\" ng-model=\"locationObj.transportations[transportation.id]\"><div class=\"control__indicator\"></div><span class=\"gray\">{{transportation.name}}</span></label></div></div><div class=\"col-md-6\"><div class=\"row\" ng-if=\"locationObj.transportations\"><label>What is the best option for getting to {{locationData.name}}</label><div class=\"btn-group btn-group-sm center-block\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': locationObj.bestTransportationId == bestTransOption.id}\" ng-repeat=\"bestTransOption in transportations | bestTransportationOptions:locationObj.transportations\" ng-click=\"selectBestTransportation(bestTransOption.id)\">{{bestTransOption.name}}</button></div></div><div class=\"row\" ng-if=\"bestTransportationCostOptions\"><label>How much does a {{bestTransportationName}} cost?</label><div class=\"btn-group btn-group-sm center-block\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': costRange.active}\" ng-repeat=\"costRange in bestTransportationCostOptions\" ng-click=\"selectBestTransportationCost(costRange)\">{{costRange.cost}}</button></div></div></div></div><div class=\"row\"><div class=\"col-md-12\"><label>Any Additional Tips for getting to and around {{locationData.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. Need to take flight to kos, then take a ferry from kos to kalymnos, once you\'re there you can hitchhike to get groceries easily or you can rent a scooter for $5 a day\" class=\"form-control\" rows=\"3\" ng-model=\"locationObj.gettingInNotes\"></textarea></div></div></div></div></div><div class=\"col-md-6\"><div class=\"well climbcation-well\" ng-if=\"!editingAccommodation\"><div class=\"row\"><h3 class=\"col-md-8\">Accommodation</h3><div class=\"col-md-4\"><span class=\"text-button\" ng-click=\"toggleEditAccommodation()\">Edit Category</span></div></div><span class=\"text-gray\">Closest accommodation is <strong>{{locationData.closest_accommodation}}</strong> from the crags.</span><div class=\"info-container\"><div class=\"accommodation-info-section\" ng-repeat=\"accommodation in locationData.accommodations\"><h3 class=\"text-gray text-center\">{{accommodation.name}}</h3><img ng-src=\"{{accommodation.url}}\"><h4 class=\"text-gray text-center\">{{accommodation.cost}}</h4></div></div><label>Any additional tips for staying in {{locationData.name}}?</label><h4 class=\"text-gray\">{{locationData.accommodation_notes || \'No Details Available\' }}</h4></div><div class=\"well climbcation-well\" ng-if=\"editingAccommodation\"><div class=\"row\"><h3 class=\"col-md-8\">Accommodation</h3><div class=\"col-md-4\"><span class=\"text-button\" ng-click=\"toggleEditAccommodation()\">Cancel</span> <span class=\"btn btn-sm btn-climbcation\" ng-click=\"submitAccommodationChanges()\">Submit Changes</span></div></div><div class=\"row\"><div class=\"col-md-8\"><label>How close is the closest accommodation to the crag(s)?</label></div><div class=\"col-md-4\"><select name=\"closestAccommodation\" ng-model=\"locationObj.closestAccommodation\" class=\"form-control\"><option ng-value=\"\'<1 mile\'\">&lt;1 mile</option><option ng-value=\"\'1-2 miles\'\">1-2 miles</option><option ng-value=\"\'2-5 miles\'\">2-5 miles</option><option ng-value=\"\'5+ miles\'\">5+ miles</option></select></div></div><div class=\"row\"><div class=\"col-md-12\"><label class=\"center-block\">Select all available options for accommodation in {{locationData.name}}</label><div class=\"accommodation-options\"><div class=\"accommodation-button-wrapper\" ng-repeat=\"accommodation in accommodations\" ng-click=\"selectAccommodation(accommodation)\"><div class=\"btn btn-default accommodation-button {{(locationObj.accommodations | accommodationChosen:accommodation)?\'active\':\'\' }}\"><img ng-src=\"{{accommodation.url}}\"><div class=\"accommodation-cost-container\" ng-if=\"locationObj.accommodations | accommodationChosen:accommodation\"><label class=\"light-blue\">Cost</label><select ng-model=\"locationObj.accommodations[accommodation.id].cost\" class=\"form-control\" ng-click=\"stopPropagation($event);\"><option ng-repeat=\"range in accommodation.ranges\" ng-value=\"range\">{{range}}</option></select></div></div></div></div></div></div><div class=\"row\"><div class=\"col-md-12\"><label>Any Additional Tips on staying in {{locationData.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. campground doesnt have water, bring your own. The most fun place to stay is JOSITO! campground has a communal kitchenand communal fridge\" class=\"form-control\" rows=\"3\" ng-model=\"locationObj.accommodationNotes\"></textarea></div></div></div></div></div></div><div class=\"row\"><div class=\"col-md-6\"><div class=\"well climbcation-well\"><h3>One way flight cost(<input ng-model=\"origin_airport\" ng-trim=\"true\" ng-minlength=\"3\" ng-maxlength=\"3\"> to {{locationData.airport_code}})</h3><div id=\"highchart{{locationData.airport_code + \'-\' + locationData.slug + \'-\' + locationData.id}}\"></div></div></div><div class=\"col-md-6\"><div class=\"well climbcation-well\" ng-if=\"!editingFoodOptions\"><div class=\"row\"><h3 class=\"col-md-8\">Food Options</h3><div class=\"col-md-4\"><span class=\"text-button\" ng-click=\"toggleEditFoodOptions()\">Edit Category</span></div></div><label>Food options (cost per meal)</label><div class=\"info-container\"><div ng-repeat=\"food_option in locationData.food_options\"><h3 class=\"text-gray text-center\">{{food_option.name}}</h3><h4 class=\"text-gray text-center\">{{food_option.cost}}</h4></div></div><label>Any any other common expenses in {{locationData.name}}?</label><h4 class=\"text-gray\">{{locationData.common_expenses_notes || \'No Details Available\'}}</h4><label>Any tips on saving money around {{locationData.name}}?</label><h4 class=\"text-gray\">{{locationData.saving_money_tip || \'No Details Available\' }}</h4></div><div class=\"well climbcation-well\" ng-if=\"editingFoodOptions\"><div class=\"row\"><h3 class=\"col-md-8\">Food Options</h3><div class=\"col-md-4\"><span class=\"text-button\" ng-click=\"toggleEditFoodOptions()\">Cancel</span> <span class=\"btn btn-sm btn-climbcation\" ng-click=\"submitFoodOptionsChanges()\">Submit Changes</span></div></div><div class=\"row\"><div class=\"col-md-5\"><label>What food options are available in {{locationData.name}}?</label><div ng-repeat=\"food in foodOptions\" ng-click=\"cleanFoodOptionDetails()\"><label class=\"control control--checkbox\" for=\"{{ food[\'name\'] }}\" ng-class=\"{\'active\': locationForm[food.name].$viewValue == true}\"><input name=\"{{food.name}}\" type=\"checkbox\" id=\"{{ food.name }}\" ng-model=\"locationObj.foodOptions[food.id]\"><div class=\"control__indicator\"></div><span class=\"gray\">{{food.name}}</span></label></div></div><div class=\"col-md-7\"><div class=\"row\" ng-if=\"locationObj.foodOptions\"><label>Cost for a single meal?</label><div class=\"row\"><div class=\"col-md-6\" ng-repeat=\"foodOption in foodOptions | selectedFoodOptions:locationObj.foodOptions\"><label class=\"center-block gray\">{{foodOption.name}}</label><div class=\"btn-group btn-group-sm\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': locationObj.foodOptionDetails[foodOption.id].cost == range}\" ng-repeat=\"range in foodOption.ranges\" ng-click=\"selectFoodOptionDetail(foodOption.id, range)\">{{range}}</button></div></div></div></div></div></div><div class=\"row\"><div class=\"col-md-6\"><label>Any other common expenses in {{locationData.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. red rock requires entrance fee\" class=\"form-control\" rows=\"3\" ng-model=\"locationObj.commonExpensesNotes\"></textarea></div></div><div class=\"col-md-6\"><label>Any tips on saving money in {{locationData.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. Mama\'s chicken is a great restaurant that is very cheap, and trader joes is a cheap but healthy grocery store... you should also hitchhike a bunch since it\'s easy here\" class=\"form-control\" rows=\"3\" ng-model=\"locationObj.savingMoneyTips\"></textarea></div></div></div></div></div></div></div><div class=\"container-fluid\"><div class=\"climbcation-well well has-header\"><div class=\"well-header\"><h3>{{locationData.name}} Miscellaneous</h3></div><div class=\"well-content\"><div class=\"row\"><locationothersection class=\"col-md-6 misc-section\" location-id=\"locationData.id\" section=\"section\" sections-length=\"locationObj.sections.length\" ng-repeat=\"section in sections track by $index\" index-iterator=\"$index\" save-section=\"saveSection()\" remove-section=\"removeSection(section)\" editable=\"true\"></locationothersection></div></div></div></div><div class=\"container-fluid\"><div class=\"row\"><div class=\"col-md-8\"><div id=\"comments\" onrender=\"rendered()\" class=\"fb-comments info-section\" data-width=\"100%\" ng-attr-data-href=\"http://www.climbcation.com/{{ locationData[\'name\'] }}\" data-numposts=\"5\"></div></div><div class=\"col-md-4\"><div class=\"info-container add-section\"><div class=\"text-center\"><h3 class=\"text-center\">Is something about {{locationData.name}} missing?</h3><div class=\"btn btn-climbcation text-center\" ng-click=\"addSection()\">Add New Category</div></div></div></div></div></div></section>");
 $templateCache.put("common/directives/location_list_item/location_list_item.tpl.html","<section class=\"location-card\"><div class=\"location-card-info\"><div class=\"row\"><div class=\"col-md-8 location-list-thumb-container\"><a ng-href=\"/#location/{{ locationData[\'slug\'] }}\"><img class=\"location-list-thumb\" ng-src=\"{{ locationData[\'home_thumb\'] }}\"><div class=\"location-list-thumb-title\"><h3>{{ locationData[\'name\'] }}</h3><h5>{{ locationData[\'country\'] }}</h5></div></a></div><div class=\"col-md-4 location-card-attributes\"><div><h5>Lodging Options</h5><img ng-repeat=\"accommodation in locationData[\'accommodations\']\" ng-src=\"{{ accommodation[\'url\'] }}\" class=\"icon\" title=\"{{ accommodation[\'name\'] }}\"></div><div><h5>Climbing Types</h5><img ng-repeat=\"type in locationData[\'climbing_types\']\" ng-src=\"{{ type[\'url\'] }}\" class=\"icon\" title=\"{{ type[\'name\'] }}\"></div><div><h5>Best Seasons</h5>{{ locationData[\'date_range\']}}</div><div><h5>Climbing Difficulty</h5>{{ locationData[\'grade\'] }} or harder</div></div></div><div class=\"location-card-cost\"><h5>${{ locationData[\'price_range_floor_cents\']}} - ${{ locationData[\'price_range_ceiling_cents\'] }} / day</h5></div></div><div class=\"location-airfare\"><div id=\"highchart{{locationData[\'airport_code\']+\'-\'+locationData[\'slug\']+\'-\'+locationData[\'location\'][\'id\']}}\" style=\"margin: 0 auto\"></div><div class=\"row\"><span class=\"col-md-6\"><h5>Airline Prices(hover to see prices)</h5></span> <span class=\"col-md-6 text-right\"><h4>Low of ${{locationData.lowestPrice.cost}} on {{locationData.lowestPrice.date}}</h4></span></div></div></section>");
-$templateCache.put("common/directives/location_other_section/location_other_section.tpl.html","<div ng-if=\"section.previewOff\"><span><div class=\"row\"><div class=\"col-md-offset-1 col-md-11\"><div class=\"form-group input-group-lg\"><label>Section Title</label> <input type=\"text\" placeholder=\"Section Title\" class=\"form-control\" ng-model=\"section.title\"></div></div></div><div class=\"row\"><div class=\"row col-md-11 col-md-offset-1\"><div class=\"form-group\"><label>Section Description</label> <textarea placeholder=\"{{sectionDescriptionPlaceholder(section)}}\" class=\"form-control\" rows=\"6\" ng-model=\"section.body\"></textarea></div><div class=\"btn btn-default btn-climbcation\" ng-class=\"{\'disabled\': section.isSaving }\" ng-if=\"indexIterator == sectionsLength - 1 || sectionsLength == -2\" ng-click=\"saveSection()\">Save section</div><div class=\"btn btn-default btn-climbcation-negative\" ng-if=\"sectionsLength != -2 && (indexIterator != sectionsLength-1)\" ng-click=\"removeSection(section)\">remove section</div></div></div></span></div>");
+$templateCache.put("common/directives/section_form/section_form.tpl.html","<section id=\"submit-form\"><div id=\"successModal\" class=\"modal\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button><h4 class=\"modal-title\">Thank you!</h4></div><div class=\"modal-body\"><p>Your location has been submitted for approval by an administrator. You should see it up in 2-3 days!</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-default\" ng-click=\"closeSuccessModal()\">Close</button></div></div></div></div><div id=\"errorModal\" class=\"modal\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button><h4 class=\"modal-title\">Woops!</h4></div><div class=\"modal-body\"><p>Looks like you forgot to fill something out in the general section. We\'re gonna need you to fill out all the starred fields in order to accept this location.</p></div><div class=\"modal-footer\"><button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\">Close</button></div></div></div></div>{{locationObj}}<div class=\"text-center\"><h3>Climbcation Location Creation</h3></div><div class=\"well climbcation-well no-padding progress-container\"><div class=\"progress-icon-container\"><span><img ng-show=\"currentPage > 0\" ng-src=\"{{getIconUrl(1)}}\"></span> <span><img ng-show=\"currentPage > 1\" ng-src=\"{{getIconUrl(2)}}\"></span> <span><img ng-show=\"currentPage > 2\" ng-src=\"{{getIconUrl(3)}}\"></span> <span><img ng-show=\"currentPage > 3\" ng-src=\"{{getIconUrl(4)}}\"></span> <span><img ng-show=\"currentPage > 4\" ng-src=\"{{getIconUrl(5)}}\"></span> <span><img ng-show=\"currentPage > 5\" ng-src=\"{{getIconUrl(6)}}\"></span></div><div class=\"progress-bar-wrapper\"><div class=\"progress-bar\" style=\"width: {{progressBar}}%\"></div></div><div class=\"titles\"><a ng-click=\"changePage(1)\"><strong>1.</strong> General*</a> <a ng-click=\"changePage(2)\"><strong>2.</strong> Getting In</a> <a ng-click=\"changePage(3)\"><strong>3.</strong> Accommodation</a> <a ng-click=\"changePage(4)\"><strong>4.</strong> Cost</a> <a ng-click=\"changePage(5)\"><strong>5.</strong> Other</a> <span><strong>6.</strong> Publish</span></div></div><form name=\"locationForm\"><div class=\"container\"><div class=\"row\"><div class=\"row\"><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 1\">1. General <span class=\"small-gray\">(Don\'t worry, this is the hardest step!)</span></h4><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 2\">2. Getting In <span class=\"small-gray\">(How do you get to the crag?)</span></h4><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 3\">3. Accommodation <span class=\"small-gray\">(Where will you stay when you get there?)</span></h4><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 4\">4. Cost <span class=\"small-gray\">(How much should you expect to spend on this trip?)</span></h4><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 5\">5. Other <span class=\"small-gray\">(Anything else you know about {{ locationObj.name}}?)</span></h4><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 6\">6. Done</h4></div><div class=\"row\"><div class=\"col-md-offset-1 col-md-10 well climbcation-well forms-container\"><div class=\"well-content\"><div class=\"row\" ng-if=\"currentPage == 1\"><div class=\"col-md-3\"><div class=\"drop-box\" ngf-drop=\"\" ng-model=\"image\" ngf-drag-over-class=\"dragover\" ngf-multiple=\"true\" ngf-allow-dir=\"true\" ngf-accept=\"\'image/*,application/pdf\'\"><span ng-if=\"!image[0]\">Drop Image here</span> <img ng-if=\"image[0]\" ngf-src=\"image[0]\" ngf-default-src=\"\" ngf-accept=\"\'image/*\'\"></div></div><div class=\"col-md-9 border-left\"><div class=\"row\"><span class=\"form-group col-md-6\" ng-class=\"{ \'has-success\': locationForm.name.$valid && locationForm.name.$dirty, \'has-error\': locationForm.name.$invalid && locationForm.name.$dirty }\"><label>Location Name<span class=\"text-danger\">*</span></label> <input name=\"name\" tooltip-validation=\"hello\" ng-model=\"locationObj.name\" location-exists=\"{{existingLocations}}\" placeholder=\"ex. Yosemite\" ng-required=\"true\" class=\"form-control\" popover-placement=\"bottom\" uib-popover=\"This location already exists. If you would like to edit it, please find it on the home page and edit it there\" popover-trigger=\"{none: \'\'}\" popover-is-open=\"!locationForm.name.$valid && locationForm.name.$viewValue != \'\'\"></span> <span class=\"form-group col-md-6\" ng-class=\"{ \'has-success\': locationForm.country.$valid && locationForm.country.$dirty, \'has-error\': locationForm.country.$invalid && locationForm.country.$dirty }\"><label>Country</label> <input name=\"country\" ng-model=\"locationObj.country\" placeholder=\"ex. United States\" class=\"form-control\" required=\"\"></span></div><div class=\"row\"><span class=\"form-group col-md-2\" ng-class=\"{ \'has-success\': locationForm.airport.$valid && locationForm.airport.$dirty, \'has-error\': locationForm.airport.$invalid && locationForm.airport.$dirty }\"><label>Nearest Airport</label> <input name=\"airport\" ng-model=\"locationObj.airport\" placeholder=\"ex. LAX\" class=\"form-control\" ng-trim=\"true\" ng-minlength=\"3\" ng-maxlength=\"3\" required=\"\"></span><div class=\"form-group col-md-10\"><label>Daily expenditures range(in USD, not including accommodation):<span class=\"text-danger\">*</span></label><div class=\"row\"><span ng-class=\"{ \'has-success\': locationForm.price_floor.$valid && locationForm.price_floor.$dirty, \'has-error\': locationForm.price_floor.$invalid && locationForm.price_floor.$dirty }\" class=\"col-md-5\"><input name=\"price_floor\" ng-model=\"locationObj.price_floor\" integer=\"\" class=\"form-control short-input inline\"> <span class=\"small-label\">USD ($)</span></span> <span class=\"col-md-1 text-center small-gray\">to</span> <span ng-class=\"{ \'has-success\': locationForm.price_ceiling.$valid && locationForm.price_ceiling.$dirty, \'has-error\': locationForm.price_ceiling.$invalid && locationForm.price_ceiling.$dirty }\" class=\"col-md-5\"><input name=\"price_ceiling\" class=\"form-control short-input inline\" ng-model=\"locationObj.price_ceiling\" integer=\"\"> <span class=\"small-label\">USD ($)</span></span></div></div></div><div class=\"row\"><div class=\"col-md-4\"><label>The best routes are<span class=\"text-danger\">*</span></label><select name=\"grade\" ng-model=\"locationObj.grade\" class=\"form-control\" ng-required=\"true\"><option ng-repeat=\"grade in grades\" ng-value=\"grade.id\">{{ grade.grade }} and above</option></select></div><div class=\"col-md-3\"><label>What should I climb?<span class=\"text-danger\">*</span></label><div ng-repeat=\"climbing_type in climbingTypes\"><label class=\"control control--checkbox\" for=\"{{ climbing_type[\'name\'] }}\" ng-class=\"{\'active\': locationForm[climbing_type.name].$viewValue == true}\"><input name=\"{{climbing_type[\'name\']}}\" type=\"checkbox\" id=\"{{ climbing_type[\'name\'] }}\" ng-model=\"locationObj.climbingTypes[climbing_type.id]\"><div class=\"control__indicator\"></div><span class=\"gray\">{{climbing_type.name}}</span></label></div></div><div class=\"col-md-4\"><label>When Should I go?<span class=\"text-danger\">*</span></label><div class=\"row\"><div ng-repeat=\"month in months\" class=\"col-md-4 text-center month-button\"><label for=\"{{ month[\'name\'] }}\" class=\"btn btn-climbcation\" ng-class=\"{\'active\': locationForm[month.name].$viewValue == true}\"><input class=\"hide\" name=\"{{month[\'name\']}}\" type=\"checkbox\" id=\"{{ month[\'name\'] }}\" ng-model=\"locationObj.months[month.id]\"> {{ month[\'name\'] | limitTo:3 }}</label></div></div></div></div></div></div><div class=\"row\" ng-if=\"currentPage == 2\"><div class=\"col-md-12 row\"><div class=\"col-md-6\"><label>Select all available options for getting to {{locationObj.name}}</label><div ng-repeat=\"transportation in transportations\"><label class=\"control control--checkbox\" for=\"{{ transportation[\'name\'] }}\" ng-class=\"{\'active\': locationForm[transportation.name].$viewValue == true}\"><input name=\"{{transportation.name}}\" type=\"checkbox\" id=\"{{ transportation.name }}\" ng-model=\"locationObj.transportations[transportation.id]\"><div class=\"control__indicator\"></div><span class=\"gray\">{{transportation.name}}</span></label></div></div><div class=\"col-md-6\"><div class=\"row\" ng-if=\"locationObj.transportations\"><label>What is the best option for getting to {{locationObj.name}}</label><div class=\"btn-group btn-group-sm center-block\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': locationObj.bestTransportationId == bestTransOption.id}\" ng-repeat=\"bestTransOption in transportations | bestTransportationOptions:locationObj.transportations\" ng-click=\"selectBestTransportation(bestTransOption.id)\">{{bestTransOption.name}}</button></div></div><div class=\"row\" ng-if=\"bestTransportationCostOptions\"><label>How much does a {{bestTransportationName}} cost?</label><div class=\"btn-group btn-group-sm center-block\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': costRange.active}\" ng-repeat=\"costRange in bestTransportationCostOptions\" ng-click=\"selectBestTransportationCost(costRange)\">{{costRange.cost}}</button></div></div></div></div><div class=\"col-md-12 row\"><div class=\"col-md-6\"><label>Any Additional Tips for getting to and around {{locationObj.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. Need to take flight to kos, then take a ferry from kos to kalymnos, once you\'re there you can hitchhike to get groceries easily or you can rent a scooter for $5 a day\" class=\"form-control\" rows=\"6\" ng-model=\"locationObj.gettingInNotes\"></textarea></div></div><div class=\"col-md-6\"><label>Are crags and other destinations(food, camping, etc...) within walking distance?</label><div class=\"btn-group btn-group-sm center-block\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': locationObj.walkingDistance}\" ng-click=\"locationObj.walkingDistance = true\">Yes</button> <button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': !locationObj.walkingDistance}\" ng-click=\"locationObj.walkingDistance = false\">No</button></div></div></div></div><div class=\"row\" ng-if=\"currentPage == 3\"><div class=\"col-md-12 row\"><div class=\"col-md-12\"><label class=\"center-block\">Select all available options for accommodation in {{locationObj.name}}</label><div class=\"accommodation-options side-pad border-bottom\"><div class=\"accommodation-button-wrapper\" ng-repeat=\"accommodation in accommodations\" ng-click=\"selectAccommodation(accommodation)\"><div class=\"btn btn-default accommodation-button {{(locationObj.accommodations | accommodationChosen:accommodation)?\'active\':\'\' }}\"><img ng-src=\"{{accommodation.url}}\"><div class=\"accommodation-cost-container\" ng-if=\"locationObj.accommodations | accommodationChosen:accommodation\"><label class=\"light-blue\">Cost</label><select ng-model=\"locationObj.accommodations[accommodation.id].cost\" class=\"form-control\" ng-click=\"stopPropagation($event);\"><option ng-repeat=\"range in accommodation.ranges\" value=\"{{range}}\">{{range}}</option></select></div></div></div></div></div></div><div class=\"col-md-12 row\"><div class=\"col-md-6\"><label>Any Additional Tips on staying in {{locationObj.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. campground doesnt have water, bring your own. The most fun place to stay is JOSITO! campground has a communal kitchenand communal fridge\" class=\"form-control\" rows=\"6\" ng-model=\"locationObj.accommodationNotes\"></textarea></div></div><div class=\"col-md-6\"><label>How close is the closest accommodation to the crag(s)?</label><select name=\"closestAccommodation\" ng-model=\"locationObj.closestAccommodation\" class=\"form-control\"><option ng-value=\"\'<1 mile\'\">&lt;1 mile</option><option ng-value=\"\'1-2 miles\'\">1-2 miles</option><option ng-value=\"\'2-5 miles\'\">2-5 miles</option><option ng-value=\"\'5+ miles\'\">5+ miles</option></select></div></div></div><div class=\"row\" ng-if=\"currentPage == 4\"><div class=\"col-md-12 row\"><div class=\"col-md-6\"><label>What food options are available in {{locationObj.name}}?</label><div ng-repeat=\"food in foodOptions\" ng-click=\"cleanFoodOptionDetails()\"><label class=\"control control--checkbox\" for=\"{{ food[\'name\'] }}\" ng-class=\"{\'active\': locationForm[food.name].$viewValue == true}\"><input name=\"{{food.name}}\" type=\"checkbox\" id=\"{{ food.name }}\" ng-model=\"locationObj.foodOptions[food.id]\"><div class=\"control__indicator\"></div><span class=\"gray\">{{food.name}}</span></label></div></div><div class=\"col-md-6\"><div class=\"row\" ng-if=\"locationObj.foodOptions\"><label>Cost for a single meal?</label><div class=\"row\"><div class=\"col-md-6\" ng-repeat=\"foodOption in foodOptions | selectedFoodOptions:locationObj.foodOptions\"><label class=\"center-block gray\">{{foodOption.name}}</label><div class=\"btn-group btn-group-sm\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': locationObj.foodOptionDetails[foodOption.id].cost == range}\" ng-repeat=\"range in foodOption.ranges\" ng-click=\"selectFoodOptionDetail(foodOption.id, range)\">{{range}}</button></div></div></div></div></div></div><div class=\"col-md-12 row\"><div class=\"col-md-6\"><label>Any other common expenses in {{locationObj.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. red rock requires entrance fee\" class=\"form-control\" rows=\"6\" ng-model=\"locationObj.commonExpensesNotes\"></textarea></div></div><div class=\"col-md-6\"><label>Any tips on saving money in {{locationObj.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. Mama\'s chicken is a great restaurant that is very cheap, and trader joes is a cheap but healthy grocery store... you should also hitchhike a bunch since it\'s easy here\" class=\"form-control\" rows=\"6\" ng-model=\"locationObj.savingMoneyTips\"></textarea></div></div></div></div><div class=\"row\" ng-if=\"currentPage == 5\"><locationothersection class=\"col-md-6\" section=\"section\" sections-length=\"locationObj.sections.length\" ng-repeat=\"section in locationObj.sections track by $index\" index-iterator=\"$index\" save-section=\"saveSection()\" remove-section=\"removeSection(section)\"></locationothersection><div class=\"col-md-6\"><h4>Suggestions</h4><ul><li>Connectivity(wifi/cell reception)</li><li>Rest Day Activities</li><li>Rock Type</li><li>Social Scene(bars, where to find partners, etc...)</li><li>Safety(eg. watch out for theft/scams)</li></ul></div></div><div class=\"row\" ng-if=\"currentPage == 6\"><div class=\"text-center\"><h3>Congrats!</h3><h4>You\'ve added all the necessary content.</h4><h4>You should see your location available in a day after an admin reviews the content</h4><img ng-src=\"/images/success-icon.png\"></div></div></div><div class=\"col-md-12 well-footer\"><div class=\"row\"><div class=\"col-md-offset-8 col-md-1\" ng-click=\"prevPage()\"><span class=\"text-button\" ng-if=\"currentPage != 1 && currentPage != 6\">Back</span></div><div class=\"col-md-2 btn btn-climbcation\" ng-click=\"nextPage()\" ng-if=\"currentPage < 5\"><div class=\"\">Next</div></div><div class=\"col-md-2 btn btn-climbcation\" ng-click=\"submitLocation()\" ng-if=\"currentPage == 5\"><div class=\"\">Publish</div></div></div></div></div></div></div><div class=\"row\"><div class=\"row\"><div class=\"col-md-offset-1 col-md-10 well climbcation-well tips-container\"><h4>Tips for adding locations</h4><ul><li>Focus on world class crags, Climbcation is primarily for finding climbing vacation destinations. Do you really want all of us crowding your local crag?</li><li>Sections with an asterisk (*) are required, but the more info you provide the better!</li><li>Excellent location examples with multiple categories: <a href=\"#/location/bishop\" target=\"_blank\">Bishop</a>, <a href=\"#/location/baile-herculane\" target=\"_blank\">Baile Herculane</a></li></ul></div></div></div></div></form></section>");
 $templateCache.put("common/directives/location_section/location_section.tpl.html","<div id=\"{{ section.title | removeSpaces }}\" ng-if=\"!section.previewOff\" class=\"info-section\"><div class=\"row\"><div class=\"col-md-12\"><h3><u>{{ section.title }}</u><a class=\"pull-right\" ng-click=\"previewSection(section)\">{{ section.newSection?\'Add Section\':\'Edit section\' }}</a></h3><p class=\"lead\" ng-bind-html=\"section.body | parseUrlFilter:\'_blank\'\"></p></div></div><div class=\"row\"><div ng-repeat=\"(subsectionName,subsectionData) in section.subsections track by $index\"><div class=\"clearfix\" ng-if=\"$index % 2 == 0\"></div><div class=\"col-md-6\"><h5>{{subsectionData.title}}</h5><ul class=\"list-group\"><li ng-repeat=\"information in subsectionData.subsectionDescriptions\" class=\"list-group-item\" ng-if=\"information.desc != \'\' && information.desc != null\" ng-bind-html=\"information.desc | parseUrlFilter:\'_blank\'\"></li></ul></div></div></div></div><div class=\"panel panel-default\" ng-if=\"section.previewOff\"><div class=\"panel-heading\"><div class=\"btn btn-success\" ng-class=\"{\'disabled\': section.isSaving }\" ng-if=\"indexIterator == sectionsLength - 1 || sectionsLength == -2\" ng-click=\"saveSection()\">Save section</div><div class=\"btn btn-danger\" ng-if=\"sectionsLength != -2 && (indexIterator != sectionsLength-1 && notDefaultSection(section))\" ng-click=\"removeSection(section)\">remove section</div><div class=\"btn btn-default\" ng-click=\"previewSection(section)\">{{ section.previewOff?\'Preview\':\'Edit\' }} section</div></div><span class=\"panel-body\"><div class=\"row\"><div class=\"col-md-offset-1 col-md-10\"><div class=\"form-group input-group-lg\"><input type=\"text\" placeholder=\"Section Title\" class=\"form-control\" ng-model=\"section.title\"></div></div></div><div class=\"row\"><div class=\"row col-md-9 col-md-offset-1\"><div class=\"form-group\"><textarea placeholder=\"{{sectionDescriptionPlaceholder(section)}}\" class=\"form-control\" rows=\"6\" ng-model=\"section.body\"></textarea></div></div></div><div class=\"row\"><div ng-repeat=\"subsection in section.subsections track by $index\"><div class=\"clearfix\" ng-if=\"$index % 2 == 0\"></div><div class=\"col-md-5\" ng-class=\"$index%2 ==0? \'col-md-offset-1\': \'\'\"><div class=\"row\"><div class=\"col-md-2\"><div class=\"btn btn-xs btn-success\" ng-if=\"$index == 0\" ng-click=\"addSubsection(subsection,section)\">Add subsection</div><div class=\"btn btn-xs btn-danger\" ng-if=\"$index != 0\" ng-click=\"removeSubsection(subsection,section.subsections)\">remove subsection</div></div><div class=\"col-md-offset-1 col-md-9 form-group\"><input type=\"text\" placeholder=\"{{subsectionTitlePlaceholder(section)}}\" class=\"form-control\" ng-model=\"subsection.title\"></div></div><div class=\"form-group row\"><div class=\"row col-md-9 col-md-offset-3\" ng-repeat=\"subsectionDesc in subsection.subsectionDescriptions track by $index\"><div class=\"input-group input-group-sm\"><span ng-if=\"$index == 0\" class=\"input-group-addon\" id=\"add-row\" ng-click=\"addSubsectionDesc(subsectionDesc,subsection.subsectionDescriptions)\">+</span> <span ng-if=\"$index != 0\" class=\"input-group-addon\" id=\"add-row\" ng-click=\"removeSubsectionDesc(subsectionDesc,subsection.subsectionDescriptions)\">-</span> <input type=\"text\" placeholder=\"{{subsectionDescriptionPlaceholder(section)}}\" class=\"form-control\" aria-describedby=\"add-row\" ng-model=\"subsectionDesc.desc\"></div></div></div></div></div></div></span></div>");
-$templateCache.put("common/directives/section_form/section_form.tpl.html","<section id=\"submit-form\"><div id=\"successModal\" class=\"modal\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button><h4 class=\"modal-title\">Thank you!</h4></div><div class=\"modal-body\"><p>Your location has been submitted for approval by an administrator. You should see it up in 2-3 days!</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-default\" ng-click=\"closeSuccessModal()\">Close</button></div></div></div></div><div id=\"errorModal\" class=\"modal\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button><h4 class=\"modal-title\">Woops!</h4></div><div class=\"modal-body\"><p>Looks like you forgot to fill something out in the general section. We\'re gonna need you to fill out all the starred fields in order to accept this location.</p></div><div class=\"modal-footer\"><button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\">Close</button></div></div></div></div><div class=\"text-center\"><h3>Climbcation Location Creation</h3></div><div class=\"well climbcation-well no-padding progress-container\"><div class=\"progress-icon-container\"><span><img ng-show=\"currentPage > 0\" ng-src=\"{{getIconUrl(1)}}\"></span> <span><img ng-show=\"currentPage > 1\" ng-src=\"{{getIconUrl(2)}}\"></span> <span><img ng-show=\"currentPage > 2\" ng-src=\"{{getIconUrl(3)}}\"></span> <span><img ng-show=\"currentPage > 3\" ng-src=\"{{getIconUrl(4)}}\"></span> <span><img ng-show=\"currentPage > 4\" ng-src=\"{{getIconUrl(5)}}\"></span> <span><img ng-show=\"currentPage > 5\" ng-src=\"{{getIconUrl(6)}}\"></span></div><div class=\"progress-bar-wrapper\"><div class=\"progress-bar\" style=\"width: {{progressBar}}%\"></div></div><div class=\"titles\"><a ng-click=\"changePage(1)\"><strong>1.</strong> General*</a> <a ng-click=\"changePage(2)\"><strong>2.</strong> Getting In</a> <a ng-click=\"changePage(3)\"><strong>3.</strong> Accommodation</a> <a ng-click=\"changePage(4)\"><strong>4.</strong> Cost</a> <a ng-click=\"changePage(5)\"><strong>5.</strong> Other</a> <span><strong>6.</strong> Publish</span></div></div><form name=\"locationForm\"><div class=\"container\"><div class=\"row\"><div class=\"row\"><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 1\">1. General <span class=\"small-gray\">(Don\'t worry, this is the hardest step!)</span></h4><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 2\">2. Getting In <span class=\"small-gray\">(How do you get to the crag?)</span></h4><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 3\">3. Accommodation <span class=\"small-gray\">(Where will you stay when you get there?)</span></h4><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 4\">4. Cost <span class=\"small-gray\">(How much should you expect to spend on this trip?)</span></h4><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 5\">5. Other <span class=\"small-gray\">(Anything else you know about {{ locationObj.name}}?)</span></h4><h4 class=\"col-md-offset-1 col-md-10\" ng-if=\"currentPage == 6\">6. Done</h4></div><div class=\"row\"><div class=\"col-md-offset-1 col-md-10 well climbcation-well forms-container\"><div class=\"well-content\"><div class=\"row\" ng-if=\"currentPage == 1\"><div class=\"col-md-3\"><div class=\"drop-box\" ngf-drop=\"\" ng-model=\"image\" ngf-drag-over-class=\"dragover\" ngf-multiple=\"true\" ngf-allow-dir=\"true\" ngf-accept=\"\'image/*,application/pdf\'\"><span ng-if=\"!image[0]\">Drop Image here</span> <img ng-if=\"image[0]\" ngf-src=\"image[0]\" ngf-default-src=\"\" ngf-accept=\"\'image/*\'\"></div></div><div class=\"col-md-9 border-left\"><div class=\"row\"><span class=\"form-group col-md-6\" ng-class=\"{ \'has-success\': locationForm.name.$valid && locationForm.name.$dirty, \'has-error\': locationForm.name.$invalid && locationForm.name.$dirty }\"><label>Location Name<span class=\"text-danger\">*</span></label> <input name=\"name\" tooltip-validation=\"hello\" ng-model=\"locationObj.name\" location-exists=\"{{existingLocations}}\" placeholder=\"ex. Yosemite\" ng-required=\"true\" class=\"form-control\" popover-placement=\"bottom\" uib-popover=\"This location already exists. If you would like to edit it, please find it on the home page and edit it there\" popover-trigger=\"{none: \'\'}\" popover-is-open=\"!locationForm.name.$valid && locationForm.name.$viewValue != \'\'\"></span> <span class=\"form-group col-md-6\" ng-class=\"{ \'has-success\': locationForm.country.$valid && locationForm.country.$dirty, \'has-error\': locationForm.country.$invalid && locationForm.country.$dirty }\"><label>Country</label> <input name=\"country\" ng-model=\"locationObj.country\" placeholder=\"ex. United States\" class=\"form-control\" required=\"\"></span></div><div class=\"row\"><span class=\"form-group col-md-2\" ng-class=\"{ \'has-success\': locationForm.airport.$valid && locationForm.airport.$dirty, \'has-error\': locationForm.airport.$invalid && locationForm.airport.$dirty }\"><label>Nearest Airport</label> <input name=\"airport\" ng-model=\"locationObj.airport\" placeholder=\"ex. LAX\" class=\"form-control\" ng-trim=\"true\" ng-minlength=\"3\" ng-maxlength=\"3\" required=\"\"></span><div class=\"form-group col-md-10\"><label>Daily expenditures range(in USD, not including accommodation):<span class=\"text-danger\">*</span></label><div class=\"row\"><span ng-class=\"{ \'has-success\': locationForm.price_floor.$valid && locationForm.price_floor.$dirty, \'has-error\': locationForm.price_floor.$invalid && locationForm.price_floor.$dirty }\" class=\"col-md-5\"><input name=\"price_floor\" ng-model=\"locationObj.price_floor\" integer=\"\" class=\"form-control short-input inline\"> <span class=\"small-label\">USD ($)</span></span> <span class=\"col-md-1 text-center small-gray\">to</span> <span ng-class=\"{ \'has-success\': locationForm.price_ceiling.$valid && locationForm.price_ceiling.$dirty, \'has-error\': locationForm.price_ceiling.$invalid && locationForm.price_ceiling.$dirty }\" class=\"col-md-5\"><input name=\"price_ceiling\" class=\"form-control short-input inline\" ng-model=\"locationObj.price_ceiling\" integer=\"\"> <span class=\"small-label\">USD ($)</span></span></div></div></div><div class=\"row\"><div class=\"col-md-4\"><label>The best routes are<span class=\"text-danger\">*</span></label><select name=\"grade\" ng-model=\"locationObj.grade\" class=\"form-control\" ng-required=\"true\"><option ng-repeat=\"grade in grades\" ng-value=\"grade.id\">{{ grade.grade }} and above</option></select></div><div class=\"col-md-3\"><label>What should I climb?<span class=\"text-danger\">*</span></label><div ng-repeat=\"climbing_type in climbingTypes\"><label class=\"control control--checkbox\" for=\"{{ climbing_type[\'name\'] }}\" ng-class=\"{\'active\': locationForm[climbing_type.name].$viewValue == true}\"><input name=\"{{climbing_type[\'name\']}}\" type=\"checkbox\" id=\"{{ climbing_type[\'name\'] }}\" ng-model=\"locationObj.climbingTypes[climbing_type.id]\"><div class=\"control__indicator\"></div><span class=\"gray\">{{climbing_type.name}}</span></label></div></div><div class=\"col-md-4\"><label>When Should I go?<span class=\"text-danger\">*</span></label><div class=\"row\"><div ng-repeat=\"month in months\" class=\"col-md-4 text-center month-button\"><label for=\"{{ month[\'name\'] }}\" class=\"btn btn-climbcation\" ng-class=\"{\'active\': locationForm[month.name].$viewValue == true}\"><input class=\"hide\" name=\"{{month[\'name\']}}\" type=\"checkbox\" id=\"{{ month[\'name\'] }}\" ng-model=\"locationObj.months[month.id]\"> {{ month[\'name\'] | limitTo:3 }}</label></div></div></div></div></div></div><div class=\"row\" ng-if=\"currentPage == 2\"><div class=\"col-md-12 row\"><div class=\"col-md-6\"><label>Select all available options for getting to {{locationObj.name}}</label><div ng-repeat=\"transportation in transportations\"><label class=\"control control--checkbox\" for=\"{{ transportation[\'name\'] }}\" ng-class=\"{\'active\': locationForm[transportation.name].$viewValue == true}\"><input name=\"{{transportation.name}}\" type=\"checkbox\" id=\"{{ transportation.name }}\" ng-model=\"locationObj.transportations[transportation.id]\"><div class=\"control__indicator\"></div><span class=\"gray\">{{transportation.name}}</span></label></div></div><div class=\"col-md-6\"><div class=\"row\" ng-if=\"locationObj.transportations\"><label>What is the best option for getting to {{locationObj.name}}</label><div class=\"btn-group btn-group-sm center-block\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': locationObj.bestTransportationId == bestTransOption.id}\" ng-repeat=\"bestTransOption in transportations | bestTransportationOptions:locationObj.transportations\" ng-click=\"selectBestTransportation(bestTransOption.id)\">{{bestTransOption.name}}</button></div></div><div class=\"row\" ng-if=\"bestTransportationCostOptions\"><label>How much does {{bestTransportationName}} cost?</label><div class=\"btn-group btn-group-sm center-block\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': costRange.active}\" ng-repeat=\"costRange in bestTransportationCostOptions\" ng-click=\"selectBestTransportationCost(costRange)\">{{costRange.cost}}</button></div></div></div></div><div class=\"col-md-12 row\"><div class=\"col-md-6\"><label>Any Additional Tips for getting to and around {{locationObj.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. Need to take flight to kos, then take a ferry from kos to kalymnos, once you\'re there you can hitchhike to get groceries easily or you can rent a scooter for $5 a day\" class=\"form-control\" rows=\"6\" ng-model=\"locationObj.gettingInNotes\"></textarea></div></div><div class=\"col-md-6\"><label>Are crags and other destinations(food, camping, etc...) within walking distance?</label><div class=\"btn-group btn-group-sm center-block\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': locationObj.walkingDistance}\" ng-click=\"locationObj.walkingDistance = true\">Yes</button> <button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': !locationObj.walkingDistance}\" ng-click=\"locationObj.walkingDistance = false\">No</button></div></div></div></div><div class=\"row\" ng-if=\"currentPage == 3\"><div class=\"col-md-12 row\"><div class=\"col-md-12\"><label class=\"center-block\">Select all available options for accommodation in {{locationObj.name}}</label><div class=\"accommodation-options border-bottom\"><div class=\"accommodation-button-wrapper\" ng-repeat=\"accommodation in accommodations\" ng-click=\"selectAccommodation(accommodation)\"><div class=\"btn btn-default accommodation-button {{(locationObj.accommodations | accommodationChosen:accommodation)?\'active\':\'\' }}\"><img ng-src=\"{{accommodation.url}}\"><div class=\"accommodation-cost-container\" ng-if=\"locationObj.accommodations | accommodationChosen:accommodation\"><label class=\"light-blue\">Cost</label><select ng-model=\"locationObj.accommodations[accommodation.id].cost\" class=\"form-control\" ng-click=\"stopPropagation($event);\"><option ng-repeat=\"range in accommodation.ranges\" value=\"{{range}}\">{{range}}</option></select></div></div></div></div></div></div><div class=\"col-md-12 row\"><div class=\"col-md-6\"><label>Any Additional Tips on staying in {{locationObj.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. campground doesnt have water, bring your own. The most fun place to stay is JOSITO! campground has a communal kitchenand communal fridge\" class=\"form-control\" rows=\"6\" ng-model=\"locationObj.accommodationNotes\"></textarea></div></div><div class=\"col-md-6\"><label>How close is the closest accommodation to the crag(s)?</label><select name=\"closestAccommodation\" ng-model=\"locationObj.closestAccommodation\" class=\"form-control\"><option ng-value=\"\'<1 mile\'\">&lt;1 mile</option><option ng-value=\"\'1-2 miles\'\">1-2 miles</option><option ng-value=\"\'2-5 miles\'\">2-5 miles</option><option ng-value=\"\'5+ miles\'\">5+ miles</option></select></div></div></div><div class=\"row\" ng-if=\"currentPage == 4\"><div class=\"col-md-12 row\"><div class=\"col-md-6\"><label>What food options are available in {{locationObj.name}}?</label><div ng-repeat=\"food in foodOptions\" ng-click=\"cleanFoodOptionDetails()\"><label class=\"control control--checkbox\" for=\"{{ food[\'name\'] }}\" ng-class=\"{\'active\': locationForm[food.name].$viewValue == true}\"><input name=\"{{food.name}}\" type=\"checkbox\" id=\"{{ food.name }}\" ng-model=\"locationObj.foodOptions[food.id]\"><div class=\"control__indicator\"></div><span class=\"gray\">{{food.name}}</span></label></div></div><div class=\"col-md-6\"><div class=\"row\" ng-if=\"locationObj.foodOptions\"><label>Cost for a single meal?</label><div class=\"row\"><div class=\"col-md-6\" ng-repeat=\"foodOption in foodOptions | selectedFoodOptions:locationObj.foodOptions\"><label class=\"center-block gray\">{{foodOption.name}}</label><div class=\"btn-group btn-group-sm\"><button class=\"btn btn-sm btn-default\" ng-class=\"{\'active\': locationObj.foodOptionDetails[foodOption.id].cost == range}\" ng-repeat=\"range in foodOption.ranges\" ng-click=\"selectFoodOptionDetail(foodOption.id, range)\">{{range}}</button></div></div></div></div></div></div><div class=\"col-md-12 row\"><div class=\"col-md-6\"><label>Any other common expenses in {{locationObj.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. red rock requires entrance fee\" class=\"form-control\" rows=\"6\" ng-model=\"locationObj.commonExpensesNotes\"></textarea></div></div><div class=\"col-md-6\"><label>Any tips on saving money in {{locationObj.name}}?</label><div class=\"form-group\"><textarea placeholder=\"ex. Mama\'s chicken is a great restaurant that is very cheap, and trader joes is a cheap but healthy grocery store... you should also hitchhike a bunch since it\'s easy here\" class=\"form-control\" rows=\"6\" ng-model=\"locationObj.savingMoneyTips\"></textarea></div></div></div></div><div class=\"row\" ng-if=\"currentPage == 5\"><locationothersection class=\"col-md-6\" section=\"section\" sections-length=\"locationObj.sections.length\" ng-repeat=\"section in locationObj.sections track by $index\" index-iterator=\"$index\" save-section=\"saveSection()\" remove-section=\"removeSection(section)\"></locationothersection><div class=\"col-md-6\"><h4>Suggestions</h4><ul><li>Connectivity(wifi/cell reception)</li><li>Rest Day Activities</li><li>Rock Type</li><li>Social Scene(bars, where to find partners, etc...)</li><li>Safety(eg. watch out for theft/scams)</li></ul></div></div><div class=\"row\" ng-if=\"currentPage == 6\"><div class=\"text-center\"><h3>Congrats!</h3><h4>You\'ve added all the necessary content.</h4><h4>You should see your location available in a day after an admin reviews the content</h4><img ng-src=\"/images/success-icon.png\"></div></div></div><div class=\"col-md-12 well-footer\"><div class=\"row\"><div class=\"col-md-offset-8 col-md-1\" ng-click=\"prevPage()\"><span class=\"back-button\" ng-if=\"currentPage != 1 && currentPage != 6\">Back</span></div><div class=\"col-md-2 btn btn-climbcation\" ng-click=\"nextPage()\" ng-if=\"currentPage < 5\"><div class=\"\">Next</div></div><div class=\"col-md-2 btn btn-climbcation\" ng-click=\"submitLocation()\" ng-if=\"currentPage == 5\"><div class=\"\">Publish</div></div></div></div></div></div></div><div class=\"row\"><div class=\"row\"><div class=\"col-md-offset-1 col-md-10 well climbcation-well tips-container\"><h4>Tips for adding locations</h4><ul><li>Focus on world class crags, Climbcation is primarily for finding climbing vacation destinations. Do you really want all of us crowding your local crag?</li><li>Sections with an asterisk (*) are required, but the more info you provide the better!</li><li>Excellent location examples with multiple categories: <a href=\"#/location/bishop\" target=\"_blank\">Bishop</a>, <a href=\"#/location/baile-herculane\" target=\"_blank\">Baile Herculane</a></li></ul></div></div></div></div></form></section>");}]);
+$templateCache.put("common/directives/location_other_section/location_other_section.tpl.html","<div ng-if=\"section.previewOff\"><div class=\"row\"><div class=\"col-md-11\" ng-class=\"{\'col-md-offset-1\': !editable}\"><div class=\"form-group input-group-lg\"><label>Section Title</label> <input type=\"text\" placeholder=\"ex. Social Scene\" class=\"form-control\" ng-model=\"section.title\"></div></div></div><div class=\"row\"><div class=\"col-md-11\" ng-class=\"{\'col-md-offset-1\': !editable}\"><div class=\"form-group\"><label ng-if=\"!editable\">Section Description</label> <textarea placeholder=\"The best place to meet climbers is at the Fatolitis snack bar, this is a great bar for a post climbing spray session as well\" class=\"form-control\" rows=\"{{editable?3:6}}\" ng-model=\"section.body\"></textarea></div><div ng-if=\"!editable\" class=\"btn btn-default btn-climbcation\" ng-class=\"{\'disabled\': section.isSaving }\" ng-click=\"saveSection()\">Save section</div><div ng-if=\"!editable\" class=\"btn btn-default btn-climbcation-negative\" ng-click=\"removeSection(section)\">remove section</div><div ng-if=\"editable\" class=\"btn btn-default btn-climbcation pull-right\" ng-click=\"saveChanges()\">Save Changes</div><div ng-if=\"editable\" class=\"text-button pull-right pad-top\" ng-click=\"togglePreview(section)\">Cancel</div></div></div></div><div ng-if=\"!section.previewOff\"><h3 class=\"inline\">{{oldTitle}}</h3><span class=\"text-button\" ng-click=\"togglePreview(section)\">Edit</span><h4 class=\"text-gray\">{{oldBody}}</h4></div>");}]);
 //# sourceMappingURL=app.js.map

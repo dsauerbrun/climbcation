@@ -116,6 +116,25 @@ h3, h4 {
   padding-bottom: 0px;
   margin-bottom: 0px; }
 
+label {
+  font-size: 14px; }
+  label.control {
+    font-size: 14px; }
+  label .gray {
+    color: #7b7b7b;
+    font-weight: normal; }
+
+.text-center {
+  text-align: center !important; }
+
+.inline {
+  display: inline; }
+
+.small-label {
+  font-size: 12px;
+  color: #000;
+  font-weight: 700; }
+
 .small-gray {
   color: gainsboro;
   font-size: 10px; }
@@ -184,6 +203,15 @@ h3, h4 {
 
 /* info container end */
 /* buttons start */
+.text-button {
+  color: #153540;
+  border-color: #9c9c9c;
+  border-width: 0 0 1px 0;
+  border-style: solid;
+  cursor: pointer;
+  vertical-align: -webkit-baseline-middle;
+  vertical-align: -moz-middle-with-baseline; }
+
 .btn-climbcation {
   background-color: #153540;
   color: gainsboro; }
@@ -298,7 +326,10 @@ h3, h4 {
 .accommodation-options {
   display: flex;
   justify-content: space-around;
-  padding: 10px 200px; }
+  padding: 10px 0; }
+  .accommodation-options.side-pad {
+    padding-left: 200px;
+    padding-right: 200px; }
 
 .accommodation-button-wrapper {
   display: inline-block; }
@@ -314,6 +345,11 @@ h3, h4 {
       left: -1px;
       bottom: -1px;
       width: 102%; }
+      .accommodation-button-wrapper .accommodation-button .accommodation-cost-container label {
+        font-size: 12px; }
+      .accommodation-button-wrapper .accommodation-button .accommodation-cost-container input.form-control, .accommodation-button-wrapper .accommodation-button .accommodation-cost-container select.form-control {
+        height: 25px;
+        font-size: 12px; }
   .accommodation-button-wrapper .accommodation-button.active, .accommodation-button-wrapper .accommodation-button:active {
     width: 126px;
     background-color: #d7eef0; }
@@ -325,25 +361,30 @@ h3, h4 {
   height: 32px;
   width: 32px; }
 
-.map-hero {
-  position: relative; }
-  .map-hero .map-overlay {
+.home-hero {
+  position: relative;
+  height: 20em;
+  background: linear-gradient(rgba(60, 126, 145, 0.5), rgba(60, 126, 145, 0.5)), url('../images/rodellarpano.jpg');
+  background-size: cover;
+  background-position-y: -100px; }
+  .home-hero .home-hero-overlay {
     position: absolute;
     width: 100%;
     height: 100%;
-    top: 0;
-    pointer-events: none; }
-    .map-hero .map-overlay .map-overlay-title {
+    top: 0; }
+    .home-hero .home-hero-overlay .home-hero-overlay-title {
       position: relative; }
-      .map-hero .map-overlay .map-overlay-title h1 {
+      .home-hero .home-hero-overlay .home-hero-overlay-title > div, .home-hero .home-hero-overlay .home-hero-overlay-title h2 {
         position: absolute;
         left: 50%;
         -webkit-transform: translateX(-50%);
         transform: translateX(-50%);
         color: #fff;
-        -webkit-text-stroke-width: 1px;
-        -webkit-text-stroke-color: #3c7e91; }
-    .map-hero .map-overlay img {
+        text-align: center; }
+      .home-hero .home-hero-overlay .home-hero-overlay-title > div {
+        font-size: 20px;
+        top: 150px; }
+    .home-hero .home-hero-overlay img {
       height: 100%; }
 
 .icon.button {
@@ -355,8 +396,8 @@ h3, h4 {
 
 .filter {
   position: relative;
-  margin: 2em 2em;
-  padding: 1em 3em;
+  margin: 2em 0;
+  padding: 1em 1em;
   border-color: #0d212a;
   border-style: solid;
   border-top-width: 2px;
@@ -443,6 +484,10 @@ h3, h4 {
 
 .location-info-container {
   padding-bottom: 5em; }
+  .location-info-container .add-section {
+    padding: 40px 0; }
+    .location-info-container .add-section h3 {
+      padding-bottom: 20px; }
   .location-info-container .main-header {
     display: flex;
     align-items: center; }
@@ -467,8 +512,6 @@ h3, h4 {
         .location-info-container .main-header .location-map .nearby-locations a {
           font-weight: bold;
           cursor: pointer; }
-        .location-info-container .main-header .location-map .nearby-locations img {
-          margin-left: 10px; }
       .location-info-container .main-header .location-map .nearby-locations.expanded {
         max-height: 80%;
         text-align: right; }
@@ -479,8 +522,12 @@ h3, h4 {
       z-index: 1; }
     .location-info-container .main-header .overview-container div > div > label {
       display: block; }
-  .location-info-container .misc-section {
-    height: 100px; }
+  .location-info-container .misc-section .text-button {
+    margin-left: 10px;
+    margin-right: 10px;
+    vertical-align: middle; }
+  .location-info-container .misc-section .pad-top {
+    padding-top: 10px; }
   .location-info-container .climbcation-well > h3 {
     padding-top: 0px;
     margin-top: 0px; }
@@ -511,19 +558,6 @@ h3, h4 {
     font-size: 12px; }
   #submit-form textarea.form-control {
     resize: none; }
-  #submit-form label {
-    font-size: 12px; }
-    #submit-form label .gray {
-      color: #7b7b7b;
-      font-weight: normal; }
-  #submit-form label.gray {
-    color: #7b7b7b; }
-  #submit-form .small-label {
-    font-size: 12px;
-    color: #000;
-    font-weight: 700; }
-  #submit-form .inline {
-    display: inline; }
   #submit-form .short-input {
     width: 78%; }
   #submit-form .small-gray {
@@ -540,14 +574,6 @@ h3, h4 {
     margin-top: 20px;
     margin-bottom: 20px;
     box-shadow: 0px 4px 15px -5px; }
-  #submit-form .well-footer > .back-button {
-    color: #9c9c9c;
-    border-color: #9c9c9c;
-    border-width: 0 0 1px 0;
-    border-style: solid;
-    cursor: pointer;
-    vertical-align: -webkit-baseline-middle;
-    vertical-align: -moz-middle-with-baseline; }
   #submit-form .progress-container {
     position: relative;
     padding: 10px 0;

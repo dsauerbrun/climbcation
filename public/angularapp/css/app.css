@@ -117,9 +117,9 @@ h3, h4 {
   margin-bottom: 0px; }
 
 label {
-  font-size: 14px; }
+  font-size: 12px; }
   label.control {
-    font-size: 14px; }
+    font-size: 12px; }
   label .gray {
     color: #7b7b7b;
     font-weight: normal; }
@@ -209,8 +209,7 @@ label {
   border-width: 0 0 1px 0;
   border-style: solid;
   cursor: pointer;
-  vertical-align: -webkit-baseline-middle;
-  vertical-align: -moz-middle-with-baseline; }
+  vertical-align: middle; }
 
 .btn-climbcation {
   background-color: #153540;
@@ -366,7 +365,7 @@ label {
   height: 20em;
   background: linear-gradient(rgba(60, 126, 145, 0.5), rgba(60, 126, 145, 0.5)), url('../images/rodellarpano.jpg');
   background-size: cover;
-  background-position-y: -100px; }
+  background-repeat: no-repeat; }
   .home-hero .home-hero-overlay {
     position: absolute;
     width: 100%;
@@ -484,6 +483,14 @@ label {
 
 .location-info-container {
   padding-bottom: 5em; }
+  .location-info-container h5 {
+    padding-top: 0px;
+    margin-top: 0px;
+    padding-bottom: 0px;
+    margin-bottom: 0px; }
+  .location-info-container .container-fluid {
+    padding-left: 100px;
+    padding-right: 100px; }
   .location-info-container .add-section {
     padding: 40px 0; }
     .location-info-container .add-section h3 {
@@ -517,17 +524,26 @@ label {
         text-align: right; }
         .location-info-container .main-header .location-map .nearby-locations.expanded > div {
           text-align: left; }
+        .location-info-container .main-header .location-map .nearby-locations.expanded .nearby-location {
+          padding-bottom: 5px; }
     .location-info-container .main-header #map-canvas {
-      height: 15em;
+      height: 16em;
       z-index: 1; }
+    .location-info-container .main-header .overview-container > div {
+      padding-top: 20px; }
     .location-info-container .main-header .overview-container div > div > label {
       display: block; }
-  .location-info-container .misc-section .text-button {
+  .location-info-container .text-button {
     margin-left: 10px;
-    margin-right: 10px;
-    vertical-align: middle; }
+    margin-right: 10px; }
   .location-info-container .misc-section .pad-top {
     padding-top: 10px; }
+  .location-info-container .climbcation-well .section-title {
+    padding-bottom: 15px; }
+  .location-info-container .climbcation-well > div {
+    padding-bottom: 20px; }
+  .location-info-container .climbcation-well > label {
+    padding-top: 20px; }
   .location-info-container .climbcation-well > h3 {
     padding-top: 0px;
     margin-top: 0px; }
@@ -569,6 +585,8 @@ label {
     margin-bottom: 0; }
   #submit-form .well.forms-container .well-content {
     min-height: 340px; }
+  #submit-form .text-button {
+    vertial-align: -webkit-baseline-middle; }
   #submit-form .tips-container {
     padding: 10px;
     margin-top: 20px;

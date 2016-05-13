@@ -520,6 +520,10 @@ textarea.form-control {
       right: 10px; }
   .location-card .location-airfare {
     width: 100%; }
+    .location-card .location-airfare .sorry-message {
+      height: 124px;
+      padding: 20px;
+      text-align: center; }
     .location-card .location-airfare h4 {
       display: inline; }
     .location-card .location-airfare h5 {

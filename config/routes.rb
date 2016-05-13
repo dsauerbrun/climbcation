@@ -5,6 +5,10 @@ Rails.application.routes.draw do
 
   # You can have the root of your site routed with "root"
   #root 'application#index'
+	match "api" => proc { [404, {}, ['Invalid API endpoint']] }
+	match "api/*path" => proc { [404, {}, ['Invalid API endpoint']] }
+
+	match "/*path" => redirect("/?goto=%{path}")
   root 'application#home'
 	get 'css/:app', :to => redirect('/angularapp/css/%{app}.css')
 	get 'js/:app', :to => redirect('/angularapp/js/%{app}.js')

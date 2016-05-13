@@ -131,6 +131,9 @@ label {
     color: #7b7b7b;
     font-weight: normal; }
 
+.display-block {
+  display: block; }
+
 .info-text {
   font-size: 16px; }
 
@@ -597,7 +600,7 @@ textarea.form-control {
     padding-top: 0px;
     margin-top: 0px; }
     .location-info-container .climbcation-well > h3 > input {
-      width: 50px; }
+      width: 200px; }
   .location-info-container .accommodation-info-section img {
     width: 80px;
     display: block;

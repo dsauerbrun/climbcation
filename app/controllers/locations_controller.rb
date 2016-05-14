@@ -95,7 +95,7 @@ class LocationsController < ApplicationController
 			.joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"').where('lower("info_sections"."body") LIKE lower(?) OR lower("locations"."name") LIKE lower(?) OR lower("locations"."getting_in_notes") LIKE lower(?) OR lower("locations"."accommodation_notes") LIKE lower(?) OR lower("locations"."common_expenses_notes") LIKE lower(?) OR lower("locations"."saving_money_tips") LIKE lower(?)',string_filter,string_filter,string_filter,string_filter,string_filter,string_filter)
 			.where(continent: continent_filter)
 			.where('price_range_floor_cents < ?',price_filter)
-			.paginate(:page => page_num, :per_page => 4).uniq 
+			.paginate(:page => page_num, :per_page => 100).uniq 
 		if !accommodation_filter.nil?
 			location_filter = location_filter.joins(:accommodation_location_details).where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)
 		end

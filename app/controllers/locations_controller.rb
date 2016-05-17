@@ -3,7 +3,7 @@ class LocationsController < ApplicationController
 		name_param= params[:slug]
 		return_map = {};
 		
-		@location = Location.where(slug: name_param).where(active: true).first
+		@location = Location.where(slug: name_param).first
 		return_map['nearby'] = @location.get_nearby_locations_json
 		return_map['location'] = @location.get_location_json 
 		return_map['sections'] = @location.get_sections
@@ -77,29 +77,52 @@ class LocationsController < ApplicationController
 		else
 			price_filter = 99999 
 		end
-		#handpicked sorting
-		sort_filter = 'name ASC'
-		if(!params[:filter][:sort].nil?)
-			if(params[:filter][:sort].include? 'price')
-				sort_filter = 'price_range_floor_cents ASC'
-			elsif(params[:filter][:sort].include? 'grade')
-				sort_filter = 'grade_id ASC'
-			else
-				sort_filter = 'name ASC'
-			end
-		end
 
-		location_filter = Location.where(active: true).order(sort_filter).in_bounds([@swBounds, @neBounds])
+
+		location_filter = Location.select('locations.*, grades.order')
+			.where(active: true).in_bounds([@swBounds, @neBounds])
+			.joins(:grade)
 			.joins(:seasons).where('seasons.numerical_value IN (?)', month_filter)
 			.joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter)
-			.joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"').where('lower("info_sections"."body") LIKE lower(?) OR lower("locations"."name") LIKE lower(?) OR lower("locations"."getting_in_notes") LIKE lower(?) OR lower("locations"."accommodation_notes") LIKE lower(?) OR lower("locations"."common_expenses_notes") LIKE lower(?) OR lower("locations"."saving_money_tips") LIKE lower(?)',string_filter,string_filter,string_filter,string_filter,string_filter,string_filter)
+			.joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"')
+			.where('lower("info_sections"."body") LIKE lower(?) OR lower("locations"."name") LIKE lower(?) OR lower("locations"."getting_in_notes") LIKE lower(?) OR lower("locations"."accommodation_notes") LIKE lower(?) OR lower("locations"."common_expenses_notes") LIKE lower(?) OR lower("locations"."saving_money_tips") LIKE lower(?)',string_filter,string_filter,string_filter,string_filter,string_filter,string_filter)
 			.where(continent: continent_filter)
 			.where('price_range_floor_cents < ?',price_filter)
-			.paginate(:page => page_num, :per_page => 100).uniq 
+			.paginate(:page => page_num, :per_page => 100)
+			.uniq 
+			#.uniq 
+			#.order(sort_filter)
+
+			#handpicked sorting
+			sort_filter = 'name ASC'
+			if(!params[:filter][:sort].nil?)
+				if(params[:filter][:sort].include? 'price')
+					sort_filter = 'price_range_floor_cents '
+					if params[:filter][:sort][:price][:asc]
+						sort_filter << 'ASC'
+					else
+						sort_filter << 'DESC'
+					end
+				elsif(params[:filter][:sort].include? 'grade')
+					sort_filter = 'grades.order '
+					if params[:filter][:sort][:grade][:asc]
+						sort_filter << 'ASC'
+					else
+						sort_filter << 'DESC'
+					end
+				elsif params[:filter][:sort].include? 'distance'
+					origin = Geokit::LatLng.new(params[:filter][:sort][:distance][:latitude], params[:filter][:sort][:distance][:longitude])
+					location_filter = location_filter.by_distance(:origin => origin)
+				else
+					sort_filter = 'name ASC'
+				end
+				location_filter = location_filter.order(sort_filter)
+			end
+
 		if !accommodation_filter.nil?
 			location_filter = location_filter.joins(:accommodation_location_details).where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)
 		end
-		#location_filter = Location.all.joins(:climbing_types).includes(:grade,:seasons).uniq 
+		#location_filter.order(sort_filter)
 		location_filter.each do |location|
 			location_json = location.get_location_json
 			location_list << location_json
@@ -144,6 +167,14 @@ class LocationsController < ApplicationController
 		render :json => quotes
 	end
 
+	def change_location_email
+		@location = Location.find(params[:id])
+		@location.submitter_email = params[:email]
+		@location.save
+		returnit = {'message' => 'success'}
+		render :json => returnit
+	end
+
 	def new_location
 		params[:location] = JSON.parse(params[:location])
 		new_loc = Location.create!(name: params[:location]['name'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
@@ -168,7 +199,7 @@ class LocationsController < ApplicationController
 			InfoSection.create_new_info_section(new_loc.id, section)
 		end
 		new_loc.save
-		returnit = {'name' => 'hello'}
+		returnit = {'id' => new_loc.id, 'slug' => new_loc.slug}
 		render :json => returnit
 	end
 

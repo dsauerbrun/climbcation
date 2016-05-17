@@ -73,6 +73,7 @@ Rails.application.routes.draw do
 	post 'api/locations/:id/gettingin', to: 'locations#edit_getting_in'
 	post 'api/locations/:id/foodoptions', to: 'locations#edit_food_options'
 	post 'api/locations/:id/sections', to: 'locations#edit_sections'
+	post 'api/locations/:id/email', to: 'locations#change_location_email'
 	get 'api/location/name/all', to: 'locations#location_names'
 	post 'api/infosection/:id', to: 'info_sections#update_info_section'
 	post 'api/infosection/', to: 'info_sections#update_info_section'

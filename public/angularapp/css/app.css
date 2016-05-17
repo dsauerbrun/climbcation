@@ -639,7 +639,7 @@ textarea.form-control {
   #submit-form .well.forms-container .well-content {
     min-height: 300px; }
   #submit-form .text-button {
-    vertial-align: -webkit-baseline-middle; }
+    line-height: 2; }
   #submit-form .tips-container {
     padding: 10px;
     margin-top: 20px;
@@ -727,6 +727,13 @@ textarea.form-control {
       border-width: 2px;
       border-radius: 3px;
       box-shadow: none; }
+  #submit-form .email-input {
+    width: auto; }
+  #submit-form .email-prompt {
+    line-height: 2.5; }
+  #submit-form .email-btn {
+    padding-top: 4px;
+    padding-bottom: 4px; }
 
 body {
   color: #3c7e91;

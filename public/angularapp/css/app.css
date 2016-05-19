@@ -483,7 +483,15 @@ textarea.form-control {
 .locations-window {
   position: relative;
   width: 90%;
-  margin: 0 auto; }
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap; }
+
+.location-item {
+  flex-grow: 1;
+  display: inline-block;
+  width: 45%;
+  margin: 0 10px; }
 
 .location-card {
   border-color: #d6d6d6;
@@ -519,6 +527,7 @@ textarea.form-control {
       bottom: 0;
       right: 10px; }
   .location-card .location-airfare {
+    min-height: 124px;
     width: 100%; }
     .location-card .location-airfare .sorry-message {
       height: 124px;

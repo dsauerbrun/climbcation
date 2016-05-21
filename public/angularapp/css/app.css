@@ -445,6 +445,10 @@ textarea.form-control {
   border-top-width: 2px;
   border-bottom-width: 2px;
   border-width: 2px 0 2px 0; }
+  .filter.fixed {
+    position: fixed;
+    bottom: initial;
+    top: 0; }
   .filter h4:first-child {
     margin-top: 0; }
   .filter .loading-overlay {
@@ -477,7 +481,7 @@ textarea.form-control {
     .navbar.home .navbar-logo img {
       height: 50px; }
 
-#mapFilter {
+.mapFilter {
   height: 15em; }
 
 .locations-window {
@@ -530,7 +534,7 @@ textarea.form-control {
     min-height: 124px;
     width: 100%; }
     .location-card .location-airfare .sorry-message {
-      height: 124px;
+      min-height: 124px;
       padding: 20px;
       text-align: center; }
     .location-card .location-airfare h4 {
@@ -762,6 +766,28 @@ textarea.form-control {
     bottom: -9px; }
   .location-card .location-airfare h4 {
     font-size: 14px; }
+  .full-screen {
+    position: absolute;
+    width: 100vh;
+    height: 100vh;
+    background-color: #fff;
+    z-index: 1100;
+    top: 0;
+    left: 0;
+    padding: 0;
+    margin: 0; }
+    .full-screen .mapFilter {
+      height: 87.5vh; }
+  .filter {
+    z-index: 1050;
+    width: 100%;
+    margin: 0;
+    padding: 0; }
+    .filter .filter-banner {
+      background-color: #0d212a;
+      padding: 1em 1em;
+      margin-right: 0px;
+      margin-left: 0px; }
   .location-info-container .container-fluid {
     padding-left: 10px;
     padding-right: 10px; }
@@ -784,5 +810,6 @@ textarea.form-control {
     width: 106px; } }
 
 body {
+  position: relative;
   color: #3c7e91;
   font-family: "museo-sans-rounded", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif; }

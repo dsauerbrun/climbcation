@@ -79,6 +79,17 @@ class LocationsController < ApplicationController
 		end
 
 
+		unpaginated_filter = Location.select('locations.*, grades.order')
+			.where(active: true).in_bounds([@swBounds, @neBounds])
+			.joins(:grade)
+			.joins(:seasons).where('seasons.numerical_value IN (?)', month_filter)
+			.joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter)
+			.joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"')
+			.where('lower("info_sections"."body") LIKE lower(?) OR lower("locations"."name") LIKE lower(?) OR lower("locations"."getting_in_notes") LIKE lower(?) OR lower("locations"."accommodation_notes") LIKE lower(?) OR lower("locations"."common_expenses_notes") LIKE lower(?) OR lower("locations"."saving_money_tips") LIKE lower(?)',string_filter,string_filter,string_filter,string_filter,string_filter,string_filter)
+			.where(continent: continent_filter)
+			.where('price_range_floor_cents < ?',price_filter)
+			.uniq
+
 		location_filter = Location.select('locations.*, grades.order')
 			.where(active: true).in_bounds([@swBounds, @neBounds])
 			.joins(:grade)
@@ -88,10 +99,9 @@ class LocationsController < ApplicationController
 			.where('lower("info_sections"."body") LIKE lower(?) OR lower("locations"."name") LIKE lower(?) OR lower("locations"."getting_in_notes") LIKE lower(?) OR lower("locations"."accommodation_notes") LIKE lower(?) OR lower("locations"."common_expenses_notes") LIKE lower(?) OR lower("locations"."saving_money_tips") LIKE lower(?)',string_filter,string_filter,string_filter,string_filter,string_filter,string_filter)
 			.where(continent: continent_filter)
 			.where('price_range_floor_cents < ?',price_filter)
-			.uniq 
-			
-			unpaginated_filter = location_filter
-			location_filter = location_filter.paginate(:page => page_num, :per_page => 4)
+			.paginate(:page => page_num, :per_page => 4)
+			.uniq
+
 			#handpicked sorting
 			sort_filter = 'name ASC'
 			if(!params[:filter][:sort].nil?)
@@ -130,7 +140,6 @@ class LocationsController < ApplicationController
 			location_json = location.get_location_json
 			locations_return[:paginated] << location_json
 		end
-
 		unpaginated_filter.each do |location|
 			location_json = location.get_location_json
 			locations_return[:unpaginated] << location_json

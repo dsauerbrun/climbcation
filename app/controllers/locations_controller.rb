@@ -126,7 +126,7 @@ class LocationsController < ApplicationController
 				end
 				location_filter = location_filter.order(sort_filter)
 			end
-			location_filter = location_filter.paginate(:page => page_num, :per_page => 4)
+			location_filter = location_filter.paginate(:page => page_num, :per_page => 8)
 
 		if !accommodation_filter.nil?
 			location_filter = location_filter.joins(:accommodation_location_details).where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)

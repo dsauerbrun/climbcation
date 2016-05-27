@@ -90,6 +90,7 @@ class LocationsController < ApplicationController
 			.where('price_range_floor_cents < ?',price_filter)
 			.uniq
 
+		puts 'location filter here'
 		location_filter = Location.select('locations.*, grades.order')
 			.where(active: true).in_bounds([@swBounds, @neBounds])
 			.joins(:grade)
@@ -126,7 +127,7 @@ class LocationsController < ApplicationController
 				end
 				location_filter = location_filter.order(sort_filter)
 			end
-			location_filter = location_filter.paginate(:page => page_num, :per_page => 8)
+			location_filter = location_filter.paginate(:page => page_num, :per_page => 8, :count => {:group => 'locations.id'})
 
 		if !accommodation_filter.nil?
 			location_filter = location_filter.joins(:accommodation_location_details).where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)

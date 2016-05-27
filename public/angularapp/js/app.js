@@ -54867,7 +54867,8 @@ home.factory("LocationsGetter",function($q,$http, $timeout){
 				var exists = _.find(LocationsGetter.locations, function(locationIter) {
 					return locationIter.id == promiseLocation.id;
 				});
-				!exists && LocationsGetter.locations.push(promiseLocation);
+				exists && console.log(promiseLocation, 'duplicate found on ',LocationsGetter.pageNum)
+				/*!exists &&*/ LocationsGetter.locations.push(promiseLocation);
 			});
 			if (_.size(promiseLocations) == 0) {
 				LocationsGetter.scrollEnded = true;

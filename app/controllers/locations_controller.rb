@@ -103,7 +103,7 @@ class LocationsController < ApplicationController
 			.uniq
 
 			#handpicked sorting
-			sort_filter = 'locations.name ASC, locations.id DESC'
+			sort_filter = 'locations.name ASC'
 			if(!params[:filter][:sort].nil?)
 				if(params[:filter][:sort].include? 'price')
 					sort_filter = 'price_range_floor_cents '
@@ -123,10 +123,10 @@ class LocationsController < ApplicationController
 					origin = Geokit::LatLng.new(params[:filter][:sort][:distance][:latitude], params[:filter][:sort][:distance][:longitude])
 					location_filter = location_filter.by_distance(:origin => origin)
 				else
-					sort_filter = 'locations.name ASC locations.id DESC'
+					sort_filter = 'locations.name ASC'
 				end
-				location_filter = location_filter.order(sort_filter)
 			end
+			location_filter = location_filter.order(sort_filter, :id)
 			location_filter = location_filter.paginate(:page => page_num, :per_page => 8)
 
 		if !accommodation_filter.nil?

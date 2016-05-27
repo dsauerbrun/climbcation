@@ -11,7 +11,7 @@ class LocationsController < ApplicationController
 	end
 
 	def location_names
-		@locations = Location.all.pluck(:name)
+		@locations = Location.all.pluck(:name,:slug)
 		render :json => @locations
 	end
 

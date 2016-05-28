@@ -204,6 +204,29 @@ class Location < ActiveRecord::Base
 
 	end
 
+	def get_limited_location_json
+		json_return = {}
+		json_return[:location] = self
+		json_return[:latitude] = self.latitude
+		json_return[:longitude] = self.longitude
+		json_return[:slug] = self.slug
+		json_return[:name] = self.name
+		json_return[:country] = self.country
+		json_return[:price_range_floor_cents] = self.price_range_floor_cents
+		json_return[:price_range_ceiling_cents] = self.price_range_ceiling_cents
+		json_return[:home_thumb] = self.home_thumb.url
+		json_return[:climbing_types] = self.get_climbing_types
+		json_return[:grade] = self.grade.html_attributes['grade'] 
+		json_return[:airport_code] = self.airport_code
+		json_return[:date_range] = self.date_range
+		json_return[:id] = self.id
+		
+		#new stuff
+		json_return[:accommodations] = self.get_accommodations
+
+		return json_return
+	end
+
 	def get_location_json
 		json_return = {}
 		json_return[:location] = self

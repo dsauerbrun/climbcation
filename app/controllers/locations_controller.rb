@@ -79,6 +79,7 @@ class LocationsController < ApplicationController
 		end
 
 
+=begin
 		unpaginated_filter = Location.select('locations.*, grades.order')
 			.where(active: true).in_bounds([@swBounds, @neBounds])
 			.joins(:grade)
@@ -89,6 +90,7 @@ class LocationsController < ApplicationController
 			.where(continent: continent_filter)
 			.where('price_range_floor_cents < ?',price_filter)
 			.uniq
+=end
 
 		puts 'location filter here'
 		location_filter = Location.select('locations.*, grades.order')
@@ -127,7 +129,7 @@ class LocationsController < ApplicationController
 				end
 			end
 			location_filter = location_filter.order(sort_filter, :id)
-			location_filter = location_filter.paginate(:page => page_num, :per_page => 8)
+			#location_filter = location_filter.paginate(:page => page_num, :per_page => 8)
 
 		if !accommodation_filter.nil?
 			location_filter = location_filter.joins(:accommodation_location_details).where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)
@@ -137,12 +139,14 @@ class LocationsController < ApplicationController
 		locations_return = {}
 		locations_return[:unpaginated] = []
 		locations_return[:paginated] = []
-		location_filter.each do |location|
-			location_json = location.get_location_json
+		page_start = (page_num-1)*8
+		page_end = ((page_num-1)*8) + 7
+		location_filter[page_start..page_end].each do |location|
+			location_json = location.get_limited_location_json
 			locations_return[:paginated] << location_json
 		end
-		unpaginated_filter.each do |location|
-			location_json = location.get_location_json
+		location_filter.each do |location|
+			location_json = location
 			locations_return[:unpaginated] << location_json
 		end
 

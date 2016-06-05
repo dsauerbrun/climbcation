@@ -118,7 +118,6 @@ class LocationsController < ApplicationController
 
 		if !accommodation_filter.nil?
 			location_filter = location_filter.joins(:accommodation_location_details).where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)
-			unpaginated_filter = unpaginated_filter.joins(:accommodation_location_details).where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)
 		end
 
 		locations_return = {}

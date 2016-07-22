@@ -401,7 +401,7 @@ class LocationsController < ApplicationController
 	end
 
 	def build_request(origin_airport,destination_airport,year,month,ip_blacklist)
-		user_agent_string = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36'
+		user_agent_string = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.' << rand(20..36)
 		options = {proxy: 'http://us.proxymesh.com:31280', proxyuserpwd: ENV['PROXY_USER'] + ':' + ENV['PROXY_PASS'], :headers => { 'User-Agent' => user_agent_string, 'X-ProxyMesh-Not_IP' => ip_blacklist, timeout: 4 }}
 		return Typhoeus::Request.new("http://www.skyscanner.com/dataservices/browse/v3/mvweb/US/USD/en-US/calendar/#{origin_airport}/#{destination_airport}/#{year}-#{month}/?abvariant=EPS522_ReplaceMonthViewGlobalPartial:a|EPS522_ReplaceMonthViewGlobalPartial_V1:a", options)
 	end
@@ -438,12 +438,15 @@ class LocationsController < ApplicationController
 				if ip_blacklist == ''
 					ip_blacklist = response.headers['X-ProxyMesh-IP']
 				else
-					puts ip_blacklist
 					ip_blacklist = ip_blacklist << ',' << response.headers['X-ProxyMesh-IP']	
 				end
+					puts response.headers['X-ProxyMesh-IP']
+					puts 'ip blacklist here'
+					puts ip_blacklist
 				#queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
 			end
 		end
+		sleep rand(10..25)/100
 		hydra.queue(next_request)
 
 	end

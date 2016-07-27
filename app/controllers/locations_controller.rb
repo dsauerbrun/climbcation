@@ -402,8 +402,14 @@ class LocationsController < ApplicationController
 	end
 
 	def build_request(origin_airport,destination_airport,year,month,ip_blacklist)
-		user_agent_string = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.' << rand(20..36)
-		options = {proxy: 'http://us-ca.proxymesh.com:31280', proxyuserpwd: ENV['PROXY_USER'] + ':' + ENV['PROXY_PASS'], :headers => { 'User-Agent' => user_agent_string, 'X-ProxyMesh-Not_IP' => ip_blacklist, timeout: 4 }}
+		user_agent_strings = []
+		user_agent_strings << 'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36'
+		user_agent_strings << 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36'
+		user_agent_strings << 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1'
+		user_agent_strings << 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko'
+		user_agent_strings << 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'
+
+		options = {proxy: 'http://us-ca.proxymesh.com:31280', proxyuserpwd: ENV['PROXY_USER'] + ':' + ENV['PROXY_PASS'], :headers => { 'User-Agent' => user_agent_strings[rand(0..4)], 'X-ProxyMesh-Not_IP' => ip_blacklist, timeout: 4 }}
 		return Typhoeus::Request.new("http://www.skyscanner.com/dataservices/browse/v3/mvweb/US/USD/en-US/calendar/#{origin_airport}/#{destination_airport}/#{year}-#{month}/?abvariant=EPS522_ReplaceMonthViewGlobalPartial:a|EPS522_ReplaceMonthViewGlobalPartial_V1:a", options)
 	end
 

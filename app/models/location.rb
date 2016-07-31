@@ -78,13 +78,17 @@ class Location < ActiveRecord::Base
 				end
 			end
 			if counter == month_array.length and previous_month != 0
-				if wrapper_break_month == numerical
-					ranges.push(month_array[previous_month])
-					range_string << ' - ' << month_array[previous_month][0...3]
-					break
+				if !ranges.include?(month_array[previous_month])
+					if wrapper_break_month == numerical
+						ranges.push(month_array[previous_month])
+						range_string << ' - ' << month_array[previous_month][0...3] 
+					else
+						ranges.push(month[previous_month])
+						range_string << ' - ' << month[0...3]
+					end
 				else
 					ranges.push(month)
-					range_string << ' - ' <<month[0...3]
+					range_string << ', ' << month[0...3]
 				end
 			elsif (previous_month !=0 and previous_month+1 != numerical) 
 				#if the previous month already exists in the array dont push it again(will happen if there is a one month window for a location)

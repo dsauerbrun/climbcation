@@ -1,3 +1,5 @@
+require 'net/smtp'
+
 class LocationsController < ApplicationController
 	def show
 		name_param= params[:slug]
@@ -202,9 +204,9 @@ class LocationsController < ApplicationController
 
 		end
 		
-		change_getting_in(params[:location], new_loc.id)
-		change_food_options(params[:location], new_loc.id)
-		change_accommodations(params[:location], new_loc.id)
+		new_loc.change_getting_in(params[:location])
+		new_loc.change_food_options(params[:location])
+		new_loc.change_accommodations(params[:location])
 
 		params[:location]['sections'].each do |section|
 			InfoSection.create_new_info_section(new_loc.id, section)
@@ -214,163 +216,53 @@ class LocationsController < ApplicationController
 		render :json => returnit
 	end
 
+	def notify_admin(edit_type, location_id)
+		message = 'Changing' << edit_type << ' for location id ' << location_id 
+		smtp = Net::SMTP.new 'smtp.gmail.com', 587
+		smtp.enable_starttls
+
+		smtp.start('gmail.com', ENV['EMAIL_USER'], ENV['EMAIL_PASSWORD'], :login) do |smtp|
+			smtp.send_message message, 'no-reply@climbcation.com', ENV['EMAIL_USER']
+		end
+
+	end
+
 	def edit_sections
 		new_id = ''
 		if params[:section]['id'].nil?
 			new_info = InfoSection.create_new_info_section(params[:locationId],params[:section])
 			new_id = new_info.id
 		else
-			section = InfoSection.find(params[:section]['id'])
-			section.title = params[:section]['title']
-			section.body = params[:section]['body']
-			section.save
+			LocationEdit.create!(location_id: params[:locationId], edit_type: 'misc', edit: params[:section])
 		end
+		notify_admin('miss', params[:locationId])
 		returnit = {'new_id' => new_id}
 		render :json => returnit
 	end
 
 	def edit_food_options
-		change_food_options(params[:location], params[:id])
+		notify_admin('food options', params[:id])
+		LocationEdit.create!(location_id: params[:id], edit_type: 'food_options', edit: params[:location])
 		returnit = {'name' => 'hello'}
 		render :json => returnit
 	end
 
-	def change_food_options(details, location_id)
-		@location = Location.find(location_id)
-		new_food_options = details[:foodOptionDetails]
-		existing_food_options = []
-		#remove null food_options
-		new_food_options.delete_if { |k, v| v.nil? }
-		#go through each existing food, remove if not in new and change if cost is different
-		@location.food_option_location_details.each do |food_option|
-			if new_food_options.key?(food_option.food_option.id.to_s)
-				#food exists already
-				if new_food_options[food_option.food_option.id.to_s]['cost'] != food_option.cost
-					food_option.cost = new_food_options[food_option.food_option.id.to_s]['cost']
-					food_option.save
-				end
-			else
-				#food option isnt in the new list so remove
-				@location.food_option_location_details.delete(food_option)
-			end
-			existing_food_options << food_option.food_option.id
-		end
-		#add new food options if they dont exist already
-		new_food_options.each do |key,new_food_option|
-			if !existing_food_options.include? new_food_option[:id].to_i
-				new_food_option_obj = FoodOptionLocationDetail.create!(cost: new_food_option[:cost], food_option: FoodOption.find(new_food_option[:id].to_i))
-				@location.food_option_location_details << new_food_option_obj
-			end
-		end
-		#change common expenses
-		@location.common_expenses_notes = details[:commonExpensesNotes]
-		#change saving money tips
-		@location.saving_money_tips = details[:savingMoneyTips]
-	
-		@location.save
-	end
 
 	def edit_accommodations
-		change_accommodations(params[:location], params[:id])
+		notify_admin('accommodation', params[:id])
+		LocationEdit.create!(location_id: params[:id], edit_type: 'accommodation', edit: params[:location])
 		returnit = {'name' => 'hello'}
 		render :json => returnit
 	end
 
-	def change_accommodations(details, location_id)
-		@location = Location.find(location_id)
-		new_accommodations = details[:accommodations]
-		existing_accommodations = []
-		#remove null accommodations
-		new_accommodations.delete_if { |k, v| v.nil? }
-		#go through each existing accommodation, remove if not in new and change if cost is different
-		@location.accommodation_location_details.each do |accommodation|
-			if new_accommodations.key?(accommodation.accommodation.id.to_s)
-				#accommodation exists already
-				if new_accommodations[accommodation.accommodation.id.to_s]['cost'] != accommodation.cost
-					accommodation.cost = new_accommodations[accommodation.accommodation.id.to_s]['cost']
-					accommodation.save
-				end
-			else
-				#accommodation isnt in the new list so remove
-				@location.accommodation_location_details.delete(accommodation)
-			end
-			existing_accommodations << accommodation.accommodation.id
-		end
-		#add new accommodations if they dont exist already
-		new_accommodations.each do |key,new_accommodation|
-			if !existing_accommodations.include? new_accommodation[:id]
-				new_accommodation_obj = AccommodationLocationDetail.create!(cost: new_accommodation[:cost], accommodation: Accommodation.find(new_accommodation[:id]))
-				@location.accommodation_location_details << new_accommodation_obj
-			end
-		end
-		#change additional tips on staying
-		@location.accommodation_notes = details[:accommodationNotes]
-		#change closest accommodation to crags
-		@location.closest_accommodation = details[:closestAccommodation]
-	
-		@location.save
-	end
 
 	def edit_getting_in
-		change_getting_in(params[:location], params[:id])
+		notify_admin('getting in', params[:id])
+		LocationEdit.create!(location_id: params[:id], edit_type: 'getting_in', edit: params[:location])
 		returnit = {'name' => 'hello'}
 		render :json => returnit
 	end
 
-	def change_getting_in(details, location_id)
-		@location = Location.find(location_id)
-		transportations = details[:transportations]
-		newTransportationIds = []
-		existingTransportationIds = []
-		if !transportations.nil?
-			#clean up transportations array(IE. convert to array of transportationIDs)
-			transportations.each do |key, transportation|
-				if transportation == true
-					newTransportationIds << key	
-				end
-			end
-			#cycle through transportations on location and remove the ones that arent in passed transportations
-			@location.transportations.each do |transportation|
-				if !newTransportationIds.include? transportation.id	
-					@location.transportations.delete(transportation.id)
-				else
-					existingTransportationIds << transportation.id
-				end
-			end
-			#cyclel through passed transportations and add the ones that arent in location
-			newTransportationIds.each do |newTransportation|
-				if !existingTransportationIds.include? newTransportation
-					@location.transportations << Transportation.find(newTransportation)
-				end
-			end
-		end
-		best_transportation = @location.primary_transportation
-		if !details[:bestTransportationCost].nil? or !details[:bestTransportationId].nil?
-			#check if best option is different or non-existent
-			if best_transportation.nil? and !details[:bestTransportationId].nil?
-				details[:bestTransportationCost] ||= -1
-				new_best_transportation = PrimaryTransportation.create!(cost: details[:bestTransportationCost], transportation: Transportation.find(details[:bestTransportationId]))
-				@location.primary_transportation = new_best_transportation
-			else
-				if !details[:bestTransportationId].nil? and best_transportation.transportation.id != details[:bestTransportationId].to_i
-					best_transportation.transportation = Transportation.find(details[:bestTransportationId])
-				end
-				#check if best option cost is different or non-existent
-				if !details[:bestTransportationCost].nil? or best_transportation.cost != details[:bestTransportationCost]
-					best_transportation.cost = details[:bestTransportationCost]
-				end
-				best_transportation.save
-			end	
-		end
-		#replace additional tips
-		@location.getting_in_notes = details[:gettingInNotes]
-		#check if walking distance boolean is different
-		if @location.walking_distance != details[:walkingDistance]
-			@location.walking_distance = details[:walkingDistance]
-		end
-
-		@location.save
-	end
 
 	def process_quote_response(map_to_count, response, year, month)
 		json_parse = JSON.parse(response.body)

@@ -2,7 +2,6 @@ class Location < ActiveRecord::Base
 	has_paper_trail
 	acts_as_mappable :lat_column_name => :latitude,:lng_column_name => :longitude
 
-
 	validates_presence_of :slug
 	belongs_to :grade
 	has_and_belongs_to_many :transportations
@@ -281,6 +280,135 @@ class Location < ActiveRecord::Base
 
 		end
 		return @map_locations
+	end
+
+	def change_accommodations(details)
+		new_accommodations = details['accommodations']
+		existing_accommodations = []
+		#remove null accommodations
+		new_accommodations.delete_if { |k, v| v.nil? }
+		#go through each existing accommodation, remove if not in new and change if cost is different
+		self.accommodation_location_details.each do |accommodation|
+			if new_accommodations.key?(accommodation.accommodation.id.to_s)
+				#accommodation exists already
+				if new_accommodations[accommodation.accommodation.id.to_s]['cost'] != accommodation.cost
+					accommodation.cost = new_accommodations[accommodation.accommodation.id.to_s]['cost']
+					accommodation.save
+				end
+			else
+				#accommodation isnt in the new list so remove
+				self.accommodation_location_details.delete(accommodation)
+			end
+			existing_accommodations << accommodation.accommodation.id
+		end
+		#add new accommodations if they dont exist already
+		new_accommodations.each do |key,new_accommodation|
+			if !existing_accommodations.include? new_accommodation['id']
+				new_accommodation_obj = AccommodationLocationDetail.create!(cost: new_accommodation['cost'], accommodation: Accommodation.find(new_accommodation['id']))
+				self.accommodation_location_details << new_accommodation_obj
+			end
+		end
+		#change additional tips on staying
+		self.accommodation_notes = details['accommodationNotes']
+		#change closest accommodation to crags
+		self.closest_accommodation = details['closestAccommodation']
+	
+		self.save
+	end
+
+	def change_food_options(details)
+		new_food_options = details['foodOptionDetails']
+		existing_food_options = []
+		#remove null food_options
+		new_food_options.delete_if { |k, v| v.nil? }
+		#go through each existing food, remove if not in new and change if cost is different
+		self.food_option_location_details.each do |food_option|
+			if new_food_options.key?(food_option.food_option.id.to_s)
+				#food exists already
+				if new_food_options[food_option.food_option.id.to_s]['cost'] != food_option.cost
+					food_option.cost = new_food_options[food_option.food_option.id.to_s]['cost']
+					food_option.save
+				end
+			else
+				#food option isnt in the new list so remove
+				self.food_option_location_details.delete(food_option)
+			end
+			existing_food_options << food_option.food_option.id
+		end
+		#add new food options if they dont exist already
+		new_food_options.each do |key,new_food_option|
+			if !existing_food_options.include? new_food_option['id'].to_i
+				new_food_option_obj = FoodOptionLocationDetail.create!(cost: new_food_option['cost'], food_option: FoodOption.find(new_food_option['id'].to_i))
+				self.food_option_location_details << new_food_option_obj
+			end
+		end
+		#change common expenses
+		self.common_expenses_notes = details['commonExpensesNotes']
+		#change saving money tips
+		self.saving_money_tips = details['savingMoneyTips']
+	
+		self.save
+	end
+
+	def change_getting_in(details)
+		transportations = details['transportations']
+		newTransportationIds = []
+		existingTransportationIds = []
+		if !transportations.nil?
+			#clean up transportations array(IE. convert to array of transportationIDs)
+			transportations.each do |key, transportation|
+				if transportation == true
+					newTransportationIds << key	
+				end
+			end
+			#cycle through transportations on location and remove the ones that arent in passed transportations
+			self.transportations.each do |transportation|
+				if !newTransportationIds.include? transportation.id	
+					self.transportations.delete(transportation.id)
+				else
+					existingTransportationIds << transportation.id
+				end
+			end
+			#cyclel through passed transportations and add the ones that arent in location
+			newTransportationIds.each do |newTransportation|
+				if !existingTransportationIds.include? newTransportation
+					self.transportations << Transportation.find(newTransportation)
+				end
+			end
+		end
+		best_transportation = self.primary_transportation
+		if !details['bestTransportationCost'].nil? or !details['bestTransportationId'].nil?
+			#check if best option is different or non-existent
+			if best_transportation.nil? and !details['bestTransportationId'].nil?
+				details['bestTransportationCost'] ||= -1
+				new_best_transportation = PrimaryTransportation.create!(cost: details['bestTransportationCost'], transportation: Transportation.find(details['bestTransportationId']))
+				self.primary_transportation = new_best_transportation
+			else
+				if !details['bestTransportationId'].nil? and best_transportation.transportation.id != details['bestTransportationId'].to_i
+					best_transportation.transportation = Transportation.find(details['bestTransportationId'])
+				end
+				#check if best option cost is different or non-existent
+				if !details['bestTransportationCost'].nil? or best_transportation.cost != details['bestTransportationCost']
+					best_transportation.cost = details['bestTransportationCost']
+				end
+				best_transportation.save
+			end	
+		end
+		#replace additional tips
+		self.getting_in_notes = details['gettingInNotes']
+		#check if walking distance boolean is different
+		if self.walking_distance != details['walkingDistance']
+			self.walking_distance = details['walkingDistance']
+		end
+
+		self.save
+	end
+
+	def change_sections(details)
+		section = InfoSection.find(details['id'])
+		section.title = details['title']
+		section.body = details['body']
+		section.save
 	end
 
 end

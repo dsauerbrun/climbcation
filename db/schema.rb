@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160407032116) do
+ActiveRecord::Schema.define(version: 20160821184829) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -102,6 +102,17 @@ ActiveRecord::Schema.define(version: 20160407032116) do
   end
 
   add_index "info_sections", ["location_id"], name: "index_info_sections_on_location_id", using: :btree
+
+  create_table "location_edits", force: true do |t|
+    t.integer  "location_id"
+    t.string   "edit_type"
+    t.json     "edit"
+    t.boolean  "approved",    default: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "location_edits", ["location_id"], name: "index_location_edits_on_location_id", using: :btree
 
   create_table "locations", force: true do |t|
     t.string   "continent"

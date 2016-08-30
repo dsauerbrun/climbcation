@@ -266,20 +266,21 @@ class Location < ActiveRecord::Base
 	end
 	
 	def get_nearby_locations_json
-		@close_locations = self.get_locations_within_miles(300)
-		@map_locations = {}
-		@close_locations.each do |location|
-			@map_locations[location.id] = {}
-			@map_locations[location.id]['lat'] = location.latitude
-			@map_locations[location.id]['lng'] = location.longitude
-			@map_locations[location.id]['slug'] = location.slug
-			@map_locations[location.id]['name'] = location.name
-			@map_locations[location.id]['country'] = location.country
-			@map_locations[location.id]['distance'] = self.distance_to(location).to_i
-			@map_locations[location.id]['climbing_types'] = location.get_climbing_types
-
+		close_locations = self.get_locations_within_miles(300)
+		map_locations = []
+		close_locations.each do |location|
+			tmp_location = {}
+			tmp_location['lat'] = location.latitude
+			tmp_location['lng'] = location.longitude
+			tmp_location['slug'] = location.slug
+			tmp_location['name'] = location.name
+			tmp_location['country'] = location.country
+			tmp_location['distance'] = self.distance_to(location).to_i
+			tmp_location['climbing_types'] = location.get_climbing_types
+			map_locations << tmp_location
 		end
-		return @map_locations
+		map_locations.sort_by! { |location| location['distance'] }
+		return map_locations
 	end
 
 	def change_accommodations(details)

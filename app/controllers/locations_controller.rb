@@ -235,7 +235,7 @@ class LocationsController < ApplicationController
 		else
 			LocationEdit.create!(location_id: params[:locationId], edit_type: 'misc', edit: params[:section])
 		end
-		notify_admin('miss', params[:locationId])
+		notify_admin('misc', params[:locationId])
 		returnit = {'new_id' => new_id}
 		render :json => returnit
 	end

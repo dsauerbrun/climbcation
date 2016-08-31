@@ -168,10 +168,9 @@ class LocationsController < ApplicationController
 				if !location.airport_code.eql?(origin)
 					quotes[key_val] = {}
 					#request multithreads
-					queue_request(origin,location.airport_code,hydra,quotes,key_val,curr_year,curr_month,'')
+					queue_request(origin,location.airport_code,hydra,quotes,key_val,curr_year,curr_month)
 					#request for next month
-					sleep rand(5..10)/100
-					queue_request(origin,location.airport_code,hydra,quotes,key_val,next_year,next_month,'')
+					queue_request(origin,location.airport_code,hydra,quotes,key_val,next_year,next_month)
 					#end request multithreading
 					hydra.run
 				end
@@ -265,7 +264,7 @@ class LocationsController < ApplicationController
 
 
 	def process_quote_response(map_to_count, response, year, month)
-		json_parse = JSON.parse(response.body)
+		json_parse = JSON.parse(response.body) if response.body.is_a?(String)
 		dates = {}
 		counter = 0
 		#count the number of dates we already have so we can start the counter properly
@@ -276,15 +275,15 @@ class LocationsController < ApplicationController
 		end
 		if json_parse.has_key? 'Quotes'
 			json_parse["Quotes"].each do |quote| 
-				quote_date = Date.parse(quote['Outbound_DepartureDate'])
+				quote_date = Date.parse(quote['OutboundLeg']['DepartureDate'])
 				if(counter > 30)
 					break
 				end
 				#since we are caching requests we need to check to see if the date we are tracking is old
 				if(quote_date >= Date.today)
 					#if price already exists or new price is lower than existing price
-					if(!dates.has_key? quote_date.day or (dates.has_key? quote_date.day and dates[quote_date.day] > quote["Price"].to_i))
-						dates[quote_date.day] = quote["Price"].to_i
+					if(!dates.has_key? quote_date.day or (dates.has_key? quote_date.day and dates[quote_date.day] > quote["MinPrice"].to_i))
+						dates[quote_date.day] = quote["MinPrice"].to_i
 						counter += 1
 					end
 				end
@@ -293,7 +292,7 @@ class LocationsController < ApplicationController
 		return dates
 	end
 
-	def build_request(origin_airport,destination_airport,year,month,ip_blacklist)
+	def build_request(origin_airport,destination_airport,year,month)
 		user_agent_strings = []
 		user_agent_strings << 'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36'
 		user_agent_strings << 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36'
@@ -301,51 +300,27 @@ class LocationsController < ApplicationController
 		user_agent_strings << 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko'
 		user_agent_strings << 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'
 
-		options = {proxy: 'http://us-ca.proxymesh.com:31280', proxyuserpwd: ENV['PROXY_USER'] + ':' + ENV['PROXY_PASS'], :headers => { 'User-Agent' => user_agent_strings[rand(0..4)], 'X-ProxyMesh-Not_IP' => ip_blacklist, timeout: 4 }}
-		return Typhoeus::Request.new("http://www.skyscanner.com/dataservices/browse/v3/mvweb/US/USD/en-US/calendar/#{origin_airport}/#{destination_airport}/#{year}-#{month}/?abvariant=EPS522_ReplaceMonthViewGlobalPartial:a|EPS522_ReplaceMonthViewGlobalPartial_V1:a", options)
+		options = {:headers => { 'Accept' => 'application/json'}}
+		return Typhoeus::Request.new("http://partners.api.skyscanner.net/apiservices/browsequotes/v1.0/US/USD/EN-US/#{origin_airport}/#{destination_airport}/#{year}-#{month}?apiKey=#{ENV['SKYSCANNER_API']}", options)
 	end
 
-	def queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
-		next_request = build_request(origin_airport,destination_airport,year,month,ip_blacklist)
+	def queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month)
+		next_request = build_request(origin_airport,destination_airport,year,month)
 		next_request.on_complete do |response|
 			if response.success?
 				if valid_json?(response.body)
 					quotes[key_val][month] = process_quote_response(quotes[key_val],response,year,month)
 				else
-					if ip_blacklist == ''
-						ip_blacklist = response.headers['X-ProxyMesh-IP']
-					else
-						ip_blacklist = ip_blacklist << ',' << response.headers['X-ProxyMesh-IP']	
-					end
-					queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
+					queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month)
 				end
 			elsif response.timed_out?
-				puts("got a timeout for #{location.airport_code} #{month} month")
-				#queue_request(request,hydra,quotes,key_val,year,month)
-				if ip_blacklist == ''
-					ip_blacklist = response.headers['X-ProxyMesh-IP']
-				else
-					ip_blacklist = ip_blacklist<< ',' << response.headers['X-ProxyMesh-IP']	
-				end
-				queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
+				queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month)
 			elsif response.code == 0
-				puts(response.return_message)
-				#queue_request(request,hydra,quotes,key_val,year,month)
 			else
 				puts("HTTP request failed for #{origin_airport} #{month} month: " + response.code.to_s)
 				puts response.body
-				if ip_blacklist == ''
-					ip_blacklist = response.headers['X-ProxyMesh-IP']
-				else
-					ip_blacklist = ip_blacklist << ',' << response.headers['X-ProxyMesh-IP']	
-				end
-					puts response.headers['X-ProxyMesh-IP']
-					puts 'ip blacklist here'
-					puts ip_blacklist
-				#queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month,ip_blacklist)
 			end
 		end
-		sleep rand(5..10)/100
 		hydra.queue(next_request)
 
 	end

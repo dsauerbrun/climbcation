@@ -167,10 +167,15 @@ class LocationsController < ApplicationController
 				key_val = "#{location.airport_code}-#{location.slug}-#{location.id}"
 				if !location.airport_code.eql?(origin)
 					quotes[key_val] = {}
+					quotes[key_val]['slug'] = location.slug
+					quotes[key_val]['airport_code'] = location.airport_code
+					quotes[key_val]['id'] = location.id
+
+					quotes[key_val]['quotes'] = {}
 					#request multithreads
-					queue_request(origin,location.airport_code,hydra,quotes,key_val,curr_year,curr_month)
+					queue_request(origin,location.airport_code,hydra,quotes[key_val]['quotes'],curr_year,curr_month)
 					#request for next month
-					queue_request(origin,location.airport_code,hydra,quotes,key_val,next_year,next_month)
+					queue_request(origin,location.airport_code,hydra,quotes[key_val]['quotes'],next_year,next_month)
 					#end request multithreading
 					hydra.run
 					quotes[key_val]['referral'] = "http://partners.api.skyscanner.net/apiservices/referral/v1.0/US/USD/EN-US/#{origin}/#{location.airport_code}/#{curr_year}-#{curr_month}?apiKey=#{ENV['SKYSCANNER_API']}"
@@ -298,17 +303,17 @@ class LocationsController < ApplicationController
 		return Typhoeus::Request.new("http://partners.api.skyscanner.net/apiservices/browsequotes/v1.0/US/USD/EN-US/#{origin_airport}/#{destination_airport}/#{year}-#{month}?apiKey=#{ENV['SKYSCANNER_API']}", options)
 	end
 
-	def queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month)
+	def queue_request(origin_airport,destination_airport,hydra,quotes,year,month)
 		next_request = build_request(origin_airport,destination_airport,year,month)
 		next_request.on_complete do |response|
 			if response.success?
 				if valid_json?(response.body)
-					quotes[key_val][month] = process_quote_response(quotes[key_val],response,year,month)
+					quotes[month] = process_quote_response(quotes,response,year,month)
 				else
-					queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month)
+					queue_request(origin_airport,destination_airport,hydra,quotes,year,month)
 				end
 			elsif response.timed_out?
-				queue_request(origin_airport,destination_airport,hydra,quotes,key_val,year,month)
+				queue_request(origin_airport,destination_airport,hydra,quotes,year,month)
 			elsif response.code == 0
 			else
 				puts("HTTP request failed for #{origin_airport} #{month} month: " + response.code.to_s)

@@ -168,6 +168,7 @@ class LocationsController < ApplicationController
 				if !location.airport_code.eql?(origin)
 					quotes[key_val] = {}
 					quotes[key_val]['slug'] = location.slug
+					quotes[key_val]['origin_airport'] = origin
 					quotes[key_val]['airport_code'] = location.airport_code
 					quotes[key_val]['id'] = location.id
 

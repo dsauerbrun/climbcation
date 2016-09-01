@@ -178,10 +178,10 @@ class LocationsController < ApplicationController
 					#request for next month
 					queue_request(origin,location.airport_code,hydra,quotes[key_val]['quotes'],next_year,next_month)
 					#end request multithreading
-					hydra.run
 					quotes[key_val]['referral'] = "http://partners.api.skyscanner.net/apiservices/referral/v1.0/US/USD/EN-US/#{origin}/#{location.airport_code}/#{curr_year}-#{curr_month}?apiKey=#{ENV['SKYSCANNER_API']}"
 				end
 			end
+			hydra.run
 		end
 		render :json => quotes
 	end

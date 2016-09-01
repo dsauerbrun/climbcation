@@ -294,13 +294,6 @@ class LocationsController < ApplicationController
 	end
 
 	def build_request(origin_airport,destination_airport,year,month)
-		user_agent_strings = []
-		user_agent_strings << 'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36'
-		user_agent_strings << 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36'
-		user_agent_strings << 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1'
-		user_agent_strings << 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko'
-		user_agent_strings << 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'
-
 		options = {:headers => { 'Accept' => 'application/json'}}
 		return Typhoeus::Request.new("http://partners.api.skyscanner.net/apiservices/browsequotes/v1.0/US/USD/EN-US/#{origin_airport}/#{destination_airport}/#{year}-#{month}?apiKey=#{ENV['SKYSCANNER_API']}", options)
 	end
@@ -323,7 +316,6 @@ class LocationsController < ApplicationController
 			end
 		end
 		hydra.queue(next_request)
-
 	end
 
 	class SkyscannerCache
@@ -332,7 +324,7 @@ class LocationsController < ApplicationController
 		end
 
 		def set(request,response)
-			Rails.cache.write(request,response)
+			Rails.cache.write(request,response, expires_in: 24.hours)
 		end
 	end
 

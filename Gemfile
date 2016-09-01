@@ -38,6 +38,7 @@ gem 'spring',        group: :development
 # gem 'debugger', group: [:development, :test]
 
 gem "paperclip", "~> 4.2"
+gem 'puma'
 gem 'pg'
 gem 'rails_admin'
 gem 'money-rails'

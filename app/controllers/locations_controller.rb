@@ -223,14 +223,17 @@ class LocationsController < ApplicationController
 	end
 
 	def notify_admin(edit_type, location_id)
-		message = 'Changing' << edit_type << ' for location id ' << location_id 
-		smtp = Net::SMTP.new 'smtp.gmail.com', 587
-		smtp.enable_starttls
+		begin
+			message = 'Changing' << edit_type << ' for location id ' << location_id 
+			smtp = Net::SMTP.new 'smtp.gmail.com', 587
+			smtp.enable_starttls
 
-		smtp.start('gmail.com', ENV['EMAIL_USER'], ENV['EMAIL_PASSWORD'], :login) do |smtp|
-			smtp.send_message message, 'no-reply@climbcation.com', ENV['EMAIL_USER']
+			smtp.start('gmail.com', ENV['EMAIL_USER'], ENV['EMAIL_PASSWORD'], :plain) do |smtp|
+				smtp.send_message message, 'no-reply@climbcation.com', ENV['EMAIL_USER']
+			end
+		rescue => exception
+			print exception.backtrace
 		end
-
 	end
 
 	def edit_sections
@@ -247,24 +250,24 @@ class LocationsController < ApplicationController
 	end
 
 	def edit_food_options
-		notify_admin('food options', params[:id])
 		LocationEdit.create!(location_id: params[:id], edit_type: 'food_options', edit: params[:location])
+		notify_admin('food options', params[:id])
 		returnit = {'name' => 'hello'}
 		render :json => returnit
 	end
 
 
 	def edit_accommodations
-		notify_admin('accommodation', params[:id])
 		LocationEdit.create!(location_id: params[:id], edit_type: 'accommodation', edit: params[:location])
+		notify_admin('accommodation', params[:id])
 		returnit = {'name' => 'hello'}
 		render :json => returnit
 	end
 
 
 	def edit_getting_in
-		notify_admin('getting in', params[:id])
 		LocationEdit.create!(location_id: params[:id], edit_type: 'getting_in', edit: params[:location])
+		notify_admin('getting in', params[:id])
 		returnit = {'name' => 'hello'}
 		render :json => returnit
 	end

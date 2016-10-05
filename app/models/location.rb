@@ -1,9 +1,10 @@
 class Location < ActiveRecord::Base
 	has_paper_trail
 	acts_as_mappable :lat_column_name => :latitude,:lng_column_name => :longitude
+	belongs_to :grade
 
 	validates_presence_of :slug
-	belongs_to :grade
+	has_and_belongs_to_many :grades
 	has_and_belongs_to_many :transportations
 	has_and_belongs_to_many :climbing_types
 	has_and_belongs_to_many :seasons
@@ -219,7 +220,7 @@ class Location < ActiveRecord::Base
 		json_return[:price_range_ceiling_cents] = self.price_range_ceiling_cents
 		json_return[:home_thumb] = self.home_thumb.url
 		json_return[:climbing_types] = self.get_climbing_types
-		json_return[:grade] = self.grade.html_attributes['grade'] 
+		json_return[:grades] = self.grades.collect { |grade| grade.html_attributes }
 		json_return[:airport_code] = self.airport_code
 		json_return[:date_range] = self.date_range
 		json_return[:id] = self.id
@@ -243,7 +244,7 @@ class Location < ActiveRecord::Base
 		json_return[:home_thumb] = self.home_thumb.url
 		json_return[:seasons] = self.get_seasons
 		json_return[:climbing_types] = self.get_climbing_types
-		json_return[:grade] = self.grade.html_attributes['grade'] 
+		json_return[:grades] = self.grades.collect {|grade| grade.html_attributes }
 		json_return[:airport_code] = self.airport_code
 		json_return[:date_range] = self.date_range
 		json_return[:submitter_email] = self.submitter_email

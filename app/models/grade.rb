@@ -6,7 +6,11 @@ class Grade < ActiveRecord::Base
 		attr_map['type'] = self.climbing_type.html_attributes
 		attr_map['grade'] = self.us
 		if !self.french.nil?
-			attr_map['grade'] = attr_map['grade'] + '|' + self.french
+			if self.climbing_type.name == 'Ice'
+				attr_map['grade'] = attr_map['grade']
+			else
+				attr_map['grade'] = attr_map['grade'] + '|' + self.french
+			end
 		end
 		if !self.uiaa.nil?
 			#attr_map['grade'] = attr_map['grade'] + '|' + self.uiaa

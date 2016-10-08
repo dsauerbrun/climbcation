@@ -9,10 +9,16 @@ class GenerateNewGradesAndAddTypes < ActiveRecord::Migration
 	  sport = types.find { |type| type.name == 'Sport' }
 
 		v_grades = Grade.where('us ILIKE \'%V%\'')
-		v_grades.each {|grade| grade.climbing_type = bouldering}
+		v_grades.each do |grade| 
+			grade.climbing_type = bouldering
+			grade.save
+		end
 		
 		yos_grades = Grade.where('us ILIKE \'5%\'')
-		yos_grades.each {|grade| grade.climbing_type = sport}
+		yos_grades.each do |grade|
+			grade.climbing_type = sport
+			grade.save
+		end
 
 
 		#add ice, dws, alpine, and trad grades

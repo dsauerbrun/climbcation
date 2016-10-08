@@ -80,9 +80,8 @@ class LocationsController < ApplicationController
 			price_filter = 99999 
 		end
 		
-		location_filter = Location.select('locations.*, grades.order')
+		location_filter = Location.select('locations.*')
 			.where(active: true).in_bounds([@swBounds, @neBounds])
-			.joins(:grade)
 			.joins(:seasons).where('seasons.numerical_value IN (?)', month_filter)
 			.joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter)
 			.joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"')
@@ -197,8 +196,10 @@ class LocationsController < ApplicationController
 	def new_location
 		params[:location] = JSON.parse(params[:location]) if params[:location].is_a?(String)
 		new_loc = Location.create!(name: params[:location]['name'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
-		new_loc.grade = Grade.find(params[:location]['grade'])
-		params[:location]['climbingTypes'].each do |id,selected|
+		params[:location]['grade'].each do |gradeId|
+			new_loc.grades << Grade.find(gradeId)
+		end
+		params[:location]['climbingTypes'].each do |id, selected|
 			if selected == true
 				new_loc.climbing_types << ClimbingType.find(id)
 			end

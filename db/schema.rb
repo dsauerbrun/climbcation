@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160821184829) do
+ActiveRecord::Schema.define(version: 20161004152347) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -92,7 +92,18 @@ ActiveRecord::Schema.define(version: 20160821184829) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "order"
+    t.integer  "climbing_type_id"
   end
+
+  add_index "grades", ["climbing_type_id"], name: "index_grades_on_climbing_type_id", using: :btree
+
+  create_table "grades_locations", id: false, force: true do |t|
+    t.integer "location_id"
+    t.integer "grade_id"
+  end
+
+  add_index "grades_locations", ["grade_id"], name: "index_grades_locations_on_grade_id", using: :btree
+  add_index "grades_locations", ["location_id"], name: "index_grades_locations_on_location_id", using: :btree
 
   create_table "info_sections", force: true do |t|
     t.string  "title"

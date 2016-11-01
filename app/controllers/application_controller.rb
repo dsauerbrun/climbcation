@@ -40,10 +40,17 @@ class ApplicationController < ActionController::Base
 		@accommodations = Accommodation.all
 		@locations = Location.where(active: true).order('name ASC').all
 		@continents = @locations.pluck(:continent).uniq
+    @grades = Grade.all
 		filters = {}
 		filters['climbTypes'] = {}
 		filters['accommodations'] = {}
 		filters['continents'] = []	
+    filters['grades'] = []
+
+    @grades.each do |grade|
+      gradeObj = grade.html_attributes
+      filters['grades'] << gradeObj
+    end
 		@climbtypes.each do |type|
 			filters['climbTypes'][type.name] = type.icon 
 		end

@@ -79,10 +79,13 @@ class LocationsController < ApplicationController
 		else
 			price_filter = 99999 
 		end
-		
+
+    grade_filter = [15,16,17,19]
+    climbing_type_grade_filter = [4]
 		location_filter = Location.select('locations.*')
 			.where(active: true).in_bounds([@swBounds, @neBounds])
 			.joins(:seasons).where('seasons.numerical_value IN (?)', month_filter)
+      .joins(:grades).where('grades.id IN (?) OR NOT EXISTS (SELECT 1 FROM grades_locations as t1 inner join grades as t2 on t2.id = t1.grade_id WHERE locations.id = t1.location_id and t2.climbing_type_id in (?))',grade_filter, climbing_type_grade_filter)
 			.joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter)
 			.joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"')
 			.where('lower("info_sections"."body") LIKE lower(?) OR lower("locations"."name") LIKE lower(?) OR lower("locations"."country") LIKE lower(?) OR lower("locations"."continent") LIKE lower(?) OR lower("locations"."getting_in_notes") LIKE lower(?) OR lower("locations"."accommodation_notes") LIKE lower(?) OR lower("locations"."common_expenses_notes") LIKE lower(?) OR lower("locations"."saving_money_tips") LIKE lower(?)',string_filter,string_filter,string_filter,string_filter,string_filter,string_filter, string_filter, string_filter)

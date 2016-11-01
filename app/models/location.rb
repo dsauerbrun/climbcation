@@ -220,7 +220,7 @@ class Location < ActiveRecord::Base
 		json_return[:price_range_ceiling_cents] = self.price_range_ceiling_cents
 		json_return[:home_thumb] = self.home_thumb.url
 		json_return[:climbing_types] = self.get_climbing_types
-		json_return[:grades] = self.grades.collect { |grade| grade.html_attributes }
+		#json_return[:grades] = self.grades.collect { |grade| grade.html_attributes }
 		json_return[:airport_code] = self.airport_code
 		json_return[:date_range] = self.date_range
 		json_return[:id] = self.id

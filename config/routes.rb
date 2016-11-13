@@ -82,6 +82,7 @@ Rails.application.routes.draw do
 	get 'api/foodoptions/all', to: 'constant_data#get_all_food_options'
 	get 'api/transportations/all', to: 'constant_data#get_all_transportations'
   get 'api/airports', to: 'external_services#airports'
+  get 'api/airportsapikey', to: 'constant_data#get_airports_api'
 
 	get "/*path" => redirect("/?goto=%{path}")
 end

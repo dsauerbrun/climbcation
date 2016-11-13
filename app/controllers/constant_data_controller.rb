@@ -1,4 +1,9 @@
 class ConstantDataController < ApplicationController
+  
+  def get_airports_api
+    render :text => ENV['AIRPORT_CODES_API']
+  end
+
 	def get_all_accommodations
 		@accommodations = Accommodation.all
 		accommodation_list =[] 

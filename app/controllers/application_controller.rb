@@ -61,7 +61,7 @@ class ApplicationController < ActionController::Base
         filters['grades'][grade.climbing_type.name][:grades] = []
         filters['grades'][grade.climbing_type.name][:type] = grade.climbing_type.html_attributes
       end
-      filters['grades'][grade.climbing_type.name][:grades] << grade.html_attributes
+      filters['grades'][grade.climbing_type.name][:grades] << {id: grade.id, grade: grade.combine_grade}
 		end
 		render :json => filters 
 	end

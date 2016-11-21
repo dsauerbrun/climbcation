@@ -39,18 +39,15 @@ class ApplicationController < ActionController::Base
 		@climbtypes = ClimbingType.all
 		@accommodations = Accommodation.all
 		@locations = Location.where(active: true).order('name ASC').all
+    @grades = Grade.all
 		@continents = @locations.pluck(:continent).uniq
     @grades = Grade.all
 		filters = {}
 		filters['climbTypes'] = {}
 		filters['accommodations'] = {}
 		filters['continents'] = []	
-    filters['grades'] = []
+    filters['grades'] = {}
 
-    @grades.each do |grade|
-      gradeObj = grade.html_attributes
-      filters['grades'] << gradeObj
-    end
 		@climbtypes.each do |type|
 			filters['climbTypes'][type.name] = type.icon 
 		end
@@ -59,6 +56,14 @@ class ApplicationController < ActionController::Base
 		end
 		@accommodations.each do |accommodation|
 			filters['accommodations'][accommodation.name] = accommodation.id
+		end
+		@grades.each do |grade|
+      if !filters['grades'].key?(grade.climbing_type.name)
+        filters['grades'][grade.climbing_type.name] = {}
+        filters['grades'][grade.climbing_type.name][:grades] = []
+        filters['grades'][grade.climbing_type.name][:type] = grade.climbing_type.html_attributes
+      end
+      filters['grades'][grade.climbing_type.name][:grades] << {id: grade.id, grade: grade.combine_grade}
 		end
 		render :json => filters 
 	end

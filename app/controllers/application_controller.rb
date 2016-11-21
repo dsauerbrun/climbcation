@@ -38,21 +38,14 @@ class ApplicationController < ActionController::Base
 	def filters
 		@climbtypes = ClimbingType.all
 		@accommodations = Accommodation.all
-		@locations = Location.where(active: true).order('name ASC').all
-    @grades = Grade.all
-		@continents = @locations.pluck(:continent).uniq
-    @grades = Grade.all
+    @grades = Grade.all.order('"order" ASC')
 		filters = {}
 		filters['climbTypes'] = {}
 		filters['accommodations'] = {}
-		filters['continents'] = []	
     filters['grades'] = {}
 
 		@climbtypes.each do |type|
 			filters['climbTypes'][type.name] = type.icon 
-		end
-		@continents.each do |continent|
-			filters['continents'] << continent 
 		end
 		@accommodations.each do |accommodation|
 			filters['accommodations'][accommodation.name] = accommodation.id

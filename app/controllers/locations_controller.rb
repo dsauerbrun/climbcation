@@ -80,8 +80,13 @@ class LocationsController < ApplicationController
 			price_filter = 99999 
 		end
 
-    grade_filter = [15,16,17,19]
-    climbing_type_grade_filter = [4]
+    grade_filter = []
+    climbing_type_grade_filter = []
+    params[:filter][:grades].each do |typeId, grades|
+      climbing_type_grade_filter << typeId
+      grades.each {|grade| grade_filter << grade}
+    end
+
 		location_filter = Location.select('locations.*')
 			.where(active: true).in_bounds([@swBounds, @neBounds])
 			.joins(:seasons).where('seasons.numerical_value IN (?)', month_filter)

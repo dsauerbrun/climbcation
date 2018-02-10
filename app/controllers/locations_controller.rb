@@ -259,7 +259,13 @@ class LocationsController < ApplicationController
 	end
 
 	def edit_food_options
-		LocationEdit.create!(location_id: params[:id], edit_type: 'food_options', edit: params[:location])
+    locationObj = params[:location]
+    editObject = {
+      foodOptionDetails: locationObj[:foodOptionDetails],
+      commonExpensesNotes: locationObj[:commonExpensesNotes],
+      savingMoneyTips: locationObj[:savingMoneyTips]
+    }
+		LocationEdit.create!(location_id: params[:id], edit_type: 'food_options', edit: locationObj)
 		notify_admin('food options', params[:id])
 		returnit = {'name' => 'hello'}
 		render :json => returnit
@@ -267,7 +273,13 @@ class LocationsController < ApplicationController
 
 
 	def edit_accommodations
-		LocationEdit.create!(location_id: params[:id], edit_type: 'accommodation', edit: params[:location])
+    locationObj = params[:location]
+    editObject = {
+      accommodations: locationObj[:accommodations],
+      accommodationNotes: locationObj[:accommodationNotes],
+      closestAccommodation: locationObj[:closestAccommodation]
+    }
+		LocationEdit.create!(location_id: params[:id], edit_type: 'accommodation', edit: locationObj)
 		notify_admin('accommodation', params[:id])
 		returnit = {'name' => 'hello'}
 		render :json => returnit
@@ -275,7 +287,15 @@ class LocationsController < ApplicationController
 
 
 	def edit_getting_in
-		LocationEdit.create!(location_id: params[:id], edit_type: 'getting_in', edit: params[:location])
+    locationObj = params[:location]
+    editObject = {
+      transportations: locationObj[:transportations],
+      bestTransportationCost: locationObj[:bestTransportationCost],
+      bestTransportationId: locationObj[:bestTransportationId],
+      gettingInNotes: locationObj[:gettingInNotes],
+      walkingDistance: locationObj[:walkingDistance]
+    }
+		LocationEdit.create!(location_id: params[:id], edit_type: 'getting_in', edit: editObject)
 		notify_admin('getting in', params[:id])
 		returnit = {'name' => 'hello'}
 		render :json => returnit

@@ -1,2 +1,7 @@
 the backend for climbcation. API calls are consumed by climbcation-front.
 
+need to install RVM and use rvm 2.0.0
+you'll eventually run into a libv8 install error when running bundle install at which point you'll need to 'brew install v8' and 'gem install libv8 -v '<version>' -- --with-system-v8'
+
+once you have v8 installed you'll get another error when bundle installing, install rubyracer with: gem install therubyracer -- --with-v8-dir=/usr/local/opt/v8
+

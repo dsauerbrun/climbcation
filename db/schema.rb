@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161004152347) do
+ActiveRecord::Schema.define(version: 20180210163500) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -152,6 +152,7 @@ ActiveRecord::Schema.define(version: 20161004152347) do
     t.text     "accommodation_notes"
     t.text     "common_expenses_notes"
     t.text     "saving_money_tips"
+    t.integer  "rating",                       default: 3
   end
 
   add_index "locations", ["grade_id"], name: "index_locations_on_grade_id", using: :btree

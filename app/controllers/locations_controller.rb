@@ -79,6 +79,9 @@ class LocationsController < ApplicationController
 		else
 			price_filter = 99999 
 		end
+    if (params[:filter][:rating])
+      rating_filter = params[:filter][:rating]
+    end
 
     grade_filter = []
     climbing_type_grade_filter = []
@@ -128,6 +131,10 @@ class LocationsController < ApplicationController
 		if !accommodation_filter.nil?
 			location_filter = location_filter.joins(:accommodation_location_details).where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)
 		end
+
+    if !rating_filter.nil?
+      location_filter = location_filter.where('rating <= ?', rating_filter)
+    end
 
 		locations_return = {}
 		locations_return[:unpaginated] = []
@@ -203,7 +210,7 @@ class LocationsController < ApplicationController
 
 	def new_location
 		params[:location] = JSON.parse(params[:location]) if params[:location].is_a?(String)
-		new_loc = Location.create!(name: params[:location]['name'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
+		new_loc = Location.create!(name: params[:location]['name'], rating: params[:location]['rating'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
 		params[:location]['grade'].each do |gradeId|
 			new_loc.grades << Grade.find(gradeId)
 		end

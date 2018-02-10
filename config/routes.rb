@@ -76,11 +76,15 @@ Rails.application.routes.draw do
 	post 'api/locations/:id/sections', to: 'locations#edit_sections'
 	post 'api/locations/:id/email', to: 'locations#change_location_email'
 	get 'api/location/name/all', to: 'locations#location_names'
+
+
 	post 'api/infosection/:id', to: 'info_sections#update_info_section'
 	post 'api/infosection/', to: 'info_sections#update_info_section'
+
 	get 'api/accommodations/all', to: 'constant_data#get_all_accommodations'
 	get 'api/foodoptions/all', to: 'constant_data#get_all_food_options'
 	get 'api/transportations/all', to: 'constant_data#get_all_transportations'
+
   get 'api/airports', to: 'external_services#airports'
   get 'api/airportsapikey', to: 'constant_data#get_airports_api'
 

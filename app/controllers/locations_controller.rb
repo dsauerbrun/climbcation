@@ -272,7 +272,7 @@ class LocationsController < ApplicationController
       commonExpensesNotes: locationObj[:commonExpensesNotes],
       savingMoneyTips: locationObj[:savingMoneyTips]
     }
-		LocationEdit.create!(location_id: params[:id], edit_type: 'food_options', edit: locationObj)
+		LocationEdit.create!(location_id: params[:id], edit_type: 'food_options', edit: editObject)
 		notify_admin('food options', params[:id])
 		returnit = {'name' => 'hello'}
 		render :json => returnit
@@ -286,7 +286,7 @@ class LocationsController < ApplicationController
       accommodationNotes: locationObj[:accommodationNotes],
       closestAccommodation: locationObj[:closestAccommodation]
     }
-		LocationEdit.create!(location_id: params[:id], edit_type: 'accommodation', edit: locationObj)
+		LocationEdit.create!(location_id: params[:id], edit_type: 'accommodation', edit: editObject)
 		notify_admin('accommodation', params[:id])
 		returnit = {'name' => 'hello'}
 		render :json => returnit

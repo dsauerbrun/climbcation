@@ -20,7 +20,7 @@ class Grade < ActiveRecord::Base
   end
 
 	def custom_label_method
-		"#{self.us} - #{self.climbing_type.name}"
+    "#{self.us} - #{self.climbing_type && self.climbing_type.name}"
 	end
 	rails_admin do
 		object_label_method do

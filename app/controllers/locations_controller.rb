@@ -339,7 +339,7 @@ class LocationsController < ApplicationController
 	end
 
 	def build_request(origin_airport,destination_airport,year,month)
-		options = {:headers => { 'Accept' => 'application/json', 'X-Mashape-Key' => "#{ENV['SKYSCANNER_API']", 'X-MAshape-Host' => 'skyscanner-skyscanner-flight-search-v1.p.mashape.com'}}
+		options = {:headers => { 'Accept' => 'application/json', 'X-Mashape-Key' => ENV['SKYSCANNER_API'], 'X-MAshape-Host' => 'skyscanner-skyscanner-flight-search-v1.p.mashape.com'}}
 
 		return Typhoeus::Request.new("https://skyscanner-skyscanner-flight-search-v1.p.mashape.com/apiservices/browsequotes/v1.0/US/USD/EN-US/#{origin_airport}/#{destination_airport}/#{year}-#{month}", options)
 	end

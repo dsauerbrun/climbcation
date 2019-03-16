@@ -4,8 +4,8 @@ class ApplicationController < ActionController::Base
   #protect_from_forgery with: :exception
 	#
 	
-	before_filter :cors_preflight_check
-	after_filter :cors_set_access_control_headers
+	before_action :cors_preflight_check
+	after_action :cors_set_access_control_headers
 
 	# For all responses in this controller, return the CORS access control headers.
 	
@@ -27,7 +27,7 @@ class ApplicationController < ActionController::Base
 	    headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
 	    headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-Prototype-Version'
 	    headers['Access-Control-Max-Age'] = '1728000'
-	    render :text => '', :content_type => 'text/plain'
+	    render plain: '', :content_type => 'text/plain'
 	  end
 	end
 
@@ -38,7 +38,7 @@ class ApplicationController < ActionController::Base
 	def filters
 		@climbtypes = ClimbingType.all
 		@accommodations = Accommodation.all
-    @grades = Grade.all.order('"order" ASC')
+    @grades = Grade.all.order('grades.order ASC')
 		filters = {}
 		filters['climbTypes'] = {}
 		filters['accommodations'] = {}
@@ -84,7 +84,7 @@ class ApplicationController < ActionController::Base
 		ClimbingType.all.each do |type|
 			attributes['climbing_types'].push(type.html_attributes)
 		end
-		Grade.order(order: :desc).all.each do |grade|
+    Grade.order('grades.order desc').all.each do |grade|
 			attributes['grades'].push(grade.html_attributes)
 		end
 		render :json => attributes

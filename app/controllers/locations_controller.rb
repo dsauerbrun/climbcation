@@ -59,25 +59,15 @@ class LocationsController < ApplicationController
 				end
 			end
 		end
-		if(!params[:filter][:continents].nil?)
-			continent_filter = params[:filter][:continents]
-		else	
-			continent_filter = Location.where(active: true).all.pluck(:continent).uniq 
-		end
-		if(!params[:filter][:accommodations].nil?)
+    if(!params[:filter][:accommodations].nil? and params[:filter][:accommodations].any?)
 			accommodation_filter = params[:filter][:accommodations]
 		else
 			accommodation_filter = nil
 		end
-		if(!params[:filter][:climbing_types].nil?)
+    if(!params[:filter][:climbing_types].nil? and params[:filter][:climbing_types].any?)
 			climbing_filter = params[:filter][:climbing_types]
 		else	
 			climbing_filter = ClimbingType.all.pluck(:name) 
-		end
-		if(!params[:filter][:price_max].nil?)
-			price_filter = params[:filter][:price_max].max
-		else
-			price_filter = 99999 
 		end
     if (params[:filter][:rating])
       rating_filter = params[:filter][:rating]
@@ -97,9 +87,6 @@ class LocationsController < ApplicationController
 			.joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter)
 			.joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"')
 			.where('lower("info_sections"."body") LIKE lower(?) OR lower("locations"."name") LIKE lower(?) OR lower("locations"."country") LIKE lower(?) OR lower("locations"."continent") LIKE lower(?) OR lower("locations"."getting_in_notes") LIKE lower(?) OR lower("locations"."accommodation_notes") LIKE lower(?) OR lower("locations"."common_expenses_notes") LIKE lower(?) OR lower("locations"."saving_money_tips") LIKE lower(?)',string_filter,string_filter,string_filter,string_filter,string_filter,string_filter, string_filter, string_filter)
-			.where(continent: continent_filter)
-			.where('price_range_floor_cents < ?',price_filter)
-			.uniq
 
 			#handpicked sorting
 			sort_filter = 'locations.name ASC'
@@ -136,6 +123,7 @@ class LocationsController < ApplicationController
       location_filter = location_filter.where('rating <= ?', rating_filter)
     end
 
+    location_filter = location_filter.uniq
 		locations_return = {}
 		locations_return[:unpaginated] = []
 		locations_return[:paginated] = []

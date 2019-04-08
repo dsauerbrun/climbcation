@@ -224,6 +224,7 @@ class Location < ActiveRecord::Base
 		json_return[:airport_code] = self.airport_code
 		json_return[:date_range] = self.date_range
 		json_return[:rating] = self.rating
+		json_return[:solo_friendly] = self.solo_friendly
 		json_return[:id] = self.id
 		
 		#new stuff
@@ -250,6 +251,7 @@ class Location < ActiveRecord::Base
 		json_return[:date_range] = self.date_range
 		json_return[:submitter_email] = self.submitter_email
 		json_return[:rating] = self.rating
+		json_return[:solo_friendly] = self.solo_friendly
 		json_return[:id] = self.id
 		
 		#new stuff

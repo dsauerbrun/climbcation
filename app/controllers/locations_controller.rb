@@ -72,6 +72,9 @@ class LocationsController < ApplicationController
     if (params[:filter][:rating])
       rating_filter = params[:filter][:rating]
     end
+    if (params[:filter][:solo_friendly])
+      solo_friendly_filter = params[:filter][:solo_friendly]
+    end
 
     grade_filter = []
     climbing_type_grade_filter = []
@@ -121,6 +124,9 @@ class LocationsController < ApplicationController
 
     if !rating_filter.nil?
       location_filter = location_filter.where('rating <= ?', rating_filter)
+    end
+    if !solo_friendly_filter.nil?
+      location_filter = location_filter.where('solo_friendly is ?', solo_friendly_filter)
     end
 
     location_filter = location_filter.uniq
@@ -198,7 +204,7 @@ class LocationsController < ApplicationController
 
 	def new_location
 		params[:location] = JSON.parse(params[:location]) if params[:location].is_a?(String)
-		new_loc = Location.create!(name: params[:location]['name'], rating: params[:location]['rating'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
+		new_loc = Location.create!(name: params[:location]['name'], rating: params[:location]['rating'], solo_friendly: params[:location]['solo_friendly'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
 		params[:location]['grade'].each do |gradeId|
 			new_loc.grades << Grade.find(gradeId)
 		end

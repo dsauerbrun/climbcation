@@ -327,9 +327,9 @@ class LocationsController < ApplicationController
 	end
 
 	def build_request(origin_airport,destination_airport,year,month)
-		options = {:headers => { 'Accept' => 'application/json', 'X-Mashape-Key' => ENV['SKYSCANNER_API'], 'X-MAshape-Host' => 'skyscanner-skyscanner-flight-search-v1.p.mashape.com'}}
-
-		return Typhoeus::Request.new("https://skyscanner-skyscanner-flight-search-v1.p.mashape.com/apiservices/browsequotes/v1.0/US/USD/EN-US/#{origin_airport}/#{destination_airport}/#{year}-#{month}", options)
+		options = {:headers => { 'Accept' => 'application/json', 'X-RapidAPI-Key' => ENV['SKYSCANNER_API'], 'X-RapidAPI-Host' => 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com'}}
+    
+		return Typhoeus::Request.new("https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/#{origin_airport}/#{destination_airport}/#{year}-#{month}", options)
 	end
 
 	def queue_request(origin_airport,destination_airport,hydra,quotes,year,month)

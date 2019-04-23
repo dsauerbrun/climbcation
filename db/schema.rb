@@ -144,7 +144,7 @@ ActiveRecord::Schema.define(version: 2019_04_08_041332) do
     t.text "common_expenses_notes"
     t.text "saving_money_tips"
     t.integer "rating", default: 3
-    t.boolean "solo_friendly", default: false
+    t.boolean "solo_friendly"
     t.index ["grade_id"], name: "index_locations_on_grade_id"
   end
 

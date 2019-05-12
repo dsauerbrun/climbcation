@@ -123,6 +123,10 @@ class LocationsController < ApplicationController
     end
 
     location_filter = location_filter.uniq
+    all_location_ids = location_filter.map{|loc| loc.id}
+    location_climbing_types = ClimbingType.select('climbing_types.*, locations.id as location_id').joins(:locations).where('locations.id in (?)', all_location_ids)
+    location_seasons = Season.select('seasons.*, locations.id as location_id').joins(:locations).where('locations.id in (?)', all_location_ids)
+
 		locations_return = {}
 		locations_return[:unpaginated] = []
 		locations_return[:paginated] = []
@@ -136,7 +140,12 @@ class LocationsController < ApplicationController
 			end
 		end
 		location_filter.each do |location|
-			location_json = location
+      location_json = location.get_limited_unpaginated_location_json
+      filtered_climbing_types = location_climbing_types.select {|type| type.location_id == location.id}
+      filtered_seasons = location_seasons.select {|season| season.location_id == location.id}
+
+      location_json[:climbing_types] = filtered_climbing_types.map {|type| type.html_attributes}
+      location_json[:date_range] = location.date_range(filtered_seasons) 
 			locations_return[:unpaginated] << location_json
 		end
 

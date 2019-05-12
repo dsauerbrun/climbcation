@@ -39,8 +39,12 @@ class Location < ActiveRecord::Base
 		end
 	end
 
-	def date_range
-		months = self.seasons
+	def date_range(seasons = nil)
+    if seasons.nil?
+      months = self.seasons
+    else
+      months = seasons
+    end
 		range_string = ''
 		month_array = {}
 		months.each do |month|
@@ -168,13 +172,7 @@ class Location < ActiveRecord::Base
 	end
 
 	def get_climbing_types
-		climbing_types = {}
-		self.climbing_types.each do |climbing_type|
-			climbing_types[climbing_type.id] = {}
-			climbing_types[climbing_type.id]['url'] = climbing_type.icon.url
-			climbing_types[climbing_type.id]['name'] = climbing_type.name
-		end
-		return climbing_types
+    return self.climbing_types.map {|x| x.html_attributes}
 	end
 
 	def get_seasons
@@ -206,6 +204,25 @@ class Location < ActiveRecord::Base
 		end
 		return sections
 
+	end
+
+	def get_limited_unpaginated_location_json
+		json_return = {}
+		json_return[:location] = self
+		json_return[:latitude] = self.latitude
+		json_return[:longitude] = self.longitude
+		json_return[:slug] = self.slug
+		json_return[:name] = self.name
+		json_return[:country] = self.country
+		json_return[:price_range_floor_cents] = self.price_range_floor_cents
+		json_return[:price_range_ceiling_cents] = self.price_range_ceiling_cents
+		json_return[:home_thumb] = self.home_thumb.url
+		json_return[:airport_code] = self.airport_code
+		json_return[:rating] = self.rating
+		json_return[:solo_friendly] = self.solo_friendly
+		json_return[:id] = self.id
+
+		return json_return
 	end
 
 	def get_limited_location_json

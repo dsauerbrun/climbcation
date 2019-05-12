@@ -10,4 +10,5 @@ class ClimbingType < ActiveRecord::Base
 		attr_map['id'] = self.id	
 		return attr_map
 	end
+
 end

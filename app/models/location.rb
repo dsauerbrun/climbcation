@@ -296,9 +296,11 @@ class Location < ActiveRecord::Base
 			tmp_location['lng'] = location.longitude
 			tmp_location['slug'] = location.slug
 			tmp_location['name'] = location.name
+      tmp_location[:home_thumb] = location.home_thumb.url
 			tmp_location['country'] = location.country
 			tmp_location['distance'] = self.distance_to(location).to_i
 			tmp_location['climbing_types'] = location.get_climbing_types
+      tmp_location['date_range'] = location.date_range
 			map_locations << tmp_location
 		end
 		map_locations.sort_by! { |location| location['distance'] }

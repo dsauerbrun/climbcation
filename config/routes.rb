@@ -61,6 +61,12 @@ Rails.application.routes.draw do
   #     resources :products
 	#   s
   #   end
+  get   'login', :to => 'sessions#new', :as => :login
+  get 'auth/:provider/callback', :to => 'sessions#create'
+  get 'auth/failure', :to => redirect('/')
+  get 'api/user', to: 'sessions#get';
+  get 'api/user/logout', to: 'sessions#destroy';
+
 
 	post 'api/filter_locations', to: 'locations#filter_locations'
 	get 'api/filter_locations', to: 'locations#filter_locations'

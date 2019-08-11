@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_04_08_041332) do
+ActiveRecord::Schema.define(version: 2019_05_12_044212) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -188,6 +188,18 @@ ActiveRecord::Schema.define(version: 2019_04_08_041332) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string "cost_ranges", limit: 255, array: true
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "provider"
+    t.string "uid"
+    t.string "oauth_token"
+    t.datetime "oauth_expires_at"
+    t.string "username"
+    t.string "password"
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "version_associations", id: :serial, force: :cascade do |t|

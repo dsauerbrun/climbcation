@@ -7,4 +7,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.climbcation.com/sitemap.xml
+Sitemap: https://www.climbcation.com/sitemap.txt

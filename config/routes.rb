@@ -67,7 +67,6 @@ Rails.application.routes.draw do
   get 'api/user', to: 'sessions#get';
   get 'api/user/logout', to: 'sessions#destroy';
 
-
 	post 'api/filter_locations', to: 'locations#filter_locations'
 	get 'api/filter_locations', to: 'locations#filter_locations'
 	get 'api/location/:slug', to: 'locations#show', as: 'location'

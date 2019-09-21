@@ -236,7 +236,8 @@ class LocationsController < ApplicationController
 
 	def notify_admin(edit_type, location_id)
 		begin
-			message = 'Changing' << edit_type << ' for location id ' << location_id 
+      editLocation = Location.find(location_id)
+      message = 'Changing' << edit_type << ' for location id ' << location_id << ' ' <<  editLocation.name
 			smtp = Net::SMTP.new 'smtp.gmail.com', 587
 			smtp.enable_starttls
 

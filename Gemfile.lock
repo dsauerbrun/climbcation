@@ -854,6 +854,9 @@ GEM
       mimemagic (~> 0.3.0)
       terrapin (~> 0.6.0)
     pg (1.1.4)
+    prerender_rails (1.6.1)
+      activesupport
+      rack
     puma (3.12.1)
     rack (2.0.7)
     rack-pjax (1.1.0)
@@ -974,6 +977,7 @@ DEPENDENCIES
   paper_trail (~> 9.0.0)
   paperclip
   pg
+  prerender_rails
   puma
   rails (= 5.2.2.1)
   rails_admin

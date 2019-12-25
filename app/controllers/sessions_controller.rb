@@ -9,19 +9,31 @@ class SessionsController < ApplicationController
   end
 
   def create
-    puts 'here i am'
     if request.env["omniauth.auth"]
       user = User.create_with_omniauth(request.env["omniauth.auth"])
       session[:user_id] = user.id
       session[:username] = user.username
-      render :json => {} 
+      #render :json => {} 
+      redirect_to root_path
     else
-      user = User.find_by_email(params[:email])
-      user && user.authenticate(params[:password])
+      user = User.create_with_self(params[:email], params[:username], params[:password])
       session[:user_id] = user.id
       session[:username] = user.username
-      render status: 200
+      render status: 200, json: session
     end
+  end
+
+  #our own login method when they put in username/pass
+  def login
+
+      user = User.find_by_email(params[:username])
+      if user.nil? || (user && user.authenticate(params[:password]) == false)
+        render status: 400, json: nil 
+      else
+        session[:user_id] = user.id
+        session[:username] = user.username
+        render status: 200, json: session
+      end
   end
 
   def destroy
@@ -30,6 +42,8 @@ class SessionsController < ApplicationController
     session[:session_id] = nil
     redirect_to root_path
   end
+
+  
 
   def failure
   end

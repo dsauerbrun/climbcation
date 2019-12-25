@@ -5,10 +5,10 @@ class Users < ActiveRecord::Migration[5.2]
       t.string :uid
       t.string :oauth_token
       t.datetime :oauth_expires_at
-      t.string :username
+      t.string :username, unique: true
       t.string :password
       t.string :password_salt
-      t.string :email
+      t.string :email, unique: true
       t.string :google_token
       t.string :google_refresh_token
       t.boolean :verified, default: false

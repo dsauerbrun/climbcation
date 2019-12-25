@@ -64,6 +64,7 @@ Rails.application.routes.draw do
   get   'login', :to => 'sessions#new', :as => :login
   post 'api/signup', to: 'sessions#create'
   post 'api/login', to: 'sessions#login'
+  get 'verify/', to: 'sessions#verify_email'
   get 'auth/:provider/callback', :to => 'sessions#create'
   get 'auth/failure', :to => redirect('/')
   get 'api/user', to: 'sessions#get';

@@ -17,6 +17,7 @@ class SessionsController < ApplicationController
       redirect_to root_path
     else
       user = User.create_with_self(params[:email], params[:username], params[:password])
+      user.send_registration_verification()
       session[:user_id] = user.id
       session[:username] = user.username
       render status: 200, json: session
@@ -42,6 +43,16 @@ class SessionsController < ApplicationController
     session[:session_id] = nil
     redirect_to root_path
   end
+
+
+  def verify_email
+    user = User.find_by_verify_token(params[:id])
+    if user
+      user.verify_email
+    end
+    redirect_to root_url
+  end
+
 
   
 

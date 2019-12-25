@@ -198,6 +198,8 @@ ActiveRecord::Schema.define(version: 2019_05_12_044212) do
     t.string "username"
     t.string "password"
     t.string "email"
+    t.string "google_token"
+    t.string "google_refresh_token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

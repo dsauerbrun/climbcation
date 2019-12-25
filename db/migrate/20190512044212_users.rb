@@ -8,6 +8,8 @@ class Users < ActiveRecord::Migration[5.2]
       t.string :username
       t.string :password
       t.string :email
+      t.string :google_token
+      t.string :google_refresh_token
 
       t.timestamps
     end

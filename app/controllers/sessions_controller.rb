@@ -9,6 +9,7 @@ class SessionsController < ApplicationController
   end
 
   def create
+    puts 'here i am'
     if request.env["omniauth.auth"]
       user = User.create_with_omniauth(request.env["omniauth.auth"])
       session[:user_id] = user.id

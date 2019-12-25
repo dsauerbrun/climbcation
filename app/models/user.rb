@@ -25,7 +25,7 @@ MIME-Version: 1.0
 Content-type: text/html
 Subject: Please verify your email 
 
-Hello #{self.username}, thanks for registering! To confirm your registration please click #{self.confirm_email_user_url}
+Hello #{self.username}, thanks for registering on Climbcation! To confirm your registration please click #{self.confirm_email_user_url}
 
 MESSAGE_END
       smtp = Net::SMTP.new 'smtp.gmail.com', 587

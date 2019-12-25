@@ -18,15 +18,14 @@ class User < ActiveRecord::Base
 
   def send_registration_verification 
 		begin
-      message = "Hello #{self.username}, thanks for registering! To confirm your registration please click #{self.confirm_email_user_url}"
       message = <<MESSAGE_END
-        From: Climbcation <no-reply@climbcation.com>
-        To: #{self.username} <#{self.email}>
-        MIME-Version: 1.0
-        Content-type: text/html
-        Subject: Verify your email 
+From: Climbcation <no-reply@climbcation.com>
+To: #{self.username} <#{self.email}>
+MIME-Version: 1.0
+Content-type: text/html
+Subject: Please verify your email 
 
-        Hello #{self.username}, thanks for registering! To confirm your registration please click <a href="#{self.confirm_email_user_url}">#{self.confirm_email_user_url}</a>
+Hello #{self.username}, thanks for registering! To confirm your registration please click #{self.confirm_email_user_url}
 
 MESSAGE_END
       smtp = Net::SMTP.new 'smtp.gmail.com', 587

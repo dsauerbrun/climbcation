@@ -21,7 +21,7 @@ class SessionsController < ApplicationController
       puts params[:state]
       puts params[:callback_path]
       puts params.inspect
-      url_path = params[:state][0,1] == '\/' ? params[:state] ? root_path 
+      url_path = params[:state][0] == '\/' ? params[:state] : root_path 
       redirect_to url_path 
     else
       user = User.find_by_email(params[:email])

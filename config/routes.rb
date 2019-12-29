@@ -61,7 +61,7 @@ Rails.application.routes.draw do
   #     resources :products
 	#   s
   #   end
-  get   'login', :to => 'sessions#new', :as => :login
+  get 'login', :to => 'sessions#new', :as => :login
   post 'api/resetpassword', to: 'sessions#reset_password'
   post 'api/changepassword', to: 'sessions#change_password'
   post 'api/signup', to: 'sessions#create'

@@ -13,7 +13,7 @@ class SessionsController < ApplicationController
       user = User.create_with_omniauth(request.env["omniauth.auth"])
       session[:user_id] = user.id
       session[:username] = user.username
-      redirect_to root_path
+      redirect_to params[:state]
     else
       user = User.find_by_email(params[:email])
       user || user = User.find_by_username(params[:username]) 

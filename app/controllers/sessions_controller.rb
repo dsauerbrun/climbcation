@@ -11,9 +11,12 @@ class SessionsController < ApplicationController
   def create
     if request.env["omniauth.auth"]
       user = User.create_with_omniauth(request.env["omniauth.auth"])
+      user.last_ip_login = request.remote_ip
+      user.save
       session[:user_id] = user.id
       session[:username] = user.username
       session[:email] = user.email
+      session[:verified] = user.verified
       url_path = params[:state][0] == '\/' ? params[:state] : root_path 
       redirect_to url_path 
     else
@@ -28,6 +31,9 @@ class SessionsController < ApplicationController
           session[:user_id] = user.id
           session[:username] = user.username
           session[:email] = user.email
+          session[:verified] = user.verified
+          user.last_ip_login = request.remote_ip
+          user.save
           render status: 200, json: session
         rescue StandardError => exception_string
           if exception_string.message == 'Password must be at least 6 characters long'
@@ -49,6 +55,9 @@ class SessionsController < ApplicationController
         session[:user_id] = user.id
         session[:username] = user.username
         session[:email] = user.email
+        session[:verified] = user.verified
+        user.last_ip_login = request.remote_ip
+        user.save
         render status: 200, json: session
       end
   end
@@ -58,6 +67,7 @@ class SessionsController < ApplicationController
     session[:username] = nil
     session[:session_id] = nil
     session[:email] = nil 
+    session[:verified] = nil 
     redirect_to root_path
   end
 

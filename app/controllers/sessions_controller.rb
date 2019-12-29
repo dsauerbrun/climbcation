@@ -9,10 +9,15 @@ class SessionsController < ApplicationController
   end
 
   def create
+    puts 'hitting create'
     if request.env["omniauth.auth"]
+      puts 'hitting create2'
       user = User.create_with_omniauth(request.env["omniauth.auth"])
+      puts 'hitting create3'
       session[:user_id] = user.id
+      puts 'hitting creat4'
       session[:username] = user.username
+      puts 'hitting create5'
       redirect_to params[:state]
     else
       user = User.find_by_email(params[:email])

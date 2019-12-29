@@ -9,18 +9,11 @@ class SessionsController < ApplicationController
   end
 
   def create
-    puts 'hitting create'
     if request.env["omniauth.auth"]
-      puts 'hitting create2'
       user = User.create_with_omniauth(request.env["omniauth.auth"])
-      puts 'hitting create3'
       session[:user_id] = user.id
-      puts 'hitting creat4'
       session[:username] = user.username
-      puts 'hitting create5'
-      puts params[:state]
-      puts params[:callback_path]
-      puts params.inspect
+      session[:email] = user.email
       url_path = params[:state][0] == '\/' ? params[:state] : root_path 
       redirect_to url_path 
     else
@@ -34,6 +27,7 @@ class SessionsController < ApplicationController
           user.send_registration_verification()
           session[:user_id] = user.id
           session[:username] = user.username
+          session[:email] = user.email
           render status: 200, json: session
         rescue StandardError => exception_string
           if exception_string.message == 'Password must be at least 6 characters long'
@@ -54,6 +48,7 @@ class SessionsController < ApplicationController
       else
         session[:user_id] = user.id
         session[:username] = user.username
+        session[:email] = user.email
         render status: 200, json: session
       end
   end
@@ -62,6 +57,7 @@ class SessionsController < ApplicationController
     session[:user_id] = nil
     session[:username] = nil
     session[:session_id] = nil
+    session[:email] = nil 
     redirect_to root_path
   end
 
@@ -102,6 +98,20 @@ class SessionsController < ApplicationController
     end
   end
   
+  def change_username
+    user = User.find_by_username(session[:username])
+    
+    if user
+      begin
+        user.change_username(params[:username])
+        session[:username] = params[:username]
+      rescue StandardError => e
+        render status: 400, plain: 'This username is already taken.', :content_type => 'text/plain'
+      end
+    else
+      render status: 400, plain: 'You are not logged in.', :content_type => 'text/plain'
+    end
+  end
 
   def failure
   end

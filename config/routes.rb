@@ -64,6 +64,7 @@ Rails.application.routes.draw do
   get 'login', :to => 'sessions#new', :as => :login
   post 'api/resetpassword', to: 'sessions#reset_password'
   post 'api/changepassword', to: 'sessions#change_password'
+  post 'api/changeusername', to: 'sessions#change_username'
   post 'api/signup', to: 'sessions#create'
   post 'api/login', to: 'sessions#login'
   get 'verify/', to: 'sessions#verify_email'

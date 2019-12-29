@@ -9,6 +9,11 @@ class User < ActiveRecord::Base
     self.save!
   end
 
+  def change_username(username)
+    self.username = username
+    self.save 
+  end
+
   def change_password(password)
     # change the password and make sure account is marked as verified
     if password.length < 6

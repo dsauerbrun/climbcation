@@ -4,13 +4,53 @@ class User < ActiveRecord::Base
   before_create :verification_token
 
   def verify_email
-    puts self.inspect
     self.verify_token = nil
     self.verified = true;
     self.save!
   end
 
+  def change_password(password)
+    # change the password and make sure account is marked as verified
+    if password.length < 6
+      raise 'Password must be at least 6 characters long'
+    end
+    salt = BCrypt::Engine.generate_salt
+    salted_password = BCrypt::Engine.hash_secret(password, salt)
+    self.password = salted_password
+    self.password_salt = salt
+    self.verify_email
+  end
 
+  def reset_password_email_user_url
+    return "https://www.climbcation.com/resetpass?id=#{self.verify_token}"
+  end
+
+  def send_reset_password
+    verification_token
+    self.save
+		begin
+      message = <<MESSAGE_END
+From: Climbcation <no-reply@climbcation.com>
+To: #{self.username} <#{self.email}>
+MIME-Version: 1.0
+Content-type: text/html
+Subject: Reset Climbcation Password 
+
+Hello #{self.username}, to reset your password please click #{self.reset_password_email_user_url}
+
+If you did not choose to reset your password you can ignore this email.
+
+MESSAGE_END
+      smtp = Net::SMTP.new 'smtp.gmail.com', 587
+			smtp.enable_starttls
+
+			smtp.start('gmail.com', ENV['EMAIL_USER'], ENV['EMAIL_PASSWORD'], :plain) do |smtp|
+        smtp.send_message message, 'no-reply@climbcation.com', self.email 
+			end
+		rescue => exception
+			print exception.backtrace
+		end
+  end
 
   def confirm_email_user_url
     return "https://www.climbcation.com/verify?id=#{self.verify_token}"
@@ -71,6 +111,9 @@ MESSAGE_END
   end 
 
   def self.create_with_self(email, username, password)
+    if password.length < 6
+      raise 'Password must be at least 6 characters long'
+    end
     salt = BCrypt::Engine.generate_salt
     salted_password = BCrypt::Engine.hash_secret(password, salt)
     user = self.find_or_create_by(provider: 'self', username: username, email: email, password_salt: salt, password: salted_password)

@@ -20,6 +20,7 @@ class SessionsController < ApplicationController
       puts 'hitting create5'
       puts params[:state]
       puts params[:callback_path]
+      puts params.inspect
       redirect_to root_path#params[:state]
     else
       user = User.find_by_email(params[:email])

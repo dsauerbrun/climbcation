@@ -18,7 +18,9 @@ class SessionsController < ApplicationController
       puts 'hitting creat4'
       session[:username] = user.username
       puts 'hitting create5'
-      redirect_to params[:state]
+      puts params[:state]
+      puts params[:callback_path]
+      redirect_to root_path#params[:state]
     else
       user = User.find_by_email(params[:email])
       user || user = User.find_by_username(params[:username]) 

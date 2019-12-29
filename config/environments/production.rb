@@ -79,6 +79,9 @@ Rails.application.configure do
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
 
+  # prerender for SEO
+  config.middleware.use Rack::Prerender, blacklist: '/api/*',prerender_token: ENV['PRERENDER_TOKEN'] 
+
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 	config.paperclip_defaults = {

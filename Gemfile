@@ -57,3 +57,4 @@ gem 'angular-rails-templates'
 gem "typhoeus"
 gem 'will_paginate'
 gem 'paper_trail', '~> 9.0.0'
+gem 'prerender_rails'

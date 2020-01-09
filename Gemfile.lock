@@ -858,7 +858,7 @@ GEM
       activesupport
       rack
     puma (3.12.1)
-    rack (2.0.7)
+    rack (2.0.8)
     rack-pjax (1.1.0)
       nokogiri (~> 1.5)
       rack (>= 1.1)

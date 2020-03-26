@@ -17,7 +17,11 @@ class SessionsController < ApplicationController
       session[:username] = user.username
       session[:email] = user.email
       session[:verified] = user.verified
+      puts 'logging in here'
+      puts params[:state]
+      puts params[:state][0]
       url_path = params[:state][0] == '\/' ? params[:state] : root_path 
+      puts url_path
       redirect_to url_path 
     else
       user = User.find_by_email(params[:email])

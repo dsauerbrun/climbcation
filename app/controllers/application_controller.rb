@@ -34,6 +34,11 @@ class ApplicationController < ActionController::Base
 	def options
 		head :status => 200, :'Access-Control-Allow-Headers' => 'accept, content-type'
 	end
+
+  def current_user
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+  end
+  helper_method :current_user
 	
 	def filters
 		@climbtypes = ClimbingType.all

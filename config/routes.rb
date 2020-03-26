@@ -61,6 +61,17 @@ Rails.application.routes.draw do
   #     resources :products
 	#   s
   #   end
+  get 'login', :to => 'sessions#new', :as => :login
+  post 'api/resetpassword', to: 'sessions#reset_password'
+  post 'api/changepassword', to: 'sessions#change_password'
+  post 'api/changeusername', to: 'sessions#change_username'
+  post 'api/signup', to: 'sessions#create'
+  post 'api/login', to: 'sessions#login'
+  get 'verify/', to: 'sessions#verify_email'
+  get 'auth/:provider/callback', :to => 'sessions#create'
+  get 'auth/failure', :to => redirect('/')
+  get 'api/user', to: 'sessions#get';
+  get 'api/user/logout', to: 'sessions#destroy';
 
 	post 'api/filter_locations', to: 'locations#filter_locations'
 	get 'api/filter_locations', to: 'locations#filter_locations'
@@ -85,6 +96,9 @@ Rails.application.routes.draw do
 	get 'api/accommodations/all', to: 'constant_data#get_all_accommodations'
 	get 'api/foodoptions/all', to: 'constant_data#get_all_food_options'
 	get 'api/transportations/all', to: 'constant_data#get_all_transportations'
+
+  post 'api/threads/:id/posts', to: 'forum#post_comment'
+  get 'api/threads/:id', to: 'forum#get_thread'
 
 	get "/*path" => 'application#home' 
 end

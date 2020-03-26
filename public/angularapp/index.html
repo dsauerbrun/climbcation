@@ -1,37 +1,8 @@
 <!DOCTYPE html>
 <html ng-app="app" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="An advanced filter to help you plan your next rock climbing trip or vacation to world class climbing.">
-  <meta name="robots" content="index,follow"><!-- All Search Engines -->
-  <meta name="googlebot" content="index,follow"><!-- Google Specific -->
-
-  <meta property="fb:app_id" content="604556333018328">
-  <meta property="og:url" content="https://www.climbcation.com/">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Climbcation - Where Are You Going On Your Next Climbing Trip?">
-  <meta property="og:image" content="https://www.climbcation.com/angularapp/images/climbcation-logo.png">
-  <meta property="og:description" content="An advanced filter to help you plan your next climbing trip or vacation to world class climbing.">
-  <meta property="og:site_name" content="Climbcation">
-  <meta property="og:locale" content="en_US">
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-NK8P8PP');</script>
-  <!-- End Google Tag Manager -->
   <!-- Begin Inspectlet Embed Code -->
   <script type="text/javascript" id="inspectletjs">
-  window._mfq = window._mfq || [];
-  (function() {
-    var mf = document.createElement("script");
-    mf.type = "text/javascript"; mf.async = true;
-    mf.src = "//cdn.mouseflow.com/projects/9ecec10c-3243-47d7-9ae9-959cb07c7cc4.js";
-    document.getElementsByTagName("head")[0].appendChild(mf);
-  })();
-
   window.__insp = window.__insp || [];
   __insp.push(['wid', 1730161422]);
   (function() {
@@ -40,13 +11,12 @@
   })();
   </script>
   <!-- End Inspectlet Embed Code -->
-  
-  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Climbcation</title>
   <script src="https://use.typekit.net/ndk2xbd.js"></script>
   <script>try{Typekit.load({ async: true });}catch(e){}</script>
-  <link rel="stylesheet" href="/css/app-583b28e599.css">
-  <script data-ad-client="ca-pub-1079432560611175" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <link rel="stylesheet" href="/css/app-1997f27f14.css">
 	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAicaxhV5yGvMKxT06tgOlKDgrWUhzjjGE&sensor=true"></script>
   <link rel="shortcut icon" href="/images/favicon.ico" />
   <base href="/">
@@ -72,8 +42,8 @@
   </script>
 
   <toast></toast>
-  <nav class="navbar home navbar-inverse">
-    <div class="container">
+  <nav class="navbar home navbar-inverse" ng-controller="HeaderController">
+    <div class="container" style="width: 90%; margin: 0 auto">
       <div class="col-md-2 nav-link text">
         <a href="new-location">Submit a New Location</a>
       </div>
@@ -85,8 +55,12 @@
           <img src="/images/climbcation-header-logo.png">
         </a>
       </div>
-      <div class="col-md-4 nav-link text">
-        <a href="mailto:info@climbcation.com">Email me at info@climbcation.com</a>
+      <div class="col-md-3 nav-link text">
+        <div ng-if="authService.user">Welcome {{authService.user.username}} <a href="/api/user/logout" target="_self">Logout</a></div>
+        <div ng-if="!authService.user"><a ng-click="showLogin()">Login</a> / <a ng-click="showSignUp()">Signup</a></div>
+      </div>
+      <div class="col-md-1 nav-link text">
+        <a href="mailto:info@climbcation.com">Email me!</a>
         <!-- instagram badge script -->
         <a href="https://www.instagram.com/climbcation/?ref=badge" class="contact-link"><img class="instagram-badge" src="//badges.instagram.com/static/images/ig-badge-24.png" alt="Instagram" /></a>
         <div class="fb-like display-inline-block contact-link" data-href="https://www.facebook.com/climbcation" data-width="20" data-layout="button" data-action="like" data-size="small" data-show-faces="false" data-share="false"></div>
@@ -144,7 +118,124 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
-  <script type="text/javascript" src="/js/app-6634387c9f.js"></script>
+  <div id="loginModal" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">{{ signUpEnabled ? 'Sign Up': 'Log In' }}</h4>
+        </div>
+        <div class="modal-body login-modal" ng-controller="AuthController">
+          <div class="alert alert-warning alert-dismissable" ng-if="authError">
+            <button type="button" class="close" ng-click="authError = null">&times;</button>
+            <div ng-bind-html="authError"></div>
+          </div>
+          <div ng-show="!signUpEnabled && !forgotPasswordEnabled">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="external-sign-in">
+                  <a href='https://www.climbcation.com/auth/facebook?state="{{getState()}}"' class="fb connect" target="_self">
+                    Sign In with Facebook
+                  </a>
+                  <a ng-href="https://www.climbcation.com/auth/google_oauth2?state={{getState()}}" target="_self">
+                    <div class="google-btn">
+                      <div class="google-icon-wrapper">
+                        <img class="google-icon-svg" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"/>
+                      </div>
+                      <p class="btn-text"><b>Sign In with Google</b></p>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <hr />
+            <div class="row">
+              <div class="col-md-12">
+                <label>Email</label>
+                <input class="form-control" type="text" ng-model="username" ng-keydown="$event.keyCode === 13 && signin()"/>
+                <div class="password-label">
+                  <label>Password</label>
+                  <a ng-click="forgotPasswordEnabled = true">Forgot password?</a>
+                </div>
+                <input class="form-control" type="password" ng-model="password" ng-keydown="$event.keyCode === 13 && signin()"/>
+                <div class="go-row">
+                  <div>
+                    Don't have an account? <a href="" ng-click="signUpEnabled = true">Sign Up!</a>
+                  </div>
+                  <div>
+                    <div class="btn btn-primary pull-right" ng-click="signin()" ng-disabled="signingIn">
+                      Go!
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div ng-show="forgotPasswordEnabled">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Email</label>
+                <input class="form-control" type="text" ng-model="username" ng-keydown="$event.keyCode === 13 && resetPassword()"/>
+
+                <div class="go-row">
+                  <div>
+                    <div class="btn btn-primary pull-right" ng-click="resetPassword()" ng-disabled="signingIn">
+                      Reset Password
+                    </div>
+                    <div class="btn btn-default pull-right" ng-click="forgotPasswordEnabled = false" ng-disabled="signingIn" style="margin-right:10px">
+                      Cancel
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div ng-show="signUpEnabled && !forgotPasswordEnabled">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="external-sign-in">
+                  <a href='https://www.climbcation.com/auth/facebook?state="{{getState()}}"' class="fb connect" target="_self">
+                    Sign Up with Facebook
+                  </a>
+                  <a href="https://www.climbcation.com/auth/google_oauth2?state={{getState()}}" target="_self">
+                    <div class="google-btn">
+                      <div class="google-icon-wrapper">
+                        <img class="google-icon-svg" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"/>
+                      </div>
+                      <p class="btn-text"><b>Sign Up with Google</b></p>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <hr />
+            <div class="row">
+              <div class="col-md-12">
+                <label>Email</label>
+                <input class="form-control" type="text" ng-model="email" ng-keydown="$event.keyCode === 13 && signUp()"/>
+                <label>Username</label>
+                <input class="form-control" type="text" ng-model="username" ng-keydown="$event.keyCode === 13 && signUp()"/>
+                <label>Password</label>
+                <input class="form-control" type="password" ng-model="password" ng-keydown="$event.keyCode === 13 && signUp()"/>
+                <div class="go-row">
+                  <div>
+                    Already have an account? <a href="" ng-click="signUpEnabled = false">Sign In!</a>
+                  </div>
+                  <div>
+                    <div class="btn btn-primary pull-right" ng-click="signUp()" ng-disabled="signingIn">
+                      Go!
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+  <script type="text/javascript" src="/js/app-c762788c35.js"></script>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

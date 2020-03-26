@@ -75,6 +75,7 @@ class SessionsController < ApplicationController
     user = User.find_by_verify_token(params[:id])
     if user
       user.verify_email
+      session[:verified] = true
     end
     redirect_to root_url
   end

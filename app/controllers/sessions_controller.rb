@@ -18,6 +18,7 @@ class SessionsController < ApplicationController
       session[:email] = user.email
       session[:verified] = user.verified
       puts 'logging in here'
+      inspect request.env["omnitauth.auth"]
       puts params[:state]
       puts params[:state][0]
       url_path = params[:state][0] == '/' ? params[:state] : root_path 

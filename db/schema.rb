@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_12_044212) do
+ActiveRecord::Schema.define(version: 2019_12_29_225629) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,16 @@ ActiveRecord::Schema.define(version: 2019_05_12_044212) do
     t.integer "accommodation_id"
     t.index ["accommodation_id"], name: "index_accommodations_locations_on_accommodation_id"
     t.index ["location_id"], name: "index_accommodations_locations_on_location_id"
+  end
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.string "status"
+    t.bigint "category_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_categories_on_category_id"
   end
 
   create_table "climbing_types", id: :serial, force: :cascade do |t|
@@ -75,6 +85,17 @@ ActiveRecord::Schema.define(version: 2019_05_12_044212) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string "cost_ranges", limit: 255, array: true
+  end
+
+  create_table "forum_threads", force: :cascade do |t|
+    t.string "subject"
+    t.string "status"
+    t.bigint "user_id"
+    t.bigint "category_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_forum_threads_on_category_id"
+    t.index ["user_id"], name: "index_forum_threads_on_user_id"
   end
 
   create_table "grades", id: :serial, force: :cascade do |t|
@@ -162,6 +183,16 @@ ActiveRecord::Schema.define(version: 2019_05_12_044212) do
     t.index ["transportation_id"], name: "index_locations_transportations_on_transportation_id"
   end
 
+  create_table "posts", force: :cascade do |t|
+    t.string "content"
+    t.bigint "user_id"
+    t.bigint "forum_thread_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["forum_thread_id"], name: "index_posts_on_forum_thread_id"
+    t.index ["user_id"], name: "index_posts_on_user_id"
+  end
+
   create_table "primary_transportations", id: :serial, force: :cascade do |t|
     t.integer "transportation_id"
     t.integer "location_id"
@@ -231,4 +262,23 @@ ActiveRecord::Schema.define(version: 2019_05_12_044212) do
     t.index ["transaction_id"], name: "index_versions_on_transaction_id"
   end
 
+  create_table "votes", force: :cascade do |t|
+    t.boolean "up"
+    t.boolean "down"
+    t.bigint "user_id"
+    t.bigint "post_id"
+    t.bigint "forum_thread_id"
+    t.index ["forum_thread_id"], name: "index_votes_on_forum_thread_id"
+    t.index ["post_id"], name: "index_votes_on_post_id"
+    t.index ["user_id"], name: "index_votes_on_user_id"
+  end
+
+  add_foreign_key "categories", "categories"
+  add_foreign_key "forum_threads", "categories"
+  add_foreign_key "forum_threads", "users"
+  add_foreign_key "posts", "forum_threads"
+  add_foreign_key "posts", "users"
+  add_foreign_key "votes", "forum_threads"
+  add_foreign_key "votes", "posts"
+  add_foreign_key "votes", "users"
 end

@@ -2,6 +2,9 @@ require 'net/smtp'
 
 class User < ActiveRecord::Base
   before_create :verification_token
+  has_many :threads
+  has_many :posts
+  has_many :votes
 
   def verify_email
     self.verify_token = nil

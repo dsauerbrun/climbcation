@@ -97,5 +97,8 @@ Rails.application.routes.draw do
 	get 'api/foodoptions/all', to: 'constant_data#get_all_food_options'
 	get 'api/transportations/all', to: 'constant_data#get_all_transportations'
 
+  post 'api/threads/:id/posts', to: 'forum#post_comment'
+  get 'api/threads/:id', to: 'forum#get_thread'
+
 	get "/*path" => 'application#home' 
 end

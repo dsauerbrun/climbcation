@@ -22,7 +22,8 @@ class SessionsController < ApplicationController
       puts request.env["omniauth.params"].inspect
       puts params[:state]
       puts params[:state][0]
-      url_path = params[:state][0] == '/' ? params[:state] : root_path 
+      #url_path = params[:state][0] == '/' ? params[:state] : root_path 
+      url_path = request.env["omniauth.params"]["state"][0] == '/' ? request.env["omniauth.params"]["state"] : root_path 
       puts url_path
       redirect_to url_path 
     else

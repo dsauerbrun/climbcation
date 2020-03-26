@@ -14,6 +14,7 @@ class Location < ActiveRecord::Base
 	has_many :accommodation_location_details
 	has_many :food_option_location_details
 	has_one :primary_transportation
+	belongs_to :user
 	 
 	has_attached_file :home_thumb, :default_url => "/images/:style/missing.png"
 	validates_attachment_content_type :home_thumb, :content_type => /\Aimage\/.*\Z/

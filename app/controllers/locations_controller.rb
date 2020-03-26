@@ -206,7 +206,7 @@ class LocationsController < ApplicationController
 
 	def new_location
 		params[:location] = JSON.parse(params[:location]) if params[:location].is_a?(String)
-		new_loc = Location.create!(name: params[:location]['name'], rating: params[:location]['rating'], solo_friendly: params[:location]['solo_friendly'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize )
+		new_loc = Location.create!(name: params[:location]['name'], rating: params[:location]['rating'], solo_friendly: params[:location]['solo_friendly'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize, user_id: session[:user_id], submitter_email: session[:email] )
 		params[:location]['grade'].each do |gradeId|
 			new_loc.grades << Grade.find(gradeId)
 		end
@@ -255,7 +255,7 @@ class LocationsController < ApplicationController
 			new_info = InfoSection.create_new_info_section(params[:locationId],params[:section])
 			new_id = new_info.id
 		else
-			LocationEdit.create!(location_id: params[:locationId], edit_type: 'misc', edit: params[:section])
+			LocationEdit.create!(location_id: params[:locationId], edit_type: 'misc', edit: params[:section], user_id: session[:user_id])
 		end
 		notify_admin('misc', params[:locationId])
 		returnit = {'new_id' => new_id}
@@ -269,7 +269,7 @@ class LocationsController < ApplicationController
       commonExpensesNotes: locationObj[:commonExpensesNotes],
       savingMoneyTips: locationObj[:savingMoneyTips]
     }
-		LocationEdit.create!(location_id: params[:id], edit_type: 'food_options', edit: editObject)
+		LocationEdit.create!(location_id: params[:id], edit_type: 'food_options', edit: editObject, user_id: session[:user_id])
 		notify_admin('food options', params[:id])
 		returnit = {'name' => 'hello'}
 		render :json => returnit
@@ -283,7 +283,7 @@ class LocationsController < ApplicationController
       accommodationNotes: locationObj[:accommodationNotes],
       closestAccommodation: locationObj[:closestAccommodation]
     }
-		LocationEdit.create!(location_id: params[:id], edit_type: 'accommodation', edit: editObject)
+		LocationEdit.create!(location_id: params[:id], edit_type: 'accommodation', edit: editObject, user_id: session[:user_id])
 		notify_admin('accommodation', params[:id])
 		returnit = {'name' => 'hello'}
 		render :json => returnit
@@ -299,7 +299,7 @@ class LocationsController < ApplicationController
       gettingInNotes: locationObj[:gettingInNotes],
       walkingDistance: locationObj[:walkingDistance]
     }
-		LocationEdit.create!(location_id: params[:id], edit_type: 'getting_in', edit: editObject)
+		LocationEdit.create!(location_id: params[:id], edit_type: 'getting_in', edit: editObject, user_id: session[:user_id])
 		notify_admin('getting in', params[:id])
 		returnit = {'name' => 'hello'}
 		render :json => returnit

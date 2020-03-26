@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_29_225629) do
+ActiveRecord::Schema.define(version: 2020_03_26_184813) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -134,7 +134,9 @@ ActiveRecord::Schema.define(version: 2019_12_29_225629) do
     t.boolean "approved", default: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.bigint "user_id"
     t.index ["location_id"], name: "index_location_edits_on_location_id"
+    t.index ["user_id"], name: "index_location_edits_on_user_id"
   end
 
   create_table "locations", id: :serial, force: :cascade do |t|
@@ -166,7 +168,9 @@ ActiveRecord::Schema.define(version: 2019_12_29_225629) do
     t.text "saving_money_tips"
     t.integer "rating", default: 3
     t.boolean "solo_friendly"
+    t.bigint "user_id"
     t.index ["grade_id"], name: "index_locations_on_grade_id"
+    t.index ["user_id"], name: "index_locations_on_user_id"
   end
 
   create_table "locations_seasons", id: false, force: :cascade do |t|

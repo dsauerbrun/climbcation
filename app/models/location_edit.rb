@@ -1,5 +1,6 @@
 class LocationEdit < ActiveRecord::Base
 	belongs_to :location
+	belongs_to :user
 
 	def approve
 		if self.edit_type == 'misc'

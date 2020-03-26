@@ -30,6 +30,13 @@ class ForumController < ApplicationController
       return
     end
 
+    #check if user posted more than 5 posts in the last 30 seconds
+    lastPosts = Post.where(created_at: 30.seconds.ago..DateTime.now, user_id: session[:user_id]);
+    if lastPosts.length > 5
+      render status: 400, plain: 'You cannot post more than 5 comments within 30 seconds. Please wait and try again.', :content_type => 'text/plain'
+      return
+    end
+
     #should probably have a check here to see if there have been over 30 comments in the last 1 second to see if we're being spammed
     post = Post.createNewPost(params[:content], session[:user_id], params[:id])
 

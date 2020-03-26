@@ -20,7 +20,7 @@ class SessionsController < ApplicationController
       puts 'logging in here'
       puts params[:state]
       puts params[:state][0]
-      url_path = params[:state][0] == '\/' ? params[:state] : root_path 
+      url_path = params[:state][0] == '/' ? params[:state] : root_path 
       puts url_path
       redirect_to url_path 
     else

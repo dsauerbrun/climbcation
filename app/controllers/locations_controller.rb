@@ -69,7 +69,7 @@ class LocationsController < ApplicationController
 		else	
 			climbing_filter = ClimbingType.all.pluck(:name) 
 		end
-    if (params[:filter][:rating])
+    if (params[:filter][:rating] and params[:filter][:rating].any?)
       rating_filter = params[:filter][:rating]
     end
     if (params[:filter][:solo_friendly])
@@ -116,7 +116,7 @@ class LocationsController < ApplicationController
 		end
 
     if !rating_filter.nil?
-      location_filter = location_filter.where('rating <= ?', rating_filter)
+      location_filter = location_filter.where('rating in (?)', rating_filter)
     end
     if !solo_friendly_filter.nil?
       location_filter = location_filter.where('solo_friendly is ?', solo_friendly_filter)

@@ -75,6 +75,9 @@ class LocationsController < ApplicationController
     if (params[:filter][:solo_friendly])
       solo_friendly_filter = params[:filter][:solo_friendly]
     end
+    if(params[:filter][:no_car])
+      no_car_filter = params[:filter][:no_car]
+    end
 
     grade_filter = []
     climbing_type_grade_filter = []
@@ -120,6 +123,9 @@ class LocationsController < ApplicationController
     end
     if !solo_friendly_filter.nil?
       location_filter = location_filter.where('solo_friendly is ?', solo_friendly_filter)
+    end
+    if !no_car_filter.nil?
+      location_filter = location_filter.where('(closest_accommodation = \'<1 mile\' OR closest_accommodation = \'1-2 miles\')').where('walking_distance is true')
     end
 
     location_filter = location_filter.uniq

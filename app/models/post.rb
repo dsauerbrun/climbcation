@@ -3,6 +3,7 @@ def is_numeric(o)
 end
 
 class Post < ActiveRecord::Base
+	has_paper_trail
 	belongs_to :forum_thread
 	belongs_to :user
 
@@ -17,5 +18,14 @@ class Post < ActiveRecord::Base
 
     newPost = self.create(content: content, user_id: user_id, forum_thread_id: forum_thread_id)
     newPost
+  end
+
+  def edit(newContent, user_id)
+    if (self.user_id == user_id)
+      self.content = newContent
+      self.save!
+    else
+      raise 'You do not have permissions to edit this comment.'
+    end
   end
 end

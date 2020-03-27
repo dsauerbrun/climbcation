@@ -43,4 +43,19 @@ class ForumController < ApplicationController
     render status: 200, json: post 
   end
 
+  def edit_comment
+    if session[:user_id].nil?
+      render status: 400, plain: 'Must be logged in to post a comment', :content_type => 'text/plain'
+      return
+    end
+
+    begin
+      editPost = Post.find(params[:id]) 
+      editPost.edit(params[:newContent], session[:user_id])
+    render status: 200, json: editPost 
+    rescue StandardError => e
+      render status: 400, plain: e.message, :content_type => 'text/plain'
+    end
+  end
+
 end

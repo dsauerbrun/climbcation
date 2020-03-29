@@ -236,6 +236,7 @@ class LocationsController < ApplicationController
 			InfoSection.create_new_info_section(new_loc.id, section)
 		end
 		new_loc.save
+    notify_admin('new', new_loc.id)
 		returnit = {'id' => new_loc.id, 'slug' => new_loc.slug}
 		render :json => returnit
 	end
@@ -243,7 +244,11 @@ class LocationsController < ApplicationController
 	def notify_admin(edit_type, location_id)
 		begin
       editLocation = Location.find(location_id)
-      message = 'Changing' << edit_type << ' for location id ' << location_id << ' ' <<  editLocation.name
+      if (edit_type == 'new')
+        message = 'new location created ' << location_id << ' ' <<  editLocation.name
+      else
+        message = 'Changing' << edit_type << ' for location id ' << location_id << ' ' <<  editLocation.name
+      end
 			smtp = Net::SMTP.new 'smtp.gmail.com', 587
 			smtp.enable_starttls
 

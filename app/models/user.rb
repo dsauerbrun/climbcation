@@ -100,7 +100,7 @@ MESSAGE_END
     email = auth["info"]["email"]
     check_user = User.find_by_email(email)
     check_user || check_user = User.find_by_username(auth["info"]["name"]) 
-    if !user.nil?
+    if !check_user.nil?
       raise "Email or username is already in use."   
     end
 

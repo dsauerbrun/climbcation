@@ -10,16 +10,21 @@ class SessionsController < ApplicationController
 
   def create
     if request.env["omniauth.auth"]
-      user = User.create_with_omniauth(request.env["omniauth.auth"])
-      user.last_ip_login = request.remote_ip
-      user.save
-      session[:user_id] = user.id
-      session[:username] = user.username
-      session[:email] = user.email
-      session[:verified] = user.verified
-      #url_path = params[:state][0] == '/' ? params[:state] : root_path 
-      url_path = request.env["omniauth.params"]["state"][0] == '/' ? request.env["omniauth.params"]["state"] : root_path 
-      redirect_to url_path 
+      begin
+        user = User.create_with_omniauth(request.env["omniauth.auth"])
+        user.last_ip_login = request.remote_ip
+        user.save
+        session[:user_id] = user.id
+        session[:username] = user.username
+        session[:email] = user.email
+        session[:verified] = user.verified
+        #url_path = params[:state][0] == '/' ? params[:state] : root_path 
+        url_path = request.env["omniauth.params"]["state"][0] == '/' ? request.env["omniauth.params"]["state"] : root_path 
+        redirect_to url_path 
+      rescue StandardError => exception_string
+        puts exception_string.inspect
+        render status: 400, plain: 'Email or Username is already in use.'
+      end
     else
       user = User.find_by_email(params[:email])
       user || user = User.find_by_username(params[:username]) 

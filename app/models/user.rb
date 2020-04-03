@@ -2,7 +2,7 @@ require 'net/smtp'
 
 class User < ActiveRecord::Base
   before_create :verification_token
-  has_many :threads
+  has_many :forum_threads
   has_many :posts
   has_many :votes
 

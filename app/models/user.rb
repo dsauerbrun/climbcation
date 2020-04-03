@@ -99,12 +99,13 @@ MESSAGE_END
     user = nil
     puts 'passing auth'
     puts auth.inspect
+    puts auth["info"].inspect
     if auth["provider"] == "facebook"
       user = self.find_or_create_by(uid: auth["uid"], provider:  auth["provider"])
-      if auth["email"].nil?
+      if auth["info"].nil? || auth["info"]["email"].nil?
         user.email = "#{auth["uid"]}@#{auth["provider"]}.com"
       else
-        user.email = auth["email"] 
+        user.email = auth["info"]["email"] 
       end
       user.password = auth["uid"]
       user.username = auth["info"]["name"]

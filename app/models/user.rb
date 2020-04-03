@@ -101,7 +101,7 @@ MESSAGE_END
     puts auth.inspect
     if auth["provider"] == "facebook"
       user = self.find_or_create_by(uid: auth["uid"], provider:  auth["provider"])
-      if auth["email"].is_nil?
+      if auth["email"].nil?
         user.email = "#{auth["uid"]}@#{auth["provider"]}.com"
       else
         user.email = auth["email"] 

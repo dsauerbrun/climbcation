@@ -97,6 +97,13 @@ MESSAGE_END
 
   def self.create_with_omniauth(auth)
     user = nil
+    email = auth["info"]["email"]
+    check_user = User.find_by_email(email)
+    check_user || check_user = User.find_by_username(auth["info"]["name"]) 
+    if !user.nil?
+      raise "Email or username is already in use."   
+    end
+
     if auth["provider"] == "facebook"
       user = self.find_or_create_by(uid: auth["uid"], provider:  auth["provider"])
       if auth["info"].nil? || auth["info"]["email"].nil?
@@ -116,7 +123,6 @@ MESSAGE_END
       refresh_token = auth.credentials.refresh_token
       user.google_refresh_token = refresh_token if refresh_token.present?
       user.verified = true;
-
     end
     user.save!
     user

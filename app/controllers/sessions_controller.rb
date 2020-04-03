@@ -18,9 +18,6 @@ class SessionsController < ApplicationController
       session[:email] = user.email
       session[:verified] = user.verified
       #url_path = params[:state][0] == '/' ? params[:state] : root_path 
-      puts 'omni auth here'
-      puts request.env["omniauth.auth"].inspect
-      puts request.env["omniauth.params"].inspect
       url_path = request.env["omniauth.params"]["state"][0] == '/' ? request.env["omniauth.params"]["state"] : root_path 
       redirect_to url_path 
     else

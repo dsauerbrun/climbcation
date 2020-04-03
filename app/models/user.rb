@@ -97,9 +97,6 @@ MESSAGE_END
 
   def self.create_with_omniauth(auth)
     user = nil
-    puts 'passing auth'
-    puts auth.inspect
-    puts auth["info"].inspect
     if auth["provider"] == "facebook"
       user = self.find_or_create_by(uid: auth["uid"], provider:  auth["provider"])
       if auth["info"].nil? || auth["info"]["email"].nil?

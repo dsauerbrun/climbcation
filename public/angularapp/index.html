@@ -37,7 +37,7 @@
   <title>Climbcation</title>
   <script src="https://use.typekit.net/ndk2xbd.js"></script>
   <script>try{Typekit.load({ async: true });}catch(e){}</script>
-  <link rel="stylesheet" href="/css/app-b84a87e254.css">
+  <link rel="stylesheet" href="/css/app-1dfa9e1b3c.css">
   <script data-ad-client="ca-pub-1079432560611175" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAicaxhV5yGvMKxT06tgOlKDgrWUhzjjGE&sensor=true"></script>
   <link rel="shortcut icon" href="/images/favicon.ico" />
@@ -298,7 +298,7 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
-  <script type="text/javascript" src="/js/app-32b3deb937.js"></script>
+  <script type="text/javascript" src="/js/app-7beb815a4f.js"></script>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -309,5 +309,52 @@
   ga('send', 'pageview');
 
 </script>
+
+<script>
+   window.cookieconsent.initialise({
+    enabled: true,
+    container: null,
+    position: 'bottom-right',
+    palette:{
+     popup: {background: "#fff"},
+     button: {background: "#aa0000"},
+    },
+    revokable:true,
+    onStatusChange: function(status) {
+     console.log(this.hasConsented() ?
+      'enable cookies' : 'disable cookies');
+    },
+    law: {
+     regionalLaw: true,
+    },
+    theme: 'block',
+    location: {
+      timeout: 5000,
+      services: [ 'ipinfo' ],
+      serviceDefinitions: {
+        ipinfo: function() {
+          return {
+            // This service responds with JSON, so we simply need to parse it and return the country code
+            url: '//ipinfo.io?token=3f8c28aed01c85',
+            headers: ['Accept: application/json'],
+            callback: function(done, response) {
+              try {
+                var json = JSON.parse(response);
+                return json.error
+                  ? toError(json)
+                  : {
+                      code: json.country,
+                    };
+              } catch (err) {
+                return toError({error: 'Invalid response (' + err + ')'});
+              }
+            }
+          };
+        },
+       
+      }
+    },
+   });
+  </script>
 </body>
 </html>

@@ -42,26 +42,27 @@ class ApplicationController < ActionController::Base
 	
 	def filters
 		@climbtypes = ClimbingType.all
-		@accommodations = Accommodation.all
     @grades = Grade.all.order('grades.order ASC')
-		filters = {}
-		filters['climbTypes'] = {}
-		filters['accommodations'] = {}
-    filters['grades'] = {}
+		filters = {
+      climbTypes: [],
+      grades: [],
+    }
 
 		@climbtypes.each do |type|
-			filters['climbTypes'][type.name] = type.icon 
-		end
-		@accommodations.each do |accommodation|
-			filters['accommodations'][accommodation.name] = accommodation.id
+      filters[:climbTypes] << {type: type.name, url: type.icon} 
 		end
 		@grades.each do |grade|
-      if !filters['grades'].key?(grade.climbing_type.name)
-        filters['grades'][grade.climbing_type.name] = {}
-        filters['grades'][grade.climbing_type.name][:grades] = []
-        filters['grades'][grade.climbing_type.name][:type] = grade.climbing_type.html_attributes
+      existingType = filters[:grades].find { |i| i[:climbing_type] == grade.climbing_type.name }
+      if existingType.nil?
+        existingType = {
+          climbing_type: grade.climbing_type.name,
+          climb_type_id: grade.climbing_type.id,
+          grades: [],
+          type_html: grade.climbing_type.html_attributes
+        }
+        filters[:grades] << existingType
       end
-      filters['grades'][grade.climbing_type.name][:grades] << {id: grade.id, grade: grade.combine_grade}
+      existingType[:grades] << {id: grade.id, grade: grade.combine_grade, climbing_type: grade.climbing_type.name}
 		end
 		render :json => filters 
 	end

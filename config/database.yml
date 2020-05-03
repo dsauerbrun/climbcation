@@ -16,7 +16,7 @@ development:
   username: postgres
   password: nafmay11 
   host: localhost
-  port: 5432
+  port: 5433
   
 
 # Warning: The database defined as "test" will be erased and

@@ -1,7 +1,7 @@
 require 'net/smtp'
 
 class LocationsController < ApplicationController
-	def show
+        def show
 		name_param= params[:slug]
 		return_map = {};
 		
@@ -59,96 +59,104 @@ class LocationsController < ApplicationController
 				end
 			end
 		end
-    if(!params[:filter][:accommodations].nil? and params[:filter][:accommodations].any?)
-			accommodation_filter = params[:filter][:accommodations]
-		else
-			accommodation_filter = nil
-		end
-    if(!params[:filter][:climbing_types].nil? and params[:filter][:climbing_types].any?)
-			climbing_filter = params[:filter][:climbing_types]
-		else	
-			climbing_filter = ClimbingType.all.pluck(:name) 
-		end
-    if (params[:filter][:rating] and params[:filter][:rating].any?)
-      rating_filter = params[:filter][:rating]
-    end
-    if (params[:filter][:solo_friendly])
-      solo_friendly_filter = params[:filter][:solo_friendly]
-    end
-    if(params[:filter][:no_car])
-      no_car_filter = params[:filter][:no_car]
-    end
 
-    grade_filter = []
-    climbing_type_grade_filter = []
-    params[:filter][:grades].each do |typeId, grades|
-      climbing_type_grade_filter << typeId
-      grades.each {|grade| grade_filter << grade}
-    end
+                if(!params[:filter][:accommodations].nil? and params[:filter][:accommodations].any?)
+                                    accommodation_filter = params[:filter][:accommodations]
+                            else
+                                    accommodation_filter = nil
+                            end
+                if(!params[:filter][:climbing_types].nil? and params[:filter][:climbing_types].any?)
+                                    climbing_filter = params[:filter][:climbing_types]
+                            else	
+                                    climbing_filter = ClimbingType.all.pluck(:name) 
+                            end
+                if (params[:filter][:rating] and params[:filter][:rating].any?)
+                  rating_filter = params[:filter][:rating]
+                end
+                if (params[:filter][:solo_friendly])
+                  solo_friendly_filter = params[:filter][:solo_friendly]
+                end
+                if(params[:filter][:no_car])
+                  no_car_filter = params[:filter][:no_car]
+                end
+
+                grade_filter = []
+                climbing_type_grade_filter = []
+                params[:filter][:grades].each do |typeId, grades|
+                  climbing_type_grade_filter << typeId
+                  grades.each {|grade| grade_filter << grade}
+                end
 
 		location_filter = Location.select('locations.*')
-			.where(active: true).in_bounds([@swBounds, @neBounds])
-			.joins(:seasons).where('seasons.numerical_value IN (?)', month_filter)
-      .joins(:grades).where('grades.id IN (?) OR NOT EXISTS (SELECT 1 FROM grades_locations as t1 inner join grades as t2 on t2.id = t1.grade_id WHERE locations.id = t1.location_id and t2.climbing_type_id in (?))',grade_filter, climbing_type_grade_filter)
-			.joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter)
-			.joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"')
-			.where('lower("info_sections"."body") LIKE lower(?) OR lower("locations"."name") LIKE lower(?) OR lower("locations"."country") LIKE lower(?) OR lower("locations"."continent") LIKE lower(?) OR lower("locations"."getting_in_notes") LIKE lower(?) OR lower("locations"."accommodation_notes") LIKE lower(?) OR lower("locations"."common_expenses_notes") LIKE lower(?) OR lower("locations"."saving_money_tips") LIKE lower(?)',string_filter,string_filter,string_filter,string_filter,string_filter,string_filter, string_filter, string_filter)
+                  .where(active: true).in_bounds([@swBounds, @neBounds])
+                  .joins(:seasons).where('seasons.numerical_value IN (?)', month_filter)
+                  .joins(:grades).where('grades.id IN (?) OR NOT EXISTS (SELECT 1 FROM grades_locations as t1 inner join grades as t2 on t2.id = t1.grade_id WHERE locations.id = t1.location_id and t2.climbing_type_id in (?))',grade_filter, climbing_type_grade_filter)
+                  .joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter)
+                  .joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"')
+                  .where('lower("info_sections"."body") LIKE lower(?) OR lower("locations"."name") LIKE lower(?) OR lower("locations"."country") LIKE lower(?) OR lower("locations"."continent") LIKE lower(?) OR lower("locations"."getting_in_notes") LIKE lower(?) OR lower("locations"."accommodation_notes") LIKE lower(?) OR lower("locations"."common_expenses_notes") LIKE lower(?) OR lower("locations"."saving_money_tips") LIKE lower(?)',string_filter,string_filter,string_filter,string_filter,string_filter,string_filter, string_filter, string_filter)
 
-			#handpicked sorting
-			sort_filter = 'locations.name ASC'
-			if(!params[:filter][:sort].nil?)
-				if params[:filter][:sort].include? 'distance'
-					origin = Geokit::LatLng.new(params[:filter][:sort][:distance][:latitude], params[:filter][:sort][:distance][:longitude])
-					location_filter = location_filter.by_distance(:origin => origin)
-				elsif params[:filter][:sort].include? 'rating'
-					sort_filter = 'rating '
-					if params[:filter][:sort][:rating][:asc]
-						sort_filter << 'ASC'
-					else
-						sort_filter << 'DESC'
-					end
-				else
-					sort_filter = 'locations.name ASC'
-				end
-			end
-			location_filter = location_filter.order(sort_filter, :id)
-			#location_filter = location_filter.paginate(:page => page_num, :per_page => 8)
+                  #handpicked sorting
+                  sort_filter = 'locations.name ASC'
+                  if(!params[:filter][:sort].nil?)
+                          if params[:filter][:sort].include? 'distance'
+                                  origin = Geokit::LatLng.new(params[:filter][:sort][:distance][:latitude], params[:filter][:sort][:distance][:longitude])
+                                  location_filter = location_filter.by_distance(:origin => origin)
+                          elsif params[:filter][:sort].include? 'rating'
+                                  sort_filter = 'rating '
+                                  if params[:filter][:sort][:rating][:asc]
+                                          sort_filter << 'ASC'
+                                  else
+                                          sort_filter << 'DESC'
+                                  end
+                          else
+                                  sort_filter = 'locations.name ASC'
+                          end
+                  end
+                  location_filter = location_filter.order(sort_filter, :id)
 
-		if !accommodation_filter.nil?
-			location_filter = location_filter.joins(:accommodation_location_details).where('accommodation_location_details.accommodation_id IN (?)',accommodation_filter)
-		end
+                if !rating_filter.nil?
+                  location_filter = location_filter.where('rating in (?)', rating_filter)
+                end
+                if !solo_friendly_filter.nil?
+                  location_filter = location_filter.where('solo_friendly is ?', solo_friendly_filter)
+                end
+                if !no_car_filter.nil?
+                  location_filter = location_filter.where('(closest_accommodation = \'<1 mile\' OR closest_accommodation = \'1-2 miles\')').where('walking_distance is true')
+                end
+                location_filter = location_filter.group('locations.id')
+                if page_num > 1
+                  location_filter = location_filter.paginate(:page => page_num, :per_page => 8)
+                end
 
-    if !rating_filter.nil?
-      location_filter = location_filter.where('rating in (?)', rating_filter)
-    end
-    if !solo_friendly_filter.nil?
-      location_filter = location_filter.where('solo_friendly is ?', solo_friendly_filter)
-    end
-    if !no_car_filter.nil?
-      location_filter = location_filter.where('(closest_accommodation = \'<1 mile\' OR closest_accommodation = \'1-2 miles\')').where('walking_distance is true')
-    end
+                location_filter = location_filter.uniq
 
-    location_filter = location_filter.uniq
-    all_location_ids = location_filter.map{|loc| loc.id}
-    location_climbing_types = ClimbingType.select('climbing_types.*, locations.id as location_id').joins(:locations).where('locations.id in (?)', all_location_ids)
-    location_seasons = Season.select('seasons.*, locations.id as location_id').joins(:locations).where('locations.id in (?)', all_location_ids)
-
-		locations_return = {}
-		locations_return[:unpaginated] = []
-		locations_return[:paginated] = []
-		page_start = (page_num-1)*8
-		page_end = ((page_num-1)*8) + 7
-		location_page = location_filter[page_start..page_end]
+                locations_return = {}
+                locations_return[:unpaginated] = []
+                locations_return[:paginated] = []
+                page_start = (page_num-1)*8
+                page_end = ((page_num-1)*8) + 7
+                if page_num == 1
+                  location_page = location_filter[page_start..page_end]
+                else
+                  location_page = location_filter
+                end
 		if !location_page.nil?
 			location_page.each do |location|
 				location_json = location.get_limited_location_json
 				locations_return[:paginated] << location_json
 			end
 		end
-		location_filter.each do |location|
-                  location_json = location.get_limited_unpaginated_location_json
-                  locations_return[:unpaginated] << location_json
-		end
+                if page_num == 1
+                  all_location_ids = location_filter.map{|loc| loc.id}
+                  location_climbing_types = ClimbingType.select('climbing_types.*, locations.id as location_id').joins(:locations).where('locations.id in (?)', all_location_ids)
+
+                  location_filter.each do |location|
+                    location_json = location.get_limited_unpaginated_location_json
+                    filtered_climbing_types = location_climbing_types.select {|type| type.location_id == location.id}
+                    location_json[:climbing_types] = filtered_climbing_types.map {|type| type.html_attributes}
+                    locations_return[:unpaginated] << location_json
+                  end
+                end
 
 		render :json => locations_return 
 	end

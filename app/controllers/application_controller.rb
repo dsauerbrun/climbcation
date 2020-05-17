@@ -62,7 +62,7 @@ class ApplicationController < ActionController::Base
         }
         filters[:grades] << existingType
       end
-      existingType[:grades] << {id: grade.id, grade: grade.combine_grade, climbing_type: grade.climbing_type.name}
+      existingType[:grades] << {id: grade.id, grade: grade.combine_grade, climbing_type: grade.climbing_type.name, order: grade.order, typeId: grade.climbing_type.id}
 		end
 		render :json => filters 
 	end

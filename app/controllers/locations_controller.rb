@@ -28,101 +28,96 @@ class LocationsController < ApplicationController
 			@swBounds = Geokit::LatLng.new(-90,-180)
 			@neBounds = Geokit::LatLng.new(90,180)
 		end
+		location_filter = Location.select('locations.*')
+                  .where(active: true).in_bounds([@swBounds, @neBounds])
+
 		#handpicked filters
 		if(!params[:page].nil?)
 			page_num = params[:page]
 		else
 			page_num = 1
 		end
+
 		if(!params[:filter][:search].nil?)
-			string_filter = params[:filter][:search]
-			string_filter.insert(0,'%')
-			string_filter.insert(-1,'%')
-		else
-			string_filter = '%%'
-		end
-		if(!params[:filter][:start_month].nil? and !params[:filter][:end_month].nil?)
-			month_filter = []
-			if params[:filter][:start_month] == params[:filter][:end_month]
-				month_filter << params[:filter][:start_month].to_i
-			elsif params[:filter][:start_month] > params[:filter][:end_month]
-				(1..(params[:filter][:end_month].to_i)).each do |month_num|
-					month_filter << month_num
-				end
-				((params[:filter][:start_month].to_i)..12).each do |month_num|
-					month_filter << month_num
-				end
-			elsif params[:filter][:start_month] < params[:filter][:end_month]
-
-				((params[:filter][:start_month].to_i)..(params[:filter][:end_month].to_i)).each do |month_num|
-					month_filter << month_num
-				end
-			end
-		end
-
-                if(!params[:filter][:accommodations].nil? and params[:filter][:accommodations].any?)
-                                    accommodation_filter = params[:filter][:accommodations]
-                            else
-                                    accommodation_filter = nil
-                            end
-                if(!params[:filter][:climbing_types].nil? and params[:filter][:climbing_types].any?)
-                                    climbing_filter = params[:filter][:climbing_types]
-                            else	
-                                    climbing_filter = ClimbingType.all.pluck(:name) 
-                            end
-                if (params[:filter][:rating] and params[:filter][:rating].any?)
-                  rating_filter = params[:filter][:rating]
-                end
-                if (params[:filter][:solo_friendly])
-                  solo_friendly_filter = params[:filter][:solo_friendly]
-                end
-                if(params[:filter][:no_car])
-                  no_car_filter = params[:filter][:no_car]
-                end
-
-                grade_filter = []
-                climbing_type_grade_filter = []
-                params[:filter][:grades].each do |typeId, grades|
-                  climbing_type_grade_filter << typeId
-                  grades.each {|grade| grade_filter << grade}
-                end
-
-		location_filter = Location.select('locations.*')
-                  .where(active: true).in_bounds([@swBounds, @neBounds])
-                  .joins(:seasons).where('seasons.numerical_value IN (?)', month_filter)
-                  .joins(:grades).where('grades.id IN (?) OR NOT EXISTS (SELECT 1 FROM grades_locations as t1 inner join grades as t2 on t2.id = t1.grade_id WHERE locations.id = t1.location_id and t2.climbing_type_id in (?))',grade_filter, climbing_type_grade_filter)
-                  .joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter)
-                  .joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"')
+                  string_filter = params[:filter][:search]
+                  string_filter.insert(0,'%')
+                  string_filter.insert(-1,'%')
+                  location_filter = location_filter.joins('LEFT JOIN "info_sections" ON "info_sections"."location_id" = "locations"."id"')
                   .where('lower("info_sections"."body") LIKE lower(?) OR lower("locations"."name") LIKE lower(?) OR lower("locations"."country") LIKE lower(?) OR lower("locations"."continent") LIKE lower(?) OR lower("locations"."getting_in_notes") LIKE lower(?) OR lower("locations"."accommodation_notes") LIKE lower(?) OR lower("locations"."common_expenses_notes") LIKE lower(?) OR lower("locations"."saving_money_tips") LIKE lower(?)',string_filter,string_filter,string_filter,string_filter,string_filter,string_filter, string_filter, string_filter)
+		end
 
-                  #handpicked sorting
-                  sort_filter = 'locations.name ASC'
-                  if(!params[:filter][:sort].nil?)
-                          if params[:filter][:sort].include? 'distance'
-                                  origin = Geokit::LatLng.new(params[:filter][:sort][:distance][:latitude], params[:filter][:sort][:distance][:longitude])
-                                  location_filter = location_filter.by_distance(:origin => origin)
-                          elsif params[:filter][:sort].include? 'rating'
-                                  sort_filter = 'rating '
-                                  if params[:filter][:sort][:rating][:asc]
-                                          sort_filter << 'ASC'
-                                  else
-                                          sort_filter << 'DESC'
-                                  end
-                          else
-                                  sort_filter = 'locations.name ASC'
+                if(!params[:filter][:start_month].nil? && !params[:filter][:end_month].nil? && !(params[:filter][:start_month] == 1 && params[:filter][:end_month] == 12))
+                  month_filter = []
+                  if params[:filter][:start_month] == params[:filter][:end_month]
+                          month_filter << params[:filter][:start_month].to_i
+                  elsif params[:filter][:start_month] > params[:filter][:end_month]
+                          (1..(params[:filter][:end_month].to_i)).each do |month_num|
+                                  month_filter << month_num
+                          end
+                          ((params[:filter][:start_month].to_i)..12).each do |month_num|
+                                  month_filter << month_num
+                          end
+                  elsif params[:filter][:start_month] < params[:filter][:end_month]
+
+                          ((params[:filter][:start_month].to_i)..(params[:filter][:end_month].to_i)).each do |month_num|
+                                  month_filter << month_num
                           end
                   end
-                  location_filter = location_filter.order(sort_filter, :id)
 
-                if !rating_filter.nil?
+                  location_filter = location_filter.joins(:seasons).where('seasons.numerical_value IN (?)', month_filter)
+		end
+
+                if(!params[:filter][:climbing_types].nil? and params[:filter][:climbing_types].any?)
+                  climbing_filter = params[:filter][:climbing_types]
+                  location_filter = location_filter.joins(:climbing_types).where('climbing_types.name IN (?)',climbing_filter)
+                end
+
+                if (params[:filter][:rating] and params[:filter][:rating].any?)
+                  rating_filter = params[:filter][:rating]
                   location_filter = location_filter.where('rating in (?)', rating_filter)
                 end
-                if !solo_friendly_filter.nil?
+
+                if (params[:filter][:solo_friendly])
+                  solo_friendly_filter = params[:filter][:solo_friendly]
                   location_filter = location_filter.where('solo_friendly is ?', solo_friendly_filter)
                 end
-                if !no_car_filter.nil?
+
+                if(params[:filter][:no_car])
+                  no_car_filter = params[:filter][:no_car]
                   location_filter = location_filter.where('(closest_accommodation = \'<1 mile\' OR closest_accommodation = \'1-2 miles\')').where('walking_distance is true')
                 end
+
+                if params[:filter][:grades].keys.length > 0
+                  grade_filter = []
+                  climbing_type_grade_filter = []
+                  params[:filter][:grades].each do |typeId, grades|
+                    climbing_type_grade_filter << typeId
+                    grades.each {|grade| grade_filter << grade}
+                  end
+
+                  location_filter = location_filter.joins(:grades).where('grades.id IN (?) OR NOT EXISTS (SELECT 1 FROM grades_locations as t1 inner join grades as t2 on t2.id = t1.grade_id WHERE locations.id = t1.location_id and t2.climbing_type_id in (?))',grade_filter, climbing_type_grade_filter)
+                end 
+
+
+                #handpicked sorting
+                sort_filter = 'locations.name ASC'
+                if(!params[:filter][:sort].nil?)
+                        if params[:filter][:sort].include? 'distance'
+                                origin = Geokit::LatLng.new(params[:filter][:sort][:distance][:latitude], params[:filter][:sort][:distance][:longitude])
+                                location_filter = location_filter.by_distance(:origin => origin)
+                        elsif params[:filter][:sort].include? 'rating'
+                                sort_filter = 'rating '
+                                if params[:filter][:sort][:rating][:asc]
+                                        sort_filter << 'ASC'
+                                else
+                                        sort_filter << 'DESC'
+                                end
+                        else
+                                sort_filter = 'locations.name ASC'
+                        end
+                end
+                location_filter = location_filter.order(sort_filter, :id)
+
                 location_filter = location_filter.group('locations.id')
                 if page_num > 1
                   location_filter = location_filter.paginate(:page => page_num, :per_page => 8)

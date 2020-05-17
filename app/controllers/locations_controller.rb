@@ -21,7 +21,7 @@ class LocationsController < ApplicationController
 		location_list = [] 
 		#mappicked filters
 		#check to see if map moved
-		if(!params[:mapFilter][:southwest]['longitude'].nil?)
+		if(!params[:mapFilter][:southwest][:longitude].nil? && params[:mapFilter][:southwest][:longitude] != -180)
 			@swBounds = Geokit::LatLng.new(params[:mapFilter][:southwest]['latitude'],params[:mapFilter][:southwest]['longitude'])
 			@neBounds = Geokit::LatLng.new(params[:mapFilter][:northeast]['latitude'],params[:mapFilter][:northeast]['longitude'])
 		else
@@ -146,13 +146,8 @@ class LocationsController < ApplicationController
 			end
 		end
 		location_filter.each do |location|
-      location_json = location.get_limited_unpaginated_location_json
-      filtered_climbing_types = location_climbing_types.select {|type| type.location_id == location.id}
-      filtered_seasons = location_seasons.select {|season| season.location_id == location.id}
-
-      location_json[:climbing_types] = filtered_climbing_types.map {|type| type.html_attributes}
-      location_json[:date_range] = location.date_range(filtered_seasons) 
-			locations_return[:unpaginated] << location_json
+                  location_json = location.get_limited_unpaginated_location_json
+                  locations_return[:unpaginated] << location_json
 		end
 
 		render :json => locations_return 

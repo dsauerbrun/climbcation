@@ -209,7 +209,6 @@ class Location < ActiveRecord::Base
 
 	def get_limited_unpaginated_location_json
 		json_return = {}
-                json_return[:date_range] = self.date_range
 		json_return[:latitude] = self.latitude
 		json_return[:longitude] = self.longitude
 		json_return[:slug] = self.slug
@@ -224,7 +223,6 @@ class Location < ActiveRecord::Base
 	def get_limited_location_json
                 json_return = self.attributes
 		json_return[:home_thumb] = self.home_thumb.url
-		json_return[:accommodations] = self.get_accommodations
 		json_return[:climbing_types] = self.get_climbing_types
 		json_return[:grades] = self.grades.collect { |grade| grade.html_attributes }
 		json_return[:date_range] = self.date_range

@@ -135,19 +135,24 @@ class LocationsController < ApplicationController
                 else
                   location_page = location_filter
                 end
+
 		if !location_page.nil?
-			location_page.each do |location|
-				location_json = location.get_limited_location_json
-				locations_return[:paginated] << location_json
-			end
+                  location_page.each do |location|
+                    location_json = location.get_limited_location_json
+                    locations_return[:paginated] << location_json
+                  end
 		end
+
                 if page_num == 1
                   all_location_ids = location_filter.map{|loc| loc.id}
-                  location_climbing_types = ClimbingType.select('climbing_types.*, locations.id as location_id').joins(:locations).where('locations.id in (?)', all_location_ids)
+                  location_climbing_types = ClimbingType.select('climbing_types.*, climbing_types_locations.location_id as location_id').joins('LEFT JOIN climbing_types_locations on climbing_types_locations.climbing_type_id = climbing_types.id').where('climbing_types_locations.location_id in (?)', all_location_ids)
+                  location_seasons = Season.select('seasons.id, seasons.name, seasons.numerical_value, locations_seasons.location_id as location_id').joins('LEFT JOIN locations_seasons on locations_seasons.season_id = seasons.id').where('locations_seasons.location_id in (?)', all_location_ids)
 
                   location_filter.each do |location|
                     location_json = location.get_limited_unpaginated_location_json
+                    filtered_seasons = location_seasons.select {|season| season.location_id == location.id}
                     filtered_climbing_types = location_climbing_types.select {|type| type.location_id == location.id}
+                    location_json[:date_range] = location.date_range(filtered_seasons)
                     location_json[:climbing_types] = filtered_climbing_types.map {|type| type.html_attributes}
                     locations_return[:unpaginated] << location_json
                   end

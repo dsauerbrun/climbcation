@@ -299,35 +299,35 @@ class Location < ActiveRecord::Base
 	def change_food_options(details)
 		new_food_options = details['foodOptionDetails']
 		existing_food_options = []
-		#remove null food_options
-		new_food_options.delete_if { |k, v| v.nil? }
-		#go through each existing food, remove if not in new and change if cost is different
-		self.food_option_location_details.each do |food_option|
-			if new_food_options.key?(food_option.food_option.id.to_s)
-				#food exists already
-				if new_food_options[food_option.food_option.id.to_s]['cost'] != food_option.cost
-					food_option.cost = new_food_options[food_option.food_option.id.to_s]['cost']
-					food_option.save
-				end
-			else
-				#food option isnt in the new list so remove
-				self.food_option_location_details.delete(food_option)
-			end
-			existing_food_options << food_option.food_option.id
-		end
-		#add new food options if they dont exist already
-		new_food_options.each do |key,new_food_option|
-			if !existing_food_options.include? new_food_option['id'].to_i
-				new_food_option_obj = FoodOptionLocationDetail.create!(cost: new_food_option['cost'], food_option: FoodOption.find(new_food_option['id'].to_i))
-				self.food_option_location_details << new_food_option_obj
-			end
-		end
-		#change common expenses
-		self.common_expenses_notes = details['commonExpensesNotes']
-		#change saving money tips
-		self.saving_money_tips = details['savingMoneyTips']
-	
-		self.save
+
+
+          #go through each existing food, remove if not in new and change if cost is different
+          delete_food_details = self.food_option_location_details.select { |existing_food| !new_food_options.any? { |new_food| new_food['id'] == existing_food.food_option.id} }
+          delete_food_details.each do |to_delete_food|
+            self.food_option_location_details.delete(to_delete_food)
+          end
+
+          edit_food_details = self.food_option_location_details.select { |existing_food| new_food_options.any? { |new_food| new_food['id'] == existing_food.food_option.id} }
+          edit_food_details.each do |to_edit_food|
+            new_food_cost = new_food_options.find { |new_food| new_food['id'] == to_edit_food.food_option.id}
+            to_edit_food.cost = new_food_cost['cost']
+            to_edit_food.save
+          end
+
+          new_food_details = new_food_options.select { |new_food| !self.food_option_location_details.any? { |existing_food| new_food['id'] == existing_food.food_option.id} }
+          new_food_details.each do |new_food|
+            new_food_option_obj = FoodOptionLocationDetail.create!(cost: new_food['cost'], food_option: FoodOption.find(new_food['id'].to_i))
+            self.food_option_location_details << new_food_option_obj
+          end
+
+
+
+          #change common expenses
+          self.common_expenses_notes = details['commonExpensesNotes']
+          #change saving money tips
+          self.saving_money_tips = details['savingMoneyTips']
+  
+          self.save
 	end
 
 	def change_getting_in(details)

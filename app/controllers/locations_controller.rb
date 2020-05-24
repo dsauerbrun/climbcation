@@ -277,16 +277,16 @@ class LocationsController < ApplicationController
 	end
 
 	def edit_food_options
-    locationObj = params[:location]
-    editObject = {
-      foodOptionDetails: locationObj[:foodOptionDetails],
-      commonExpensesNotes: locationObj[:commonExpensesNotes],
-      savingMoneyTips: locationObj[:savingMoneyTips]
-    }
-		LocationEdit.create!(location_id: params[:id], edit_type: 'food_options', edit: editObject, user_id: session[:user_id])
-		notify_admin('food options', params[:id])
-		returnit = {'name' => 'hello'}
-		render :json => returnit
+          locationObj = params[:location]
+          editObject = {
+            foodOptionDetails: locationObj[:foodOptionDetails],
+            commonExpensesNotes: locationObj[:commonExpensesNotes],
+            savingMoneyTips: locationObj[:savingMoneyTips]
+          }
+          LocationEdit.create!(location_id: params[:id], edit_type: 'food_options', edit: editObject, user_id: session[:user_id])
+          notify_admin('food options', params[:id])
+          returnit = {'name' => 'hello'}
+          render :json => returnit
 	end
 
 

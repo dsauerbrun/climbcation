@@ -187,24 +187,7 @@ class Location < ActiveRecord::Base
 	end
 
 	def get_sections
-		sections = {}
-		self.info_sections.each do |section|
-			sections[section.id] = {}
-			sections[section.id][:id] = section.id
-			sections[section.id][:title] = section.title
-			sections[section.id][:body] = section.body
-			sections[section.id][:subsections] = {} 
-			if section.metadata.present?
-				section.metadata.each do |key,metadata|
-					if(!sections[section.id][:subsections].has_key?(key))
-						sections[section.id][:subsections][key] = {} 
-					end
-					sections[section.id][:subsections][key] =  {title: key, subsectionDescriptions:metadata}
-				end
-			end
-		end
-		return sections
-
+          return self.info_sections 
 	end
 
 	def get_limited_unpaginated_location_json
@@ -383,9 +366,13 @@ class Location < ActiveRecord::Base
 
 	def change_sections(details)
 		section = InfoSection.find(details['id'])
-		section.title = details['title']
-		section.body = details['body']
-		section.save
+                if details['title'] == '' && details['body'] == ''
+                  InfoSection.delete(section)
+                else
+                  section.title = details['title']
+                  section.body = details['body']
+                  section.save
+                end
 	end
 
 end

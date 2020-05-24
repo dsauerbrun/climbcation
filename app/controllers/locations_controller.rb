@@ -291,32 +291,32 @@ class LocationsController < ApplicationController
 
 
 	def edit_accommodations
-    locationObj = params[:location]
-    editObject = {
-      accommodations: locationObj[:accommodations],
-      accommodationNotes: locationObj[:accommodationNotes],
-      closestAccommodation: locationObj[:closestAccommodation]
-    }
-		LocationEdit.create!(location_id: params[:id], edit_type: 'accommodation', edit: editObject, user_id: session[:user_id])
-		notify_admin('accommodation', params[:id])
-		returnit = {'name' => 'hello'}
-		render :json => returnit
+          locationObj = params[:location]
+          editObject = {
+            accommodations: locationObj[:accommodations],
+            accommodationNotes: locationObj[:accommodationNotes],
+            closestAccommodation: locationObj[:closestAccommodation]
+          }
+          LocationEdit.create!(location_id: params[:id], edit_type: 'accommodation', edit: editObject, user_id: session[:user_id])
+          notify_admin('accommodation', params[:id])
+          returnit = {'name' => 'hello'}
+          render :json => returnit
 	end
 
 
 	def edit_getting_in
-    locationObj = params[:location]
-    editObject = {
-      transportations: locationObj[:transportations],
-      bestTransportationCost: locationObj[:bestTransportationCost],
-      bestTransportationId: locationObj[:bestTransportationId],
-      gettingInNotes: locationObj[:gettingInNotes],
-      walkingDistance: locationObj[:walkingDistance]
-    }
-		LocationEdit.create!(location_id: params[:id], edit_type: 'getting_in', edit: editObject, user_id: session[:user_id])
-		notify_admin('getting in', params[:id])
-		returnit = {'name' => 'hello'}
-		render :json => returnit
+          locationObj = params[:location]
+          editObject = {
+            transportations: locationObj[:transportations],
+            bestTransportationCost: locationObj[:bestTransportationCost],
+            bestTransportationId: locationObj[:bestTransportationId],
+            gettingInNotes: locationObj[:gettingInNotes],
+            walkingDistance: locationObj[:walkingDistance]
+          }
+          LocationEdit.create!(location_id: params[:id], edit_type: 'getting_in', edit: editObject, user_id: session[:user_id])
+          notify_admin('getting in', params[:id])
+          returnit = {'name' => 'hello'}
+          render :json => returnit
 	end
 
 

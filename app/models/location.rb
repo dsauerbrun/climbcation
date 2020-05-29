@@ -233,8 +233,8 @@ class Location < ActiveRecord::Base
 		map_locations = []
 		close_locations.each do |location|
 			tmp_location = {}
-			tmp_location['lat'] = location.latitude
-			tmp_location['lng'] = location.longitude
+			tmp_location['latitude'] = location.latitude
+			tmp_location['longitude'] = location.longitude
 			tmp_location['slug'] = location.slug
 			tmp_location['name'] = location.name
       tmp_location[:home_thumb] = location.home_thumb.url
@@ -280,9 +280,8 @@ class Location < ActiveRecord::Base
 	end
 
 	def change_food_options(details)
-		new_food_options = details['foodOptionDetails']
-		existing_food_options = []
-
+          new_food_options = details['foodOptionDetails']
+          existing_food_options = []
 
           #go through each existing food, remove if not in new and change if cost is different
           delete_food_details = self.food_option_location_details.select { |existing_food| !new_food_options.any? { |new_food| new_food['id'] == existing_food.food_option.id} }

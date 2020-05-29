@@ -214,32 +214,29 @@ class LocationsController < ApplicationController
 	end
 
 	def new_location
-		params[:location] = JSON.parse(params[:location]) if params[:location].is_a?(String)
-		new_loc = Location.create!(name: params[:location]['name'], rating: params[:location]['rating'], solo_friendly: params[:location]['solo_friendly'], price_range_floor_cents: params[:location]['price_floor'].to_i, price_range_ceiling_cents: params[:location]['price_ceiling'].to_i,country: params[:location]['country'], airport_code: params[:location]['airport'], home_thumb: params[:file], slug: params[:location]['name'].parameterize, user_id: session[:user_id], submitter_email: session[:email] )
-		params[:location]['grade'].each do |gradeId|
-			new_loc.grades << Grade.find(gradeId)
-		end
-		params[:location]['climbingTypes'].each do |id, selected|
-			if selected == true
-				new_loc.climbing_types << ClimbingType.find(id)
-			end
-		end
-		params[:location]['months'].each do |id,selected|
-			if selected == true
-				new_loc.seasons << Season.find(id)
-			end
+		params[:location] = JSON.parse(params) if params.is_a?(String)
+		new_loc = Location.create!(name: params['name'], rating: params['rating'], solo_friendly: params['soloFriendly'], country: params['country'], airport_code: params['airport'], slug: params['name'].parameterize, user_id: session[:user_id], submitter_email: session[:email] )
 
+		params['climbingTypes'].each do |climb_type|
+                  new_loc.climbing_types << ClimbingType.find(climb_type['id'])
+                  if !climb_type['grade_id'].nil?
+                    new_loc.grades << Grade.find(climb_type['grade_id'])
+                  end
+		end
+
+		params['months'].each do |month|
+                  new_loc.seasons << Season.find(month['id'])
 		end
 		
-		new_loc.change_getting_in(params[:location])
-		new_loc.change_food_options(params[:location])
-		new_loc.change_accommodations(params[:location])
+		new_loc.change_getting_in(params)
+		new_loc.change_food_options(params)
+		new_loc.change_accommodations(params)
 
-		params[:location]['sections'].each do |section|
+		params['sections'].each do |section|
 			InfoSection.create_new_info_section(new_loc.id, section)
 		end
 		new_loc.save
-    notify_admin('new', new_loc.id)
+                notify_admin('new', new_loc.id)
 		returnit = {'id' => new_loc.id, 'slug' => new_loc.slug}
 		render :json => returnit
 	end

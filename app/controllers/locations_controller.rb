@@ -182,22 +182,25 @@ class LocationsController < ApplicationController
 			Typhoeus::Config.cache = SkyscannerCache.new
 			hydra = Typhoeus::Hydra.hydra
 			@locations = Location.where(active: true).where('slug IN (?)',slugs)
+                        quotes = []
 			@locations.each do |location| 
 				key_val = "#{location.airport_code}-#{location.slug}-#{location.id}"
 				if !location.airport_code.eql?(origin)
-					quotes[key_val] = {}
-					quotes[key_val]['slug'] = location.slug
-					quotes[key_val]['origin_airport'] = origin
-					quotes[key_val]['airport_code'] = location.airport_code
-					quotes[key_val]['id'] = location.id
+                                        quoteObj = {}
+					quoteObj['slug'] = location.slug
+					quoteObj['origin_airport'] = origin
+					quoteObj['airport_code'] = location.airport_code
+					quoteObj['id'] = location.id
 
-					quotes[key_val]['quotes'] = {}
+					quoteObj['quotes'] = {}
 					#request multithreads
-					queue_request(origin,location.airport_code,hydra,quotes[key_val]['quotes'],curr_year,curr_month)
+					queue_request(origin,location.airport_code,hydra,quoteObj['quotes'],curr_year,curr_month)
 					#request for next month
-					queue_request(origin,location.airport_code,hydra,quotes[key_val]['quotes'],next_year,next_month)
+					queue_request(origin,location.airport_code,hydra,quoteObj['quotes'],next_year,next_month)
 					#end request multithreading
-					quotes[key_val]['referral'] = "http://partners.api.skyscanner.net/apiservices/referral/v1.0/US/USD/EN-US/#{origin}/#{location.airport_code}/#{curr_year}-#{curr_month}?apiKey=#{ENV['SKYSCANNER_API']}"
+					quoteObj['referral'] = "http://partners.api.skyscanner.net/apiservices/referral/v1.0/US/USD/EN-US/#{origin}/#{location.airport_code}/#{curr_year}-#{curr_month}?apiKey=#{ENV['SKYSCANNER_API']}"
+                                        quotes << quoteObj
+
 				end
 			end
 			hydra.run

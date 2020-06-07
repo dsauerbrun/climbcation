@@ -101,7 +101,8 @@ class ApplicationController < ActionController::Base
 		@locations = Location.where(active: true).order('name ASC').all
 		@continents = @locations.pluck(:continent).uniq
 	end
+
 	def home
-		render :file => "public/angularapp/index.html"
+          render :file => "public/angularapp/index.html"
 	end
 end

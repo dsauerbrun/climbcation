@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/static/css/main.7a722e4e.chunk.css",
+    "main.js": "/static/js/main.17028fe8.chunk.js",
+    "main.js.map": "/static/js/main.17028fe8.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.681b50f6.js",
+    "runtime-main.js.map": "/static/js/runtime-main.681b50f6.js.map",
+    "static/js/2.2e58bdd9.chunk.js": "/static/js/2.2e58bdd9.chunk.js",
+    "static/js/2.2e58bdd9.chunk.js.map": "/static/js/2.2e58bdd9.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.70abb899540662536d30b284d6f3c09b.js": "/precache-manifest.70abb899540662536d30b284d6f3c09b.js",
+    "service-worker.js": "/service-worker.js",
+    "static/css/main.7a722e4e.chunk.css.map": "/static/css/main.7a722e4e.chunk.css.map",
+    "static/js/2.2e58bdd9.chunk.js.LICENSE.txt": "/static/js/2.2e58bdd9.chunk.js.LICENSE.txt",
+    "static/media/main.scss": "/static/media/summerNA.5d51711e.jpg",
+    "static/media/hero-image-left.png": "/static/media/hero-image-left.5f1e7f96.png",
+    "static/media/hero-image-right.png": "/static/media/hero-image-right.0debb150.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.681b50f6.js",
+    "static/js/2.2e58bdd9.chunk.js",
+    "static/css/main.7a722e4e.chunk.css",
+    "static/js/main.17028fe8.chunk.js"
+  ]
+}

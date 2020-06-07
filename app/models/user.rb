@@ -101,7 +101,8 @@ MESSAGE_END
     check_user = User.find_by_email(email)
     check_user || check_user = User.find_by_username(auth["info"]["name"]) 
     if !check_user.nil?
-      raise "Email or username is already in use."   
+      return user
+      #raise "Email or username is already in use."   
     end
 
     if auth["provider"] == "facebook"

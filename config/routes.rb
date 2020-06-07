@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   #root 'application#index'
   root 'application#home'
+        get 'manifest.json', :to => redirect('/angularapp/manifest.json')
         get 'static/css/*app', :to => redirect('/angularapp/static/css/%{app}.css')
         get 'static/js/*app', :to => redirect('/angularapp/static/js/%{app}.js')
         get 'static/media/*filename', :to => redirect('/angularapp/static/media/%{filename}.%{format}')

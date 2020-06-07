@@ -187,105 +187,45 @@ class Location < ActiveRecord::Base
 	end
 
 	def get_sections
-		sections = {}
-		self.info_sections.each do |section|
-			sections[section.id] = {}
-			sections[section.id][:id] = section.id
-			sections[section.id][:title] = section.title
-			sections[section.id][:body] = section.body
-			sections[section.id][:subsections] = {} 
-			if section.metadata.present?
-				section.metadata.each do |key,metadata|
-					if(!sections[section.id][:subsections].has_key?(key))
-						sections[section.id][:subsections][key] = {} 
-					end
-					sections[section.id][:subsections][key] =  {title: key, subsectionDescriptions:metadata}
-				end
-			end
-		end
-		return sections
-
+          return self.info_sections 
 	end
 
 	def get_limited_unpaginated_location_json
 		json_return = {}
-		json_return[:location] = self
 		json_return[:latitude] = self.latitude
 		json_return[:longitude] = self.longitude
 		json_return[:slug] = self.slug
 		json_return[:name] = self.name
-		json_return[:country] = self.country
-		json_return[:price_range_floor_cents] = self.price_range_floor_cents
-		json_return[:price_range_ceiling_cents] = self.price_range_ceiling_cents
 		json_return[:home_thumb] = self.home_thumb.url
-		json_return[:airport_code] = self.airport_code
 		json_return[:rating] = self.rating
-		json_return[:solo_friendly] = self.solo_friendly
 		json_return[:id] = self.id
 
 		return json_return
 	end
 
 	def get_limited_location_json
-		json_return = {}
-		json_return[:location] = self
-		json_return[:latitude] = self.latitude
-		json_return[:longitude] = self.longitude
-		json_return[:slug] = self.slug
-		json_return[:name] = self.name
-		json_return[:country] = self.country
-		json_return[:price_range_floor_cents] = self.price_range_floor_cents
-		json_return[:price_range_ceiling_cents] = self.price_range_ceiling_cents
+                json_return = self.attributes
 		json_return[:home_thumb] = self.home_thumb.url
 		json_return[:climbing_types] = self.get_climbing_types
 		json_return[:grades] = self.grades.collect { |grade| grade.html_attributes }
-		json_return[:airport_code] = self.airport_code
 		json_return[:date_range] = self.date_range
-		json_return[:rating] = self.rating
-		json_return[:solo_friendly] = self.solo_friendly
-		json_return[:id] = self.id
-		
-		#new stuff
-		json_return[:accommodations] = self.get_accommodations
 
 		return json_return
 	end
 
 	def get_location_json
-		json_return = {}
-		json_return[:location] = self
-		json_return[:latitude] = self.latitude
-		json_return[:longitude] = self.longitude
-		json_return[:slug] = self.slug
-		json_return[:name] = self.name
-		json_return[:country] = self.country
-		json_return[:price_range_floor_cents] = self.price_range_floor_cents
-		json_return[:price_range_ceiling_cents] = self.price_range_ceiling_cents
-		json_return[:home_thumb] = self.home_thumb.url
-		json_return[:seasons] = self.get_seasons
-		json_return[:climbing_types] = self.get_climbing_types
-		json_return[:grades] = self.grades.collect {|grade| grade.html_attributes }
-		json_return[:airport_code] = self.airport_code
-		json_return[:date_range] = self.date_range
-		json_return[:submitter_email] = self.submitter_email
-		json_return[:rating] = self.rating
-		json_return[:solo_friendly] = self.solo_friendly
-		json_return[:id] = self.id
-		
-		#new stuff
-		json_return[:closest_accommodation] = self.closest_accommodation
-		json_return[:walking_distance] = self.walking_distance
-		json_return[:getting_in_notes] = self.getting_in_notes
-		json_return[:accommodation_notes] = self.accommodation_notes
-		json_return[:common_expenses_notes] = self.common_expenses_notes
-		json_return[:saving_money_tip] = self.saving_money_tips
-		
-		json_return[:accommodations] = self.get_accommodations
-		json_return[:transportations] = self.get_transportations
-		json_return[:best_transportation] = self.get_best_transportation
-		json_return[:food_options] = self.get_food_options
+          json_return = self.attributes 
 
-		return json_return
+          json_return[:home_thumb] = self.home_thumb.url
+          json_return[:climbing_types] = self.get_climbing_types
+          json_return[:grades] = self.grades.collect {|grade| grade.html_attributes }
+          json_return[:date_range] = self.date_range
+          json_return[:accommodations] = self.get_accommodations
+          json_return[:transportations] = self.get_transportations
+          json_return[:best_transportation] = self.get_best_transportation
+          json_return[:food_options] = self.get_food_options
+
+          return json_return
 	end
 	
 	def get_nearby_locations_json
@@ -293,8 +233,8 @@ class Location < ActiveRecord::Base
 		map_locations = []
 		close_locations.each do |location|
 			tmp_location = {}
-			tmp_location['lat'] = location.latitude
-			tmp_location['lng'] = location.longitude
+			tmp_location['latitude'] = location.latitude
+			tmp_location['longitude'] = location.longitude
 			tmp_location['slug'] = location.slug
 			tmp_location['name'] = location.name
       tmp_location[:home_thumb] = location.home_thumb.url
@@ -309,71 +249,67 @@ class Location < ActiveRecord::Base
 	end
 
 	def change_accommodations(details)
-		new_accommodations = details['accommodations']
-		existing_accommodations = []
-		#remove null accommodations
-		new_accommodations.delete_if { |k, v| v.nil? }
-		#go through each existing accommodation, remove if not in new and change if cost is different
-		self.accommodation_location_details.each do |accommodation|
-			if new_accommodations.key?(accommodation.accommodation.id.to_s)
-				#accommodation exists already
-				if new_accommodations[accommodation.accommodation.id.to_s]['cost'] != accommodation.cost
-					accommodation.cost = new_accommodations[accommodation.accommodation.id.to_s]['cost']
-					accommodation.save
-				end
-			else
-				#accommodation isnt in the new list so remove
-				self.accommodation_location_details.delete(accommodation)
-			end
-			existing_accommodations << accommodation.accommodation.id
-		end
-		#add new accommodations if they dont exist already
-		new_accommodations.each do |key,new_accommodation|
-			if !existing_accommodations.include? new_accommodation['id']
-				new_accommodation_obj = AccommodationLocationDetail.create!(cost: new_accommodation['cost'], accommodation: Accommodation.find(new_accommodation['id']))
-				self.accommodation_location_details << new_accommodation_obj
-			end
-		end
-		#change additional tips on staying
-		self.accommodation_notes = details['accommodationNotes']
-		#change closest accommodation to crags
-		self.closest_accommodation = details['closestAccommodation']
-	
-		self.save
+          new_accommodations = details['accommodations']
+          existing_accommodations = []
+
+          #go through each existing accommodation, remove if not in new and change if cost is different
+          delete_location_details = self.accommodation_location_details.select { |existing_accom| !new_accommodations.any? { |new_accom| new_accom['id'] == existing_accom.accommodation.id} }
+          delete_location_details.each do |to_delete_accom|
+            self.accommodation_location_details.delete(to_delete_accom)
+          end
+
+          edit_location_details = self.accommodation_location_details.select { |existing_accom| new_accommodations.any? { |new_accom| new_accom['id'] == existing_accom.accommodation.id} }
+          edit_location_details.each do |to_edit_accom|
+            new_accom_cost = new_accommodations.find { |new_accom| new_accom['id'] == to_edit_accom.accommodation.id}
+            to_edit_accom.cost = new_accom_cost['cost']
+            to_edit_accom.save
+          end
+
+          new_location_details = new_accommodations.select { |new_accom| !self.accommodation_location_details.any? { |existing_accom| new_accom['id'] == existing_accom.accommodation.id} }
+          new_location_details.each do |new_accom|
+            new_accommodation_obj = AccommodationLocationDetail.create!(cost: new_accom['cost'], accommodation: Accommodation.find(new_accom['id']))
+            self.accommodation_location_details << new_accommodation_obj
+          end
+
+          #change additional tips on staying
+          self.accommodation_notes = details['accommodationNotes']
+          #change closest accommodation to crags
+          self.closest_accommodation = details['closestAccommodation']
+  
+          self.save
 	end
 
 	def change_food_options(details)
-		new_food_options = details['foodOptionDetails']
-		existing_food_options = []
-		#remove null food_options
-		new_food_options.delete_if { |k, v| v.nil? }
-		#go through each existing food, remove if not in new and change if cost is different
-		self.food_option_location_details.each do |food_option|
-			if new_food_options.key?(food_option.food_option.id.to_s)
-				#food exists already
-				if new_food_options[food_option.food_option.id.to_s]['cost'] != food_option.cost
-					food_option.cost = new_food_options[food_option.food_option.id.to_s]['cost']
-					food_option.save
-				end
-			else
-				#food option isnt in the new list so remove
-				self.food_option_location_details.delete(food_option)
-			end
-			existing_food_options << food_option.food_option.id
-		end
-		#add new food options if they dont exist already
-		new_food_options.each do |key,new_food_option|
-			if !existing_food_options.include? new_food_option['id'].to_i
-				new_food_option_obj = FoodOptionLocationDetail.create!(cost: new_food_option['cost'], food_option: FoodOption.find(new_food_option['id'].to_i))
-				self.food_option_location_details << new_food_option_obj
-			end
-		end
-		#change common expenses
-		self.common_expenses_notes = details['commonExpensesNotes']
-		#change saving money tips
-		self.saving_money_tips = details['savingMoneyTips']
-	
-		self.save
+          new_food_options = details['foodOptionDetails']
+          existing_food_options = []
+
+          #go through each existing food, remove if not in new and change if cost is different
+          delete_food_details = self.food_option_location_details.select { |existing_food| !new_food_options.any? { |new_food| new_food['id'] == existing_food.food_option.id} }
+          delete_food_details.each do |to_delete_food|
+            self.food_option_location_details.delete(to_delete_food)
+          end
+
+          edit_food_details = self.food_option_location_details.select { |existing_food| new_food_options.any? { |new_food| new_food['id'] == existing_food.food_option.id} }
+          edit_food_details.each do |to_edit_food|
+            new_food_cost = new_food_options.find { |new_food| new_food['id'] == to_edit_food.food_option.id}
+            to_edit_food.cost = new_food_cost['cost']
+            to_edit_food.save
+          end
+
+          new_food_details = new_food_options.select { |new_food| !self.food_option_location_details.any? { |existing_food| new_food['id'] == existing_food.food_option.id} }
+          new_food_details.each do |new_food|
+            new_food_option_obj = FoodOptionLocationDetail.create!(cost: new_food['cost'], food_option: FoodOption.find(new_food['id'].to_i))
+            self.food_option_location_details << new_food_option_obj
+          end
+
+
+
+          #change common expenses
+          self.common_expenses_notes = details['commonExpensesNotes']
+          #change saving money tips
+          self.saving_money_tips = details['savingMoneyTips']
+  
+          self.save
 	end
 
 	def change_getting_in(details)
@@ -381,11 +317,8 @@ class Location < ActiveRecord::Base
 		newTransportationIds = []
 		existingTransportationIds = []
 		if !transportations.nil?
-			#clean up transportations array(IE. convert to array of transportationIDs)
-			transportations.each do |key, transportation|
-				if transportation == true
-					newTransportationIds << key	
-				end
+			transportations.each do |transportation|
+                          newTransportationIds << transportation	
 			end
 			#cycle through transportations on location and remove the ones that arent in passed transportations
 			self.transportations.each do |transportation|
@@ -432,9 +365,13 @@ class Location < ActiveRecord::Base
 
 	def change_sections(details)
 		section = InfoSection.find(details['id'])
-		section.title = details['title']
-		section.body = details['body']
-		section.save
+                if details['title'] == '' && details['body'] == ''
+                  InfoSection.delete(section)
+                else
+                  section.title = details['title']
+                  section.body = details['body']
+                  section.save
+                end
 	end
 
 end

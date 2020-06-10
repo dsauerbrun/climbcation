@@ -67,6 +67,7 @@ Rails.application.routes.draw do
   post 'api/resetpassword', to: 'sessions#reset_password'
   post 'api/changepassword', to: 'sessions#change_password'
   post 'api/changeusername', to: 'sessions#change_username'
+
   post 'api/signup', to: 'sessions#create'
   post 'api/login', to: 'sessions#login'
   get 'verify/', to: 'sessions#verify_email'
@@ -74,6 +75,7 @@ Rails.application.routes.draw do
   get 'auth/failure', :to => redirect('/')
   get 'api/user', to: 'sessions#get';
   get 'api/user/logout', to: 'sessions#destroy';
+  delete 'api/user', to: 'sessions#delete_user';
 
 	post 'api/filter_locations', to: 'locations#filter_locations'
 	get 'api/filter_locations', to: 'locations#filter_locations'

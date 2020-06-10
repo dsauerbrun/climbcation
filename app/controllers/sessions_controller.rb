@@ -22,14 +22,18 @@ class SessionsController < ApplicationController
         url_path = request.env["omniauth.params"]["state"][0] == '/' ? request.env["omniauth.params"]["state"] : root_path 
         redirect_to url_path 
       rescue StandardError => exception_string
-        puts exception_string.inspect
-        render status: 400, plain: 'Email or Username is already in use.'
+        render status: 400, plain: exception_string.message
       end
     else
       user = User.find_by_email(params[:email])
       user || user = User.find_by_username(params[:username]) 
       if user
-        render status: 400, plain: 'Email or Username is already in use.'
+        if user.deleted
+          user.reactivate_account
+          render status: 400, plain: 'This account has been deleted. We have sent you a verification email to re-enable your account.'
+        else
+          render status: 400, plain: 'Email or Username is already in use.'
+        end
       else
         begin
           user = User.create_with_self(params[:email], params[:username], params[:password])
@@ -55,7 +59,7 @@ class SessionsController < ApplicationController
   #our own login method when they put in username/pass
   def login
       user = User.find_by_email(params[:username])
-      if user.nil? || (user && user.authenticate(params[:password]) == false)
+      if user.nil? || (user && user.authenticate(params[:password]) == false) || user.deleted
         render status: 400, json: nil 
       else
         session[:user_id] = user.id
@@ -128,6 +132,26 @@ class SessionsController < ApplicationController
     else
       render status: 400, plain: 'You are not logged in.', :content_type => 'text/plain'
     end
+  end
+
+  def delete_user
+    user = User.find_by_username(session[:username])
+    if user
+      begin
+        user.delete_account
+        session[:user_id] = nil
+        session[:username] = nil
+        session[:session_id] = nil
+        session[:email] = nil 
+        session[:verified] = nil 
+        render status: 200, plain: '' 
+      rescue StandardError => e
+        render status: 400, plain: 'Error deleting account', :content_type => 'text/plain'
+      end
+    else
+      render status: 400, plain: 'You are not logged in.', :content_type => 'text/plain'
+    end
+
   end
 
   def failure

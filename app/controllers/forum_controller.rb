@@ -5,13 +5,13 @@ class ForumController < ApplicationController
     if force_destination == 'true'
       destination_category = Category.find_by_name(DestinationCategoryName) 
       posts = Post 
-        .select('posts.*', 'users.username')
+        .select("posts.*, CASE WHEN users.deleted THEN '[DELETED]' ELSE users.username END as username")
         .joins(:forum_thread)
         .joins(:user)
         .where(forum_threads: {category_id: destination_category.id, subject: params[:id]}).order('posts.created_at desc')
     else
       posts = Post
-        .select('posts.*', 'users.username')
+        .select("posts.*, CASE WHEN users.deleted THEN '[DELETED]' ELSE users.username END as username")
         .joins(:forum_thread)
         .joins(:user)
         .where(forum_threads: {id: params[:id]}).order('posts.created_at desc')

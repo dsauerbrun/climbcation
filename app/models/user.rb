@@ -6,9 +6,18 @@ class User < ActiveRecord::Base
   has_many :posts
   has_many :votes
 
+  def delete_account
+    self.deleted = true
+    self.save!
+  end
+
   def verify_email
     self.verify_token = nil
-    self.verified = true;
+    self.verified = true
+    if self.deleted
+      self.deleted = false
+      self.send_reset_password()
+    end
     self.save!
   end
 
@@ -95,13 +104,24 @@ MESSAGE_END
     end
   end
 
+  def reactivate_account
+      verification_token
+      self.save
+      self.send_registration_verification()
+  end
+
   def self.create_with_omniauth(auth)
     user = nil
     email = auth["info"]["email"]
     check_user = User.find_by_email(email)
     check_user || check_user = User.find_by_username(auth["info"]["name"]) 
-    if !check_user.nil? && check_user.provider != auth['provider']
+    if !check_user.nil? && check_user.provider != auth['provider'] && !check_user.deleted
       raise "Email or username is already in use."   
+    end
+    
+    if check_user.deleted
+      check_user.reactivate_account
+      raise "This account has been deleted. We have sent you a verification email to re-enable your account."
     end
 
     if auth["provider"] == "facebook"

@@ -97,7 +97,7 @@ MESSAGE_END
   end
 
   def authenticate(password) 
-    if BCrypt::Engine.hash_secret(password, self.password_salt) == self.password
+    if !self.password_salt.nil? && BCrypt::Engine.hash_secret(password, self.password_salt) == self.password
       true
     else
       false

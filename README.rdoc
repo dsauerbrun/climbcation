@@ -7,3 +7,5 @@ you'll eventually run into a libv8 install error when running bundle install at 
 
 once you have v8 installed you'll get another error when bundle installing, install rubyracer with: gem install therubyracer -- --with-v8-dir=/usr/local/opt/v8
 
+
+To Run: thin -D --ssl start

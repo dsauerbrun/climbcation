@@ -9,3 +9,6 @@ once you have v8 installed you'll get another error when bundle installing, inst
 
 
 To Run: thin -D --ssl start
+
+if DATABASE_URL environment variable exists, rails will try to connect using
+that connection as opposed to whatever is in database.yml
